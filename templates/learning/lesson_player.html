@@ -43,13 +43,7 @@
 
             {% if lesson.lesson_type == 'video' and lesson.playable_video_url %}
 
-            <div class="rounded-2xl overflow-hidden bg-black aspect-video mb-3 shadow-lg">
-
-                <video id="lesson-video" controls class="w-full h-full" poster="{{ lesson.thumbnail_url }}"
-
-                       src="{{ lesson.playable_video_url }}" data-lesson-id="{{ lesson.id }}"></video>
-
-            </div>
+            {% include "partials/video_player.html" with video_src=lesson.playable_video_url poster=lesson.thumbnail_url duration=lesson.duration_minutes lesson_id=lesson.id video_id="lesson-video" %}
 
             <div class="flex flex-wrap gap-2 mb-5">
 
@@ -283,28 +277,33 @@ function saveProgress(el, seconds) {
 
 }
 
-(function() {
-
-    var video = document.getElementById('lesson-video');
-
-    if (video) {
-
-        var saved = {{ progress.watched_seconds|default:0 }};
-
+function startLessonVideo(id) {
+    var video = document.getElementById(id);
+    if (!video) return;
+    var overlay = video.parentElement.querySelector('.video-play-overlay');
+    if (!video.src && video.dataset.videoSrc) {
+        video.src = video.dataset.videoSrc;
+        video.preload = 'metadata';
+    }
+    if (overlay) overlay.remove();
+    var saved = {{ progress.watched_seconds|default:0 }};
+    video.addEventListener('loadedmetadata', function onMeta() {
         if (saved > 0) video.currentTime = saved;
+        video.removeEventListener('loadedmetadata', onMeta);
+    });
+    video.play();
+    var lastSaved = 0;
+    video.addEventListener('timeupdate', function() {
+        var cur = Math.floor(video.currentTime);
+        if (cur - lastSaved >= 10) { lastSaved = cur; saveProgress(video, cur); }
+    });
+    video.addEventListener('ended', function() { saveProgress(video, video.duration || {{ lesson.duration_minutes }} * 60); });
+}
 
-        var lastSaved = 0;
-
-        video.addEventListener('timeupdate', function() {
-
-            var cur = Math.floor(video.currentTime);
-
-            if (cur - lastSaved >= 10) { lastSaved = cur; saveProgress(video, cur); }
-
-        });
-
-        video.addEventListener('ended', function() { saveProgress(video, video.duration || {{ lesson.duration_minutes }} * 60); });
-
+(function() {
+    var video = document.getElementById('lesson-video');
+    if (video && video.src) {
+        startLessonVideo('lesson-video');
     }
 
     var audio = document.getElementById('lesson-audio');

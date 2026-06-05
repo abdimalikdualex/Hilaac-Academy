@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 
 from apps.assessments.models import Assignment, AssignmentSubmission, Quiz, QuizAttempt
 from apps.certificates.models import Certificate
-from apps.core.dashboard_helpers import student_dashboard_context
+from apps.core.dashboard_helpers import student_dashboard_context, student_dashboard_stats
 from apps.core.permissions import student_required
 from apps.core.roles import role_dashboard_url
 from apps.courses.access import get_course_access
@@ -21,6 +21,11 @@ from .forms import ProfileForm
 @student_required
 def dashboard(request):
     return render(request, "student/dashboard.html", student_dashboard_context(request.user))
+
+
+@student_required
+def dashboard_stats_partial(request):
+    return render(request, "student/partials/dashboard_stats.html", student_dashboard_stats(request.user))
 
 
 @student_required
@@ -120,14 +125,20 @@ def certificates(request):
 
 @student_required
 def library(request):
-    resources = LibraryResource.objects.filter(is_published=True).order_by("-created_at")
-    return render(request, "student/library.html", {"resources": resources})
+    from apps.core.pagination import DEFAULT_PAGE_SIZE, paginate_queryset
+
+    resources = LibraryResource.objects.filter(is_published=True).select_related("language").order_by("-created_at")
+    page = paginate_queryset(request, resources, per_page=DEFAULT_PAGE_SIZE)
+    return render(request, "student/library.html", {"resources": page, "page": page})
 
 
 @student_required
 def notifications(request):
-    notes = Notification.objects.filter(user=request.user)
-    return render(request, "student/notifications.html", {"notifications": notes})
+    from apps.core.pagination import NOTIFICATION_PAGE_SIZE, paginate_queryset
+
+    notes = Notification.objects.filter(user=request.user).order_by("-created_at")
+    page = paginate_queryset(request, notes, per_page=NOTIFICATION_PAGE_SIZE)
+    return render(request, "student/notifications.html", {"notifications": page, "page": page})
 
 
 @student_required

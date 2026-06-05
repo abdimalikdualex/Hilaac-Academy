@@ -1,0 +1,11 @@
+{% if page.has_other_pages %}
+<nav class="flex justify-center items-center gap-2 mt-8" aria-label="Pagination">
+    {% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}{% if level_filter %}&level={{ level_filter }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">Previous</a>
+    {% endif %}
+    <span class="text-sm text-slate-500">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+    <a href="?page={{ page.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}{% if level_filter %}&level={{ level_filter }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">Next</a>
+    {% endif %}
+</nav>
+{% endif %}

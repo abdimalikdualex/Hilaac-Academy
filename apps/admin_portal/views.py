@@ -117,11 +117,19 @@ def dashboard(request):
 # --- Students ---
 @super_admin_required
 def student_list(request):
+    from apps.core.pagination import ADMIN_PAGE_SIZE, paginate_queryset
+
     q = request.GET.get("q", "")
     students = User.objects.filter(role=User.Role.STUDENT)
     if q:
-        students = students.filter(Q(username__icontains=q) | Q(email__icontains=q) | Q(email__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q))
-    return render(request, "admin_portal/students/list.html", {"students": students.order_by("-date_joined"), "q": q})
+        students = students.filter(
+            Q(username__icontains=q)
+            | Q(email__icontains=q)
+            | Q(first_name__icontains=q)
+            | Q(last_name__icontains=q)
+        )
+    page = paginate_queryset(request, students.order_by("-date_joined"), per_page=ADMIN_PAGE_SIZE)
+    return render(request, "admin_portal/students/list.html", {"students": page, "page": page, "q": q})
 
 
 @super_admin_required
@@ -603,8 +611,11 @@ def settings_view(request):
 
 @super_admin_required
 def notification_list(request):
-    notifications = Notification.objects.select_related("user").order_by("-created_at")[:100]
-    return render(request, "admin_portal/notifications/list.html", {"notifications": notifications})
+    from apps.core.pagination import NOTIFICATION_PAGE_SIZE, paginate_queryset
+
+    notifications = Notification.objects.select_related("user").order_by("-created_at")
+    page = paginate_queryset(request, notifications, per_page=NOTIFICATION_PAGE_SIZE)
+    return render(request, "admin_portal/notifications/list.html", {"notifications": page, "page": page})
 
 
 # --- Delete (super admin can remove anything) ---

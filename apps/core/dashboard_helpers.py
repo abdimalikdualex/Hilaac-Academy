@@ -32,13 +32,35 @@ def compute_learning_streak(student):
     return streak
 
 
+def student_dashboard_stats(user):
+    """Lightweight stats block — loaded async on the student dashboard."""
+    progress_qs = LessonProgress.objects.filter(student=user, is_completed=True)
+    total_watch_seconds = LessonProgress.objects.filter(student=user).values_list("watched_seconds", flat=True)
+    purchase_totals = revenue_totals(
+        Payment.objects.filter(student=user, status=Payment.Status.COMPLETED)
+    )
+    active = Enrollment.objects.filter(student=user, status=Enrollment.Status.ACTIVE)
+    active_list = list(active.select_related("level", "level__language"))
+    progresses = [e.progress_percentage for e in active_list]
+    avg_progress = round(sum(progresses) / len(progresses)) if progresses else 0
+
+    return {
+        "purchase_totals": purchase_totals,
+        "active_enrollments": active_list,
+        "lessons_completed": progress_qs.count(),
+        "assessments_passed": QuizAttempt.objects.filter(student=user, passed=True).count(),
+        "certificates_count": Certificate.objects.filter(student=user).count(),
+        "hours_studied": round(sum(total_watch_seconds) / 3600, 1),
+        "learning_streak": compute_learning_streak(user),
+        "avg_course_progress": avg_progress,
+    }
+
+
 def student_dashboard_context(user):
     enrollments = Enrollment.objects.filter(student=user).select_related("level", "level__language")
     active = enrollments.filter(status=Enrollment.Status.ACTIVE)
     completed = enrollments.filter(status=Enrollment.Status.COMPLETED)
-    progress_qs = LessonProgress.objects.filter(student=user, is_completed=True)
     quiz_attempts = QuizAttempt.objects.filter(student=user).select_related("quiz").order_by("-completed_at")[:10]
-    assessments_passed = QuizAttempt.objects.filter(student=user, passed=True).count()
     certificates = Certificate.objects.filter(student=user)
 
     activities = []
@@ -53,28 +75,14 @@ def student_dashboard_context(user):
         activities.append({"type": "certificate", "text": f"Earned certificate for {c.level.name}", "date": c.issued_at})
     activities.sort(key=lambda x: x["date"], reverse=True)
 
-    total_watch_seconds = LessonProgress.objects.filter(student=user).values_list("watched_seconds", flat=True)
     active_list = list(active)
-    progresses = [e.progress_percentage for e in active_list]
-    avg_progress = round(sum(progresses) / len(progresses)) if progresses else 0
-
-    purchase_totals = revenue_totals(
-        Payment.objects.filter(student=user, status=Payment.Status.COMPLETED)
-    )
 
     return {
-        "purchase_totals": purchase_totals,
         "active_enrollments": active_list,
         "completed_enrollments": completed,
         "pending_payments": Payment.objects.filter(
             student=user, status=Payment.Status.PENDING
         ).exclude(level_id__in=enrollments.values_list("level_id", flat=True)).select_related("level")[:5],
-        "lessons_completed": progress_qs.count(),
-        "assessments_passed": assessments_passed,
-        "certificates_count": certificates.count(),
-        "hours_studied": round(sum(total_watch_seconds) / 3600, 1),
-        "learning_streak": compute_learning_streak(user),
-        "avg_course_progress": round(avg_progress),
         "recent_notifications": Notification.objects.filter(user=user)[:5],
         "certificates": certificates[:3],
         "quiz_attempts": quiz_attempts,

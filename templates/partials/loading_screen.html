@@ -1,11 +1,6 @@
-<div id="brand-loading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary-900 text-white transition-opacity duration-500" aria-live="polite" aria-label="Loading">
-    <div class="logo-float mb-6">
-        {% load static %}
-        <img src="{% static 'images/logo.png' %}" alt="Hilaac Academy" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto object-contain rounded-full shadow-lg" width="96" height="96">
-    </div>
+<div id="brand-loading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary-900 text-white transition-opacity duration-300" aria-live="polite" aria-label="Loading">
+    {% load static %}
+    <img src="{% static 'images/logo.png' %}" alt="Hilaac Academy" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto object-contain rounded-full shadow-lg mb-6" width="96" height="96">
     <p class="text-lg font-semibold tracking-wide mb-1">Hilaac Academy</p>
-    <p class="text-sm text-slate-400 mb-6">Baro Xirfado Casri ah, Dhis Mustaqbalkaaga</p>
-    <div class="w-48 h-1 rounded-full bg-slate-800 overflow-hidden">
-        <div class="brand-loading-bar h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full"></div>
-    </div>
+    <p class="text-sm text-slate-400">Loading...</p>
 </div>

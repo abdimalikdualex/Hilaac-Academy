@@ -9,7 +9,6 @@
 {% block content %}
 
 <div class="relative library-bg min-h-[70vh]">
-    <div class="absolute inset-0 bg-cover bg-center opacity-[0.08]" style="background-image: url('{{ hero_background_url }}');" aria-hidden="true"></div>
     {% include "partials/watermark.html" with position="bottom-right" %}
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-8">
@@ -87,6 +86,8 @@
         {% endfor %}
 
     </div>
+
+    {% include "partials/pagination.html" %}
 
     </div>
 

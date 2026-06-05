@@ -79,12 +79,20 @@ class Level(TimeStampedModel):
             self.price = 0
         super().save(*args, **kwargs)
         if self.thumbnail or self.banner:
-            from apps.core.imaging import COVER_MAX_SIZE, optimize_image_field
+            from apps.core.imaging import IMAGE_PRESETS, optimize_image_field
 
             if self.thumbnail:
-                optimize_image_field(self.thumbnail, max_size=COVER_MAX_SIZE)
+                optimize_image_field(
+                    self.thumbnail,
+                    max_size=IMAGE_PRESETS["course_cover"]["full"],
+                    preset="course_cover",
+                )
             if self.banner:
-                optimize_image_field(self.banner, max_size=(1920, 480))
+                optimize_image_field(
+                    self.banner,
+                    max_size=IMAGE_PRESETS["dashboard_banner"]["full"],
+                    preset="dashboard_banner",
+                )
 
     def __str__(self):
         return f"{self.language.name} - {self.name}"
@@ -245,9 +253,13 @@ class Lesson(TimeStampedModel):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.thumbnail:
-            from apps.core.imaging import THUMB_MAX_SIZE, optimize_image_field
+            from apps.core.imaging import IMAGE_PRESETS, optimize_image_field
 
-            optimize_image_field(self.thumbnail, max_size=THUMB_MAX_SIZE)
+            optimize_image_field(
+                self.thumbnail,
+                max_size=IMAGE_PRESETS["thumbnail"]["full"],
+                preset="thumbnail",
+            )
 
     def __str__(self):
         return self.title

@@ -1,10 +1,9 @@
 {% extends "base.html" %}
-{% load ha_icons currency_tags %}
+{% load ha_icons currency_tags performance_tags %}
 {% block title %}Courses - Hilaac Academy{% endblock %}
 
 {% block content %}
 <section class="relative overflow-hidden bg-primary-900 text-white mb-8">
-    <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('{{ hero_background_url }}');" aria-hidden="true"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-[#0B1736]/95 via-[#1E4D8F]/88 to-[#0B1736]/90" aria-hidden="true"></div>
     <div class="relative max-w-7xl mx-auto px-4 py-12">
         <h1 class="text-3xl md:text-4xl font-bold mb-2">Language Courses</h1>
@@ -27,9 +26,9 @@
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for card in course_cards %}
         {% with level=card.level access=card.access %}
-        <div class="group rounded-2xl overflow-hidden shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-2xl transition-shadow duration-300">
+        <div class="group rounded-2xl overflow-hidden shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow duration-300">
             <a href="{{ level.get_absolute_url }}" class="block relative aspect-video overflow-hidden">
-                <img src="{{ level.cover_url }}" alt="{{ level.name }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                {% responsive_image level.thumbnail preset="course_cover" alt=level.name css_class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" %}
                 <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 text-primary-700">{{ level.language.name }}</span>
                 <span class="absolute top-3 right-3">{% include "partials/course_status_badge.html" %}</span>
                 {% if level.has_preview %}<span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500 text-white inline-flex items-center gap-1">{% ha_icon "play" size=12 class_name="text-white fill-white" %} Preview</span>{% endif %}
@@ -39,7 +38,7 @@
                 <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">{{ level.description|truncatewords:15|default:"Baro xirfado luuqadeed casri ah." }}</p>
                 <div class="flex justify-between items-center mb-4 text-sm text-slate-500">
                     <span class="inline-flex items-center gap-1">{% ha_icon "clock" size=14 %} {{ level.duration_weeks }} weeks</span>
-                    <span class="inline-flex items-center gap-1">{% ha_icon "video" size=14 %} {{ level.total_lessons }} lessons</span>
+                    <span class="inline-flex items-center gap-1">{% ha_icon "video" size=14 %} {{ level.published_lesson_count|default:level.total_lessons }} lessons</span>
                 </div>
                 <div class="flex justify-between items-center mb-4">
                     {% price_display level size="md" %}
@@ -71,5 +70,7 @@
         {% empty_state "courses" "No courses found" "Try adjusting your search or filters." %}
         {% endfor %}
     </div>
+
+    {% include "partials/pagination.html" %}
 </div>
 {% endblock %}

@@ -1,0 +1,19 @@
+{% load ha_icons %}
+{% if purchase_totals.total_usd %}
+<div class="mb-6 p-4 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+    <div>
+        <div class="text-sm text-slate-500">Total Purchases</div>
+        <div class="text-xl font-bold text-primary-700">{{ purchase_totals.kes_formatted }}</div>
+    </div>
+    <div class="text-sm text-slate-500">Equivalent: <span class="font-semibold text-slate-700">{{ purchase_totals.usd_formatted }}</span></div>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-100"><div class="flex items-center justify-between mb-2">{% ha_icon "book-open" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-600">{{ active_enrollments|length }}</div></div><div class="text-xs text-slate-500">Active Courses</div></div>
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-100"><div class="flex items-center justify-between mb-2">{% ha_icon "trending-up" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-600">{{ avg_course_progress }}%</div></div><div class="text-xs text-slate-500">Course Progress</div></div>
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-100"><div class="flex items-center justify-between mb-2">{% ha_icon "video" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-600">{{ lessons_completed }}</div></div><div class="text-xs text-slate-500">Lessons Done</div></div>
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-100"><div class="flex items-center justify-between mb-2">{% ha_icon "help-circle" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-600">{{ assessments_passed }}</div></div><div class="text-xs text-slate-500">Quizzes Passed</div></div>
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-100"><div class="flex items-center justify-between mb-2">{% ha_icon "graduation-cap" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-600">{{ certificates_count }}</div></div><div class="text-xs text-slate-500">Certificates</div></div>
+    <div class="p-4 rounded-xl bg-white shadow-sm border border-slate-100"><div class="flex items-center justify-between mb-2">{% ha_icon "flame" size=18 class_name="text-amber-500" %}<div class="text-2xl font-bold text-amber-600">{{ learning_streak }}</div></div><div class="text-xs text-slate-500">Day Streak</div></div>
+</div>

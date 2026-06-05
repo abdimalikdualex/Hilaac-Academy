@@ -1,0 +1,14 @@
+{% load ha_icons %}
+<div class="rounded-2xl overflow-hidden bg-black aspect-video mb-3 shadow-lg relative group" id="video-wrap-{{ video_id|default:'lesson-video' }}">
+    <video id="{{ video_id|default:'lesson-video' }}" controls class="w-full h-full" preload="none"
+           {% if poster %}poster="{{ poster }}"{% endif %}
+           data-video-src="{{ video_src }}"
+           data-lesson-id="{{ lesson_id }}"></video>
+    <button type="button" class="video-play-overlay absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-2 bg-black/30 hover:bg-black/40 transition"
+            aria-label="Play video" onclick="startLessonVideo('{{ video_id|default:'lesson-video' }}')">
+        <span class="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+            {% ha_icon "play" size=32 class_name="text-primary-600 fill-primary-600 ml-1" %}
+        </span>
+        {% if duration %}<span class="text-white text-sm font-medium">{{ duration }} min</span>{% endif %}
+    </button>
+</div>

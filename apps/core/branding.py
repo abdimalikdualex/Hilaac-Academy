@@ -3,8 +3,9 @@ from django.contrib.staticfiles import finders
 from django.templatetags.static import static
 
 HERO_BACKGROUND_CANDIDATES = (
-    "images/hero-4k.webp",
+    "images/hero-full.webp",
     "images/hero.webp",
+    "images/hero-tablet.webp",
     "images/hero.png",
     "images/hero.jpg",
     "images/hero.jpeg",
@@ -21,15 +22,16 @@ def resolve_hero_background_url():
 
 
 def resolve_hero_srcset():
-    """Responsive hero sources: mobile/tablet/desktop (4K on large screens)."""
-    sources = {
+    """Responsive hero sources capped at 1920x1080 — no 4K delivery."""
+    fallback = static("images/hero.webp") if finders.find("images/hero.webp") else resolve_hero_background_url()
+    tablet = static("images/hero-tablet.webp") if finders.find("images/hero-tablet.webp") else fallback
+    desktop = static("images/hero-full.webp") if finders.find("images/hero-full.webp") else fallback
+    if finders.find("images/hero-4k.webp") and not finders.find("images/hero-full.webp"):
+        desktop = static("images/hero-4k.webp")
+    return {
         "default": resolve_hero_background_url(),
-        "tablet": static("images/hero-tablet.webp") if finders.find("images/hero-tablet.webp") else None,
-        "desktop_4k": static("images/hero-4k.webp") if finders.find("images/hero-4k.webp") else None,
-        "fallback": static("images/hero.webp") if finders.find("images/hero.webp") else resolve_hero_background_url(),
+        "tablet": tablet,
+        "desktop": desktop,
+        "desktop_4k": desktop,
+        "fallback": fallback,
     }
-    if not sources["tablet"]:
-        sources["tablet"] = sources["fallback"]
-    if not sources["desktop_4k"]:
-        sources["desktop_4k"] = sources["fallback"]
-    return sources

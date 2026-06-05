@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load ha_icons currency_tags %}
+{% load ha_icons currency_tags performance_tags %}
 {% block title %}{{ level.name }} - Hilaac Academy{% endblock %}
 
 {% block content %}
@@ -8,7 +8,7 @@
 <section class="relative bg-primary-900 text-white overflow-hidden">
     {% include "partials/watermark.html" with position="center" %}
     <div class="absolute inset-0">
-        <img src="{{ level.banner_url }}" alt="" class="w-full h-full object-cover opacity-20">
+        {% if level.banner %}{% responsive_image level.banner preset="dashboard_banner" alt="" css_class="w-full h-full object-cover opacity-20" loading="lazy" %}{% endif %}
         <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/70"></div>
     </div>
     <div class="relative max-w-6xl mx-auto px-4 py-10 grid lg:grid-cols-3 gap-8">

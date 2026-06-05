@@ -12,4 +12,5 @@
     {% load ha_icons %}{% empty_state "notifications" "No notifications yet" "When you receive updates about courses, payments, or assignments, they will appear here." %}
     {% endfor %}
 </div>
+{% include "partials/pagination.html" %}
 {% endblock %}

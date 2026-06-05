@@ -94,10 +94,11 @@
 
 
 
-  .brand-loading-bar {
-
-    animation: loadingBar 1.4s ease-in-out infinite;
-
+  .skeleton-shimmer {
+    @apply bg-slate-200 rounded;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
   }
 
 
@@ -369,24 +370,9 @@
 
 
 
-@keyframes logoFloat {
-
-  0%, 100% { transform: translateY(0); }
-
-  50% { transform: translateY(-8px); }
-
-}
-
-
-
-@keyframes loadingBar {
-
-  0% { width: 0; margin-left: 0; }
-
-  50% { width: 70%; margin-left: 15%; }
-
-  100% { width: 0; margin-left: 100%; }
-
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 
@@ -403,16 +389,10 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-  .logo-float,
-
   .animate-fade-in,
-
-  .brand-loading-bar,
-
+  .skeleton-shimmer,
   .hero-premium__content {
-
     animation: none !important;
-
   }
 
 }

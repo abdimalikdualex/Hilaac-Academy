@@ -152,11 +152,23 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 524288000
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+_REDIS_URL = config("REDIS_URL", default="") or config("CELERY_BROKER_URL", default="")
+if _REDIS_URL and not config("USE_LOC_MEM_CACHE", default=False, cast=bool):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": _REDIS_URL,
+            "KEY_PREFIX": "hilaac",
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
 
 # Auth redirects
 LOGIN_URL = "accounts:login"

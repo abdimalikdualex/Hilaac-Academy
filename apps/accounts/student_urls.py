@@ -6,6 +6,7 @@ app_name = "student"
 
 urlpatterns = [
     path("", v.dashboard, name="dashboard"),
+    path("dashboard-stats/", v.dashboard_stats_partial, name="dashboard_stats"),
     path("courses/", v.my_courses, name="courses"),
     path("continue/", v.continue_learning, name="continue"),
     path("assignments/", v.assignments, name="assignments"),

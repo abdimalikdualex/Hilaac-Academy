@@ -21,8 +21,9 @@
             <td class="p-3">{{ s.date_joined|date:"M d, Y" }}</td>
             <td class="p-3 space-x-2"><a href="{% url 'admin_portal:student_detail' pk=s.pk %}" class="text-primary-600 hover:underline">View</a><a href="{% url 'admin_portal:student_delete' pk=s.pk %}" class="text-red-600 hover:underline">Delete</a></td>
         </tr>
-        {% empty %}<tr><td colspan="5" class="p-6 text-center text-slate-500">No students found.</td></tr>{% endfor %}
+        {% empty %}<tr><td colspan="5" class="p-6 text-center text-slate-500">No students found.</td></tr>        {% endfor %}
         </tbody>
     </table>
 </div>
+{% include "partials/pagination.html" %}
 {% endblock %}
