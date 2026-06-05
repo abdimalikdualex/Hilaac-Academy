@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,8 +81,18 @@ TEMPLATES = [
 WSGI_APPLICATION = "hilaac_academy.wsgi.application"
 
 USE_SQLITE = config("USE_SQLITE", default=False, cast=bool)
+DATABASE_URL = os.environ.get("DATABASE_URL") or config("DATABASE_URL", default="")
 
-if USE_SQLITE:
+if DATABASE_URL:
+    # Render and other PaaS providers inject DATABASE_URL for managed PostgreSQL.
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif USE_SQLITE:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
