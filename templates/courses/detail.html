@@ -15,7 +15,7 @@
         <div class="lg:col-span-2">
             <div class="flex items-center gap-3 mb-4">
                 {% load static %}
-                <img src="{% static 'images/logo.png' %}" alt="Hilaac Academy" class="h-9 w-9 object-contain rounded-full" width="36" height="36" loading="eager" decoding="sync">
+                <img src="{% static 'images/logo-nav.webp' %}" alt="Hilaac Academy" class="h-9 w-9 object-contain rounded-full" width="36" height="36" loading="eager" decoding="sync">
                 <span class="text-xs font-semibold tracking-widest text-amber-400 uppercase">Hilaac Academy</span>
             </div>
             <div class="flex flex-wrap items-center gap-2 text-sm mb-3">
@@ -43,7 +43,7 @@
                     <div class="text-slate-400">Instructor</div>
                     <div class="font-semibold">{{ level.instructor.get_full_name|default:level.instructor.username }}</div>
                 </div>
-                <img src="{% static 'images/logo.png' %}" alt="" class="h-8 w-8 opacity-50 object-contain rounded-full hidden sm:block" aria-hidden="true" loading="eager" decoding="sync">
+                <img src="{% static 'images/logo-nav.webp' %}" alt="" class="h-8 w-8 opacity-50 object-contain rounded-full hidden sm:block" aria-hidden="true" loading="eager" decoding="sync">
             </div>
             {% endif %}
         </div>

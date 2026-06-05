@@ -1,7 +1,19 @@
 {% load static %}
 <a href="{% url 'cms:home' %}" class="inline-flex items-center gap-2.5 flex-shrink-0 group {{ wrapper_class|default:'' }}" aria-label="Hilaac Academy — Home">
     <span class="rounded-full overflow-hidden flex-shrink-0 {{ bg_class|default:'' }} {{ pad_class|default:'' }}">
-        <img src="{% static 'images/logo.png' %}" alt="Hilaac Academy" class="{{ img_class|default:'h-10 w-10' }} object-contain object-center" width="80" height="80" loading="eager" decoding="sync" fetchpriority="high">
+        <picture>
+            <source srcset="{% static 'images/logo-nav.webp' %}" type="image/webp">
+            <img
+                src="{% static 'images/logo-nav.png' %}"
+                alt="Hilaac Academy"
+                class="site-logo-img {{ img_class|default:'h-10 w-10' }} object-contain object-center"
+                width="44"
+                height="44"
+                loading="eager"
+                decoding="sync"
+                fetchpriority="high"
+            >
+        </picture>
     </span>
     {% if show_name|default:False %}
     <span class="flex flex-col leading-tight {{ text_class|default:'' }}">

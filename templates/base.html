@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load ha_icons %}
+{% load ha_icons static %}
 <html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
@@ -8,9 +8,10 @@
     <meta name="theme-color" content="#1E4D8F">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="icon" type="image/png" href="/static/images/favicon.png">
-    <link rel="preload" as="image" href="/static/images/logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="{% static 'images/logo-nav.webp' %}" type="image/webp" fetchpriority="high">
     <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
     <title>{% block title %}Hilaac Academy{% endblock %}</title>
+    <style>.site-logo-img{display:block;object-fit:contain}</style>
     <link rel="stylesheet" href="/static/css/tailwind.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

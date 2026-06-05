@@ -2,10 +2,6 @@
 {% load static ha_icons currency_tags performance_tags %}
 {% block title %}Hilaac Academy - Learn English & Kiswahili Online{% endblock %}
 
-{% block extra_head %}
-<link rel="preload" as="image" href="{{ hero_srcset.fallback }}" fetchpriority="high">
-{% endblock %}
-
 {% block content %}
 <!-- HERO — full-screen with 4K photo background -->
 <section class="relative flex items-center justify-center overflow-hidden bg-[#0B1736] text-white min-h-[70vh] md:min-h-[80vh] lg:min-h-[95vh]">
@@ -19,7 +15,8 @@
             class="h-full w-full object-cover object-center"
             width="1920"
             height="1080"
-            fetchpriority="high"
+            loading="lazy"
+            fetchpriority="low"
             decoding="async"
         >
     </picture>

@@ -1,5 +1,12 @@
-const CACHE_NAME = 'hilaac-v2';
-const OFFLINE_URLS = ['/', '/courses/', '/static/manifest.json'];
+const CACHE_NAME = 'hilaac-v3';
+const OFFLINE_URLS = [
+    '/',
+    '/courses/',
+    '/static/manifest.json',
+    '/static/images/logo-nav.webp',
+    '/static/images/logo-nav.png',
+    '/static/images/favicon.png',
+];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
