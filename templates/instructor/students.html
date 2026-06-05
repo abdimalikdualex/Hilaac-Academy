@@ -1,0 +1,44 @@
+{% extends "instructor/base.html" %}
+{% block title %}Students - {{ level.name }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <a href="{% url 'instructor:level' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">&larr; {{ level.name }}</a>
+    <h1 class="text-2xl font-bold mt-2 mb-1">Enrolled Students</h1>
+    <p class="text-slate-500 mb-6">{{ analytics.student_count }} students · {{ analytics.completion_rate }}% completion rate · {{ analytics.avg_progress }}% avg progress</p>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow border overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-900/50 text-left">
+                <tr>
+                    <th class="px-4 py-3">Student</th>
+                    <th class="px-4 py-3">Enrolled</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Progress</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                {% for e in enrollments %}
+                <tr>
+                    <td class="px-4 py-3">
+                        <div class="font-medium">{{ e.student.get_full_name|default:e.student.username }}</div>
+                        <div class="text-xs text-slate-500">{{ e.student.email }}</div>
+                    </td>
+                    <td class="px-4 py-3 text-slate-500">{{ e.enrolled_at|date:"M j, Y" }}</td>
+                    <td class="px-4 py-3">{{ e.get_status_display }}</td>
+                    <td class="px-4 py-3 w-48">
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-primary-600" style="width: {{ e.progress_percentage }}%"></div>
+                            </div>
+                            <span class="text-xs text-slate-500">{{ e.progress_percentage }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No students enrolled yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

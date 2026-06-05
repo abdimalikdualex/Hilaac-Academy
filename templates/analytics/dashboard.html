@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - Hilaac Academy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Admin Dashboard</h1>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ total_students }}</div><div class="text-sm text-slate-500">Students</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ total_courses }}</div><div class="text-sm text-slate-500">Courses</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ total_enrollments }}</div><div class="text-sm text-slate-500">Enrollments</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-green-600">{{ completed_enrollments }}</div><div class="text-sm text-slate-500">Completed</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ completion_rate }}%</div><div class="text-sm text-slate-500">Completion Rate</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ total_certificates }}</div><div class="text-sm text-slate-500">Certificates</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-green-600">KES {{ revenue }}</div><div class="text-sm text-slate-500">Total Revenue</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-yellow-600">{{ pending_payments }}</div><div class="text-sm text-slate-500">Pending</div></div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div>
+            <h2 class="text-xl font-bold mb-4">Popular Courses</h2>
+            <div class="space-y-3">
+                {% for course in popular_courses %}
+                <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border flex justify-between">
+                    <span>{{ course.language.name }} - {{ course.name }}</span>
+                    <span class="font-semibold text-primary-600">{{ course.enrolled_count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold mb-4">Recent Enrollments</h2>
+            <div class="space-y-3">
+                {% for e in recent_enrollments %}
+                <div class="p-4 rounded-xl bg-white dark:bg-slate-800 border">
+                    <div class="font-semibold">{{ e.student.get_full_name|default:e.student.username }}</div>
+                    <div class="text-sm text-slate-500">{{ e.level.name }} · {{ e.enrolled_at|date:"M d, Y" }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold mb-4">Pending Payments</h2>
+            <div class="space-y-3">
+                {% for p in pending_payment_list %}
+                <div class="p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+                    <div class="font-semibold">{{ p.student.username }}</div>
+                    <div class="text-sm">{{ p.level.name }} · KES {{ p.amount }}</div>
+                    <div class="text-xs text-slate-500">{{ p.get_method_display }} · {{ p.reference|default:"No ref" }}</div>
+                </div>
+                {% empty %}
+                <p class="text-slate-500 text-sm">No pending payments.</p>
+                {% endfor %}
+            </div>
+            <p class="text-sm text-slate-500 mt-4">Monthly revenue: <strong>KES {{ monthly_revenue }}</strong></p>
+        </div>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-4">
+        <a href="{% url 'courses_manage:list' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700">{% load ha_icons %}{% ha_icon "video" size=18 %} Upload Videos & Manage Courses</a>
+        <a href="/admin/" class="px-6 py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-700">Django Admin</a>
+        <a href="/admin/payments/payment/" class="px-6 py-3 border border-primary-600 text-primary-600 rounded-xl hover:bg-primary-50 dark:hover:bg-primary-900/20">Verify Payments</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "student/base.html" %}
+{% block title %}Receipt — {{ payment.receipt_number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div class="bg-primary-600 text-white p-6 text-center">
+            <div class="text-sm opacity-80">Hilaac Academy</div>
+            <h1 class="text-2xl font-bold mt-1">Payment Receipt</h1>
+        </div>
+        <div class="p-6 space-y-3 text-sm">
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Receipt No</span><span class="font-mono font-semibold">{{ payment.receipt_number }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Date</span><span>{{ payment.verified_at|default:payment.created_at|date:"M d, Y H:i" }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Student</span><span>{{ payment.student.get_full_name|default:payment.student.username }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Course</span><span class="text-right">{{ payment.level.name }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Amount Paid</span><span class="font-bold text-primary-600">KES {{ payment.amount }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Payment Method</span><span>{{ payment.get_method_display }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Transaction ID</span><span class="font-mono text-xs">{{ payment.transaction_id|default:payment.checkout_request_id|default:"—" }}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Status</span><span class="font-semibold text-green-600">{{ payment.get_status_display }}</span></div>
+        </div>
+        {% if payment.status == 'completed' %}
+        <div class="p-4 border-t flex gap-3">
+            <a href="{% url 'payments:download_receipt' payment_id=payment.id %}" class="flex-1 text-center py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Download PDF</a>
+            <a href="{% url 'learning:course_view' level_id=payment.level.id %}" class="flex-1 text-center py-2.5 border rounded-lg hover:bg-slate-50">Go to Course</a>
+        </div>
+        {% endif %}
+    </div>
+    <a href="{% url 'payments:history' %}" class="block text-center mt-4 text-sm text-primary-600 hover:underline">← Payment History</a>
+</div>
+{% endblock %}

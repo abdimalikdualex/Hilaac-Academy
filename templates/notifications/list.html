@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Notifications - Hilaac Academy{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Notifications</h1>
+    <div class="space-y-3">
+        {% for n in notifications %}
+        <a href="{% url 'notifications:mark_read' pk=n.pk %}" class="block p-4 rounded-xl {% if n.is_read %}bg-slate-50 dark:bg-slate-800/50{% else %}bg-white dark:bg-slate-800 border-l-4 border-primary-500 shadow{% endif %} border border-slate-200 dark:border-slate-700 hover:border-primary-400 transition">
+            <div class="text-sm">{{ n.message }}</div>
+            <div class="text-xs text-slate-500 mt-1">{{ n.created_at|timesince }} ago</div>
+        </a>
+        {% empty %}
+        {% load ha_icons %}{% empty_state "notifications" "No notifications yet" "Updates about your courses and account will appear here." %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

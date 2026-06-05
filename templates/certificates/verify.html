@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load ha_icons %}
+{% block title %}Certificate Verification - Hilaac Academy{% endblock %}
+
+{% block content %}
+<section class="relative min-h-[60vh] flex items-center justify-center px-4 py-16 overflow-hidden">
+    {% include "partials/watermark.html" with position="center" %}
+    <div class="relative z-10 w-full max-w-lg mx-auto text-center">
+        {% include "partials/logo.html" with show_name=False img_class="h-20 w-20 mx-auto" wrapper_class="justify-center mb-6" %}
+        {% if is_valid %}
+        <div class="flex justify-center mb-4">{% ha_icon "check-circle" size=64 class_name="text-green-600" %}</div>
+        <h1 class="text-2xl font-bold text-green-600 mb-4">Valid Certificate</h1>
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border text-left space-y-3">
+            <div><span class="text-slate-500 text-sm">Certificate ID</span><div class="font-mono font-semibold">{{ certificate.certificate_id }}</div></div>
+            <div><span class="text-slate-500 text-sm">Student</span><div class="font-semibold">{{ certificate.student.get_full_name }}</div></div>
+            <div><span class="text-slate-500 text-sm">Course</span><div class="font-semibold">{{ certificate.level.language.name }} - {{ certificate.level.name }}</div></div>
+            <div><span class="text-slate-500 text-sm">Issued</span><div>{{ certificate.issued_at|date:"F d, Y" }}</div></div>
+        </div>
+        {% else %}
+        <div class="flex justify-center mb-4">{% ha_icon "x-circle" size=64 class_name="text-red-600" %}</div>
+        <h1 class="text-2xl font-bold text-red-600 mb-4">Invalid Certificate</h1>
+        <p class="text-slate-600 dark:text-slate-400">Certificate ID <code class="font-mono">{{ certificate_id }}</code> was not found in our records.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

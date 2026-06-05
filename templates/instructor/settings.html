@@ -1,0 +1,10 @@
+{% extends "instructor/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Settings</h1>
+<div class="bg-white rounded-xl border p-6 max-w-lg">
+    <h2 class="font-bold mb-2">Security</h2>
+    <p class="text-sm text-slate-600 mb-4">Change your account password.</p>
+    <a href="{% url 'instructor:password_change' %}" class="px-5 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Change Password</a>
+</div>
+{% endblock %}

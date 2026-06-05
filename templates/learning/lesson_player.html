@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% load ha_icons %}
+
+{% block title %}{{ lesson.title }} - Hilaac Academy{% endblock %}
+
+
+
+{% block content %}
+
+<div class="relative lesson-player-bg min-h-screen">
+
+    {% include "partials/watermark.html" with position="subtle" %}
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-6">
+
+    <div class="flex items-center justify-between gap-4 mb-4">
+
+        <a href="{{ level.get_absolute_url }}" class="text-primary-600 text-sm hover:underline">&larr; {{ level.name }}</a>
+
+        <div class="flex items-center gap-2 text-sm">
+
+            <div class="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+
+                <div class="h-full bg-teal-500" style="width: {{ progress_pct }}%"></div>
+
+            </div>
+
+            <span class="text-slate-500">{{ progress_pct }}%</span>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+        <div class="lg:col-span-2 min-w-0">
+
+            <h1 class="text-xl font-bold mb-4">{{ lesson.title }}</h1>
+
+
+
+            {% if lesson.lesson_type == 'video' and lesson.playable_video_url %}
+
+            <div class="rounded-2xl overflow-hidden bg-black aspect-video mb-3 shadow-lg">
+
+                <video id="lesson-video" controls class="w-full h-full" poster="{{ lesson.thumbnail_url }}"
+
+                       src="{{ lesson.playable_video_url }}" data-lesson-id="{{ lesson.id }}"></video>
+
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-5">
+
+                <span class="text-sm text-slate-500 mr-1 self-center">Speed:</span>
+
+                <button type="button" onclick="setSpeed(0.5)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100">0.5x</button>
+
+                <button type="button" onclick="setSpeed(0.75)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100">0.75x</button>
+
+                <button type="button" onclick="setSpeed(1)" class="px-2.5 py-1 text-xs rounded-lg bg-primary-600 text-white">1x</button>
+
+                <button type="button" onclick="setSpeed(1.25)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100">1.25x</button>
+
+                <button type="button" onclick="setSpeed(1.5)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100">1.5x</button>
+
+                <button type="button" onclick="setSpeed(2)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100">2x</button>
+
+                <button type="button" onclick="document.getElementById('lesson-video').requestFullscreen()" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 ml-auto">⛶ Fullscreen</button>
+
+            </div>
+
+
+
+            {% elif lesson.lesson_type == 'pdf' and lesson.pdf_file %}
+
+            <div class="rounded-2xl overflow-hidden border border-slate-200 mb-5 bg-white">
+
+                <iframe src="{{ lesson.pdf_file.url }}" class="w-full" style="height:70vh" title="PDF viewer"></iframe>
+
+            </div>
+
+            <a href="{{ lesson.pdf_file.url }}" download class="inline-flex items-center gap-2 px-4 py-2 mb-5 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">{% ha_icon "file-text" size=16 %} Download PDF</a>
+
+
+
+            {% elif lesson.lesson_type == 'audio' and lesson.audio_file %}
+
+            <div class="mb-5 p-6 rounded-2xl bg-white border border-slate-200">
+
+                <p class="text-sm text-slate-500 mb-3 inline-flex items-center gap-1.5">{% ha_icon "headphones" size=16 %} Audio Lesson</p>
+
+                <audio id="lesson-audio" controls class="w-full" src="{{ lesson.audio_file.url }}" data-lesson-id="{{ lesson.id }}"></audio>
+
+            </div>
+
+
+
+            {% elif lesson.lesson_type == 'reading' or lesson.lesson_type == 'vocabulary' %}
+
+            <div class="mb-5 p-5 rounded-2xl bg-white border border-primary-200">
+
+                <span class="text-xs font-semibold uppercase text-primary-600">{% if lesson.lesson_type == 'reading' %}Reading Material{% else %}Vocabulary Exercise{% endif %}</span>
+
+            </div>
+
+            {% endif %}
+
+
+
+            {% if lesson.content %}
+
+            <div class="p-5 rounded-2xl bg-white border border-slate-200 mb-5">
+
+                <h2 class="font-semibold mb-2">Lesson Notes</h2>
+
+                <div class="prose max-w-none text-sm">{{ lesson.content|linebreaks }}</div>
+
+            </div>
+
+            {% endif %}
+
+
+
+            {% if lesson.resources.all %}
+
+            <div class="p-5 rounded-2xl bg-surface-light border border-slate-200 mb-5">
+
+                <h2 class="font-semibold mb-3">Downloads</h2>
+
+                <div class="space-y-2">
+
+                    {% for res in lesson.resources.all %}
+
+                    <a href="{{ res.file.url }}" download class="flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-primary-50 transition">
+
+                        {% ha_icon "paperclip" size=20 class_name="text-primary-600" %}
+
+                        <div>
+
+                            <div class="text-sm font-medium">{{ res.title }}</div>
+
+                            <div class="text-xs text-slate-500">{{ res.get_resource_type_display }}</div>
+
+                        </div>
+
+                    </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+
+            {% if progress.is_completed %}
+
+            <div class="p-4 bg-green-100 text-green-800 rounded-xl text-center font-semibold mb-5 inline-flex items-center justify-center gap-2 w-full">{% ha_icon "check-circle" size=20 %} Lesson Completed</div>
+
+            {% endif %}
+
+
+
+            <div class="flex justify-between gap-3">
+
+                {% if prev_lesson %}
+
+                <a href="{% url 'learning:lesson_player' lesson_id=prev_lesson.id %}" class="px-4 py-2 border rounded-lg text-sm hover:bg-white bg-surface-light">← {{ prev_lesson.title|truncatechars:30 }}</a>
+
+                {% else %}<span></span>{% endif %}
+
+                {% if next_lesson %}
+
+                <a href="{% url 'learning:lesson_player' lesson_id=next_lesson.id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">{{ next_lesson.title|truncatechars:30 }} →</a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+        <aside class="lg:col-span-1">
+
+            <div class="lg:sticky lg:top-6 rounded-2xl border border-slate-200 bg-white overflow-hidden max-h-[80vh] flex flex-col shadow-sm">
+
+                <div class="p-4 border-b border-slate-200 bg-surface-light">
+
+                    <h2 class="font-bold text-sm">Course Curriculum</h2>
+
+                    <p class="text-xs text-slate-500">{{ progress_pct }}% complete</p>
+
+                </div>
+
+                <div class="overflow-y-auto flex-1 p-2 space-y-1">
+
+                    {% for s in sections %}
+
+                    <div x-data="{ open: {% for ls in s.lessons %}{% if ls.id == lesson.id %}true{% endif %}{% endfor %} }">
+
+                        <button @click="open=!open" class="w-full flex items-center justify-between p-2 text-left text-xs font-semibold text-slate-600 hover:bg-surface-light rounded-lg">
+
+                            <span class="truncate">Module {{ s.module.order }}: {{ s.module.title }}</span>
+
+                            <span x-text="open?'−':'+'"></span>
+
+                        </button>
+
+                        <div x-show="open" x-collapse class="space-y-0.5">
+
+                            {% for ls in s.lessons %}
+
+                            <a href="{% url 'learning:lesson_player' lesson_id=ls.id %}"
+
+                               class="flex items-center gap-2 p-2 rounded-lg text-sm {% if ls.id == lesson.id %}bg-primary-50 text-primary-700 font-medium{% else %}hover:bg-surface-light{% endif %}">
+
+                                {% if ls.id in completed_lesson_ids %}<span class="text-green-500">{% ha_icon "check-circle" size=14 %}</span>{% else %}<span class="text-slate-300">{% ha_icon "circle" size=14 %}</span>{% endif %}
+
+                                <span class="truncate flex-1">{{ ls.title }}</span>
+
+                                <span class="text-xs text-slate-400 flex-shrink-0">{{ ls.duration_minutes }}m</span>
+
+                            </a>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+function setSpeed(rate) {
+
+    var v = document.getElementById('lesson-video');
+
+    if (v) v.playbackRate = rate;
+
+}
+
+function saveProgress(el, seconds) {
+
+    var id = el.dataset.lessonId;
+
+    fetch('/dashboard/lessons/' + id + '/progress/', {
+
+        method: 'POST',
+
+        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+
+        body: 'watched_seconds=' + Math.floor(seconds)
+
+    }).then(r => r.json()).then(d => {
+
+        if (d.is_completed) location.reload();
+
+    });
+
+}
+
+(function() {
+
+    var video = document.getElementById('lesson-video');
+
+    if (video) {
+
+        var saved = {{ progress.watched_seconds|default:0 }};
+
+        if (saved > 0) video.currentTime = saved;
+
+        var lastSaved = 0;
+
+        video.addEventListener('timeupdate', function() {
+
+            var cur = Math.floor(video.currentTime);
+
+            if (cur - lastSaved >= 10) { lastSaved = cur; saveProgress(video, cur); }
+
+        });
+
+        video.addEventListener('ended', function() { saveProgress(video, video.duration || {{ lesson.duration_minutes }} * 60); });
+
+    }
+
+    var audio = document.getElementById('lesson-audio');
+
+    if (audio) audio.addEventListener('ended', function() { saveProgress(audio, audio.duration || {{ lesson.duration_minutes }} * 60); });
+
+})();
+
+</script>
+
+{% endblock %}
+

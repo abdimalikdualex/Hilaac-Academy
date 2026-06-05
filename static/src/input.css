@@ -1,0 +1,436 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+
+
+[x-cloak] {
+
+  display: none !important;
+
+}
+
+
+
+@layer base {
+
+  body {
+
+    @apply antialiased;
+
+  }
+
+}
+
+
+
+@layer components {
+
+  .form-input {
+
+    @apply w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900;
+
+  }
+
+
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-300 transition;
+
+  }
+
+  .sidebar-link:hover,
+
+  .sidebar-link.active {
+
+    @apply bg-primary-700 text-white;
+
+  }
+
+
+
+  .student-sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-600 transition;
+
+  }
+
+  .student-sidebar-link:hover,
+
+  .student-sidebar-link.active {
+
+    @apply bg-primary-50 text-primary-700 font-medium;
+
+  }
+
+
+
+  .brand-watermark {
+
+    @apply pointer-events-none select-none;
+
+    opacity: 0.04;
+
+  }
+
+
+
+  .brand-watermark-subtle {
+
+    @apply pointer-events-none select-none;
+
+    opacity: 0.03;
+
+  }
+
+
+
+  .logo-float {
+
+    animation: logoFloat 4s ease-in-out infinite;
+
+  }
+
+
+
+  .brand-loading-bar {
+
+    animation: loadingBar 1.4s ease-in-out infinite;
+
+  }
+
+
+
+  .animate-fade-in {
+
+    animation: fadeIn 0.6s ease-out both;
+
+  }
+
+
+
+  .glass {
+
+    backdrop-filter: blur(12px);
+
+    background: rgba(255, 255, 255, 0.08);
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+  }
+
+
+
+  .dark .glass {
+
+    background: rgba(11, 23, 54, 0.6);
+
+    border-color: rgba(255, 255, 255, 0.08);
+
+  }
+
+
+
+  /* Portal dashboard backgrounds — 3–5% decorative opacity */
+
+  .portal-bg {
+
+    @apply pointer-events-none absolute inset-0 overflow-hidden -z-0;
+
+  }
+
+
+
+  .portal-bg-student {
+
+    background-color: #F5F7FA;
+
+    background-image:
+
+      url('/static/images/pattern-education.svg'),
+
+      linear-gradient(135deg, #F5F7FA 0%, #eef3fa 45%, #f8fafc 100%);
+
+    background-size: 320px 320px, 100% 100%;
+
+    background-repeat: repeat, no-repeat;
+
+  }
+
+
+
+  .portal-bg-instructor {
+
+    background-color: #f1f5f9;
+
+    background-image:
+
+      url('/static/images/pattern-education.svg'),
+
+      linear-gradient(160deg, #eef3fa 0%, #f1f5f9 50%, #e8f0f8 100%);
+
+    background-size: 280px 280px, 100% 100%;
+
+    background-repeat: repeat, no-repeat;
+
+  }
+
+
+
+  .portal-bg-admin {
+
+    background-color: #eef2f7;
+
+    background-image:
+
+      url('/static/images/pattern-education.svg'),
+
+      linear-gradient(160deg, #e8edf5 0%, #eef2f7 100%);
+
+    background-size: 300px 300px, 100% 100%;
+
+    background-repeat: repeat, no-repeat;
+
+  }
+
+
+
+  .auth-bg {
+
+    background-color: #0B1736;
+
+    background-image:
+
+      url('/static/images/pattern-education.svg'),
+
+      linear-gradient(135deg, #0B1736 0%, #1E4D8F 55%, #16386a 100%);
+
+    background-size: 240px 240px, 100% 100%;
+
+    background-repeat: repeat, no-repeat;
+
+  }
+
+
+
+  .lesson-player-bg {
+
+    @apply bg-white;
+
+    background-image: linear-gradient(180deg, #ffffff 0%, #F5F7FA 100%);
+
+  }
+
+
+
+  .library-bg {
+
+    background-color: #F5F7FA;
+
+    background-image:
+
+      url('/static/images/pattern-books.svg'),
+
+      linear-gradient(180deg, #F5F7FA 0%, #eef3fa 100%);
+
+    background-size: 200px 200px, 100% 100%;
+
+    background-repeat: repeat, no-repeat;
+
+  }
+
+
+
+  .course-page-bg {
+
+    background-color: #ffffff;
+
+    background-image: linear-gradient(180deg, #ffffff 0%, #F5F7FA 40%, #ffffff 100%);
+
+  }
+
+
+
+  .welcome-card {
+
+    @apply relative overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-sm;
+
+  }
+
+
+
+  .welcome-card::before {
+
+    content: "";
+
+    @apply absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-500 to-teal-500;
+
+  }
+
+
+
+  .bookshelf-card {
+
+    @apply relative rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden transition-shadow hover:shadow-md;
+
+  }
+
+
+
+  .bookshelf-card::after {
+
+    content: "";
+
+    @apply absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-accent-500 to-teal-500;
+
+  }
+
+  /* Landing page hero — premium full-screen */
+  .hero-premium {
+    @apply relative flex items-center justify-center text-white overflow-hidden bg-[#0B1736];
+    min-height: 70vh;
+  }
+
+  @media (min-width: 768px) {
+    .hero-premium {
+      min-height: 80vh;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-premium {
+      min-height: 92vh;
+    }
+  }
+
+  .hero-premium__bg {
+    @apply absolute inset-0 bg-cover bg-center bg-no-repeat;
+  }
+
+  .hero-premium__overlay {
+    background: rgba(11, 23, 54, 0.65);
+    @apply absolute inset-0;
+  }
+
+  .hero-premium__content {
+    @apply relative w-full mx-auto px-4 py-16 md:py-20 text-center animate-fade-in;
+    max-width: 900px;
+  }
+
+  .hero-premium__title {
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-tight tracking-tight;
+  }
+
+  .hero-premium__subtitle {
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+    @apply text-xl md:text-2xl font-medium text-white mb-4;
+  }
+
+  .hero-premium__desc {
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
+    @apply text-base md:text-lg text-[#F5F7FA] mx-auto mb-10 line-clamp-2 leading-relaxed;
+  }
+
+  .hero-premium__search {
+    @apply w-full mx-auto mb-8;
+    max-width: 700px;
+  }
+
+  .hero-premium__search-input {
+    @apply w-full px-5 text-slate-900 bg-white shadow-2xl outline-none border-0 focus:ring-2 focus:ring-teal-500;
+    height: 56px;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  .hero-premium__actions {
+    @apply flex flex-col sm:flex-row justify-center items-center gap-4;
+  }
+
+  .hero-premium__btn {
+    @apply inline-flex items-center justify-center font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl;
+    height: 56px;
+    padding: 16px 32px;
+    border-radius: 12px;
+    min-width: 200px;
+  }
+
+  .hero-premium__btn--primary {
+    @apply bg-teal-500 hover:bg-teal-600 text-white shadow-lg;
+  }
+
+  .hero-premium__btn--secondary {
+    @apply bg-transparent border border-white text-white hover:bg-white/10;
+  }
+
+}
+
+
+
+@keyframes logoFloat {
+
+  0%, 100% { transform: translateY(0); }
+
+  50% { transform: translateY(-8px); }
+
+}
+
+
+
+@keyframes loadingBar {
+
+  0% { width: 0; margin-left: 0; }
+
+  50% { width: 70%; margin-left: 15%; }
+
+  100% { width: 0; margin-left: 100%; }
+
+}
+
+
+
+@keyframes fadeIn {
+
+  from { opacity: 0; transform: translateY(10px); }
+
+  to { opacity: 1; transform: translateY(0); }
+
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  .logo-float,
+
+  .animate-fade-in,
+
+  .brand-loading-bar,
+
+  .hero-premium__content {
+
+    animation: none !important;
+
+  }
+
+}
+
+
+
+@media (max-width: 640px) {
+
+  .portal-bg-student,
+
+  .portal-bg-instructor,
+
+  .portal-bg-admin {
+
+    background-size: 200px 200px, 100% 100%;
+
+  }
+
+}
+
+

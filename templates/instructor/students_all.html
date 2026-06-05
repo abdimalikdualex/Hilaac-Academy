@@ -1,0 +1,22 @@
+{% extends "instructor/base.html" %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">My Students</h1>
+<div class="bg-white rounded-xl border overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 border-b"><tr><th class="text-left p-3">Student</th><th class="text-left p-3">Course</th><th class="text-left p-3">Progress</th><th class="text-left p-3">Enrolled</th></tr></thead>
+        <tbody>
+            {% for e in enrollments %}
+            <tr class="border-b">
+                <td class="p-3 font-medium">{{ e.student.get_full_name|default:e.student.username }}</td>
+                <td class="p-3">{{ e.level.name }}</td>
+                <td class="p-3">{{ e.progress_percentage }}%</td>
+                <td class="p-3 text-slate-500">{{ e.enrolled_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="p-8 text-center text-slate-500">No students enrolled yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

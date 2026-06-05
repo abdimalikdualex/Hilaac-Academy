@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete Module{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-12">
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-red-200 dark:border-red-800 shadow">
+        <h1 class="text-xl font-bold mb-2">Delete this module?</h1>
+        <p class="text-slate-600 dark:text-slate-400 mb-6">Deleting <strong>{{ module.title }}</strong> will also delete all of its lessons. This cannot be undone.</p>
+        <form method="post" class="flex gap-3">
+            {% csrf_token %}
+            <button type="submit" class="px-6 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">Yes, delete</button>
+            <a href="{% url 'courses_manage:level_detail' level_id=level.id %}" class="px-6 py-2.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

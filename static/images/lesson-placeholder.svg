@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Lesson video">
+  <defs>
+    <linearGradient id="lbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#134e4a"/>
+      <stop offset="1" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#lbg)"/>
+  <circle cx="90" cy="70" r="120" fill="#ffffff" opacity="0.05"/>
+  <circle cx="560" cy="300" r="140" fill="#ffffff" opacity="0.05"/>
+  <circle cx="320" cy="170" r="58" fill="#ffffff" opacity="0.95"/>
+  <path d="M305 142 l40 28 l-40 28 z" fill="#0d9488"/>
+  <text x="320" y="290" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#ccfbf1" text-anchor="middle">Hilaac Academy Lesson</text>
+</svg>

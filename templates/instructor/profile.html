@@ -1,0 +1,23 @@
+{% extends "instructor/base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Profile</h1>
+<form method="post" enctype="multipart/form-data" class="bg-white rounded-xl border p-6 max-w-lg space-y-4">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+        <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+        {% if field.name == 'profile_photo' %}
+        <input type="file" name="{{ field.name }}" accept="image/*" class="text-sm">
+        {% elif field.name == 'bio' %}
+        <textarea name="{{ field.name }}" rows="3" class="w-full px-3 py-2 border rounded-lg">{{ field.value|default:'' }}</textarea>
+        {% elif field.name == 'date_of_birth' %}
+        <input type="date" name="{{ field.name }}" value="{{ field.value|date:'Y-m-d' }}" class="w-full px-3 py-2 border rounded-lg">
+        {% else %}
+        <input type="text" name="{{ field.name }}" value="{{ field.value|default:'' }}" class="w-full px-3 py-2 border rounded-lg">
+        {% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="px-5 py-2 bg-primary-600 text-white rounded-lg">Save</button>
+</form>
+{% endblock %}

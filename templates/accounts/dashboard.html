@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Hilaac Academy{% endblock %}
+
+{% block content %}
+<div class="relative max-w-7xl mx-auto px-4 py-8 overflow-hidden">
+    {% include "partials/watermark.html" with position="bottom-right" %}
+    <div class="relative z-10">
+    <div class="relative mb-8 p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="absolute top-3 right-3 opacity-[0.06] pointer-events-none">
+            {% load static %}
+            <img src="{% static 'images/logo.png' %}" alt="" class="h-20 w-20 object-contain rounded-full" aria-hidden="true">
+        </div>
+        <h1 class="text-3xl font-bold mb-2">Welcome, {{ user.first_name|default:user.username }}!</h1>
+        <p class="text-slate-600 dark:text-slate-400">Continue your language learning journey with Hilaac Academy.</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ active_enrollments.count }}</div><div class="text-sm text-slate-500">Active Courses</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ lessons_completed }}</div><div class="text-sm text-slate-500">Lessons Done</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ assessments_passed }}</div><div class="text-sm text-slate-500">Quizzes Passed</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ hours_studied }}</div><div class="text-sm text-slate-500">Hours Studied</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ certificates_count }}</div><div class="text-sm text-slate-500">Certificates</div></div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-8">
+            <div>
+                <h2 class="text-xl font-bold mb-4">Continue Learning</h2>
+                <div class="space-y-4">
+                    {% for enrollment in active_enrollments %}
+                    <div class="rounded-xl bg-white dark:bg-slate-800 shadow border overflow-hidden flex flex-col sm:flex-row">
+                        <img src="{{ enrollment.level.cover_url }}" alt="{{ enrollment.level.name }}" loading="lazy" class="w-full sm:w-44 h-32 sm:h-auto object-cover flex-shrink-0">
+                        <div class="p-6 flex-1">
+                            <div class="flex justify-between mb-3">
+                                <div><span class="text-xs text-primary-600 font-semibold">{{ enrollment.level.language.name }}</span><h3 class="font-bold text-lg">{{ enrollment.level.name }}</h3></div>
+                                <span class="font-semibold text-primary-600">{{ enrollment.progress_percentage }}%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-4"><div class="bg-primary-600 h-2 rounded-full" style="width: {{ enrollment.progress_percentage }}%"></div></div>
+                            <a href="{% url 'learning:course_view' level_id=enrollment.level.id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">Continue</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-500">No active courses. <a href="{% url 'courses:catalog' %}" class="text-primary-600 hover:underline">Browse courses</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if completed_enrollments %}
+            <div>
+                <h2 class="text-xl font-bold mb-4">Completed Courses</h2>
+                <div class="space-y-3">
+                    {% for enrollment in completed_enrollments %}
+                    <div class="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex justify-between items-center">
+                        <span class="font-semibold">{{ enrollment.level.language.name }} - {{ enrollment.level.name }}</span>
+                        <span class="text-green-600 text-sm inline-flex items-center gap-1">{% load ha_icons %}{% ha_icon "check-circle" size=14 %} Completed</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if quiz_attempts %}
+            <div>
+                <h2 class="text-xl font-bold mb-4">Quiz Scores</h2>
+                <div class="space-y-2">
+                    {% for attempt in quiz_attempts %}
+                    <div class="p-3 rounded-lg bg-white dark:bg-slate-800 border flex justify-between text-sm">
+                        <span>{{ attempt.quiz.title }}</span>
+                        <span class="font-semibold {% if attempt.passed %}text-green-600{% else %}text-red-500{% endif %}">{{ attempt.score }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="space-y-6">
+            {% if recent_activity %}
+            <div>
+                <h2 class="text-xl font-bold mb-4">Recent Activity</h2>
+                {% for act in recent_activity %}
+                <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 text-sm mb-2 border-l-4 border-primary-500">
+                    <div>{{ act.text }}</div>
+                    <div class="text-xs text-slate-500">{{ act.date|timesince }} ago</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if certificates %}
+            <div>
+                <h2 class="text-xl font-bold mb-4">Certificates</h2>
+                {% for cert in certificates %}
+                <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border mb-3">
+                    <div class="font-semibold text-sm">{{ cert.level.name }}</div>
+                    <a href="{% url 'certificates:download' certificate_id=cert.certificate_id %}" class="text-primary-600 text-sm hover:underline">Download PDF</a>
+                </div>
+                {% endfor %}
+                <a href="{% url 'certificates:list' %}" class="text-primary-600 text-sm hover:underline">View all →</a>
+            </div>
+            {% endif %}
+
+            {% if recent_notifications %}
+            <div>
+                <h2 class="text-xl font-bold mb-4">Notifications</h2>
+                {% for n in recent_notifications %}
+                <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 text-sm mb-2 {% if not n.is_read %}border-l-4 border-primary-500{% endif %}">{{ n.message }}</div>
+                {% endfor %}
+                <a href="{% url 'notifications:list' %}" class="text-primary-600 text-sm hover:underline">View all →</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}

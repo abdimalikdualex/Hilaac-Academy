@@ -1,0 +1,17 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}{{ student.username }}{% endblock %}
+{% block content %}
+<div class="flex justify-between mb-6">
+    <h1 class="text-2xl font-bold">{{ student.get_full_name|default:student.username }}</h1>
+    <div class="flex gap-2">
+        <a href="{% url 'admin_portal:student_edit' pk=student.pk %}" class="px-3 py-1.5 border rounded-lg text-sm">Edit</a>
+        <a href="{% url 'admin_portal:student_toggle' pk=student.pk %}" class="px-3 py-1.5 border rounded-lg text-sm">{% if student.is_active %}Suspend{% else %}Activate{% endif %}</a>
+    </div>
+</div>
+<div class="grid lg:grid-cols-2 gap-6">
+    <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Profile</h2><p class="text-sm space-y-1">Email: {{ student.email }}<br>Phone: {{ student.phone|default:"—" }}<br>Country: {{ student.country|default:"—" }}</p></div>
+    <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Enrollments</h2>{% for e in enrollments %}<div class="text-sm py-1 border-b">{{ e.level.name }} — {{ e.get_status_display }} ({{ e.progress_percentage }}%)</div>{% empty %}<p class="text-sm text-slate-500">None</p>{% endfor %}</div>
+    <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Certificates</h2>{% for c in certificates %}<div class="text-sm py-1">{{ c.certificate_id }} — {{ c.level.name }}</div>{% empty %}<p class="text-sm text-slate-500">None</p>{% endfor %}</div>
+    <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Quiz Scores</h2>{% for a in quiz_attempts %}<div class="text-sm py-1">{{ a.quiz.title }}: {{ a.score }}%</div>{% empty %}<p class="text-sm text-slate-500">None</p>{% endfor %}</div>
+</div>
+{% endblock %}

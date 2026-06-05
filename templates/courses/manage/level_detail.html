@@ -1,0 +1,88 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}{{ level.name }} — Course Builder{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <a href="{% url 'admin_portal:course_list' %}" class="text-primary-600 text-sm hover:underline">&larr; All Courses</a>
+
+    <div class="flex flex-wrap justify-between items-start gap-4 mt-2 mb-4">
+        <div class="flex items-center gap-4">
+            <img src="{{ level.cover_url }}" alt="" class="w-28 h-16 rounded-lg object-cover border">
+            <div>
+                <span class="text-xs font-semibold text-primary-600">{{ level.language.name }}{% if level.level_tag %} · {{ level.get_level_tag_display }}{% endif %}</span>
+                <h1 class="text-2xl font-bold">{{ level.name }}</h1>
+                <p class="text-slate-500 text-sm">{% if level.is_published %}Published{% else %}Draft{% endif %} · {% if level.is_free %}Free{% else %}KES {{ level.price }}{% endif %} · {{ level.duration_weeks }} weeks</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-2 text-sm">
+            <a href="{% url 'admin_portal:course_edit' pk=level.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50">Edit Course</a>
+            <a href="{% url 'courses:detail' language_slug=level.language.slug level_slug=level.slug %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50" target="_blank">View Public Page</a>
+            <a href="{% url 'admin_portal:course_delete' pk=level.id %}" class="px-3 py-1.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50">Delete Course</a>
+        </div>
+    </div>
+
+    {% include "partials/course_builder_steps.html" with current_step=builder_step|default:2 %}
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="p-3 bg-white rounded-xl border text-center"><div class="text-xl font-bold">{{ analytics.student_count }}</div><div class="text-xs text-slate-500">Students</div></div>
+        <div class="p-3 bg-white rounded-xl border text-center"><div class="text-xl font-bold">{{ level.total_modules }}</div><div class="text-xs text-slate-500">Sections</div></div>
+        <div class="p-3 bg-white rounded-xl border text-center"><div class="text-xl font-bold">{{ level.total_lessons }}</div><div class="text-xs text-slate-500">Lessons</div></div>
+        <div class="p-3 bg-white rounded-xl border text-center"><div class="text-xl font-bold">{{ level.preview_lesson_count }}</div><div class="text-xs text-slate-500">Preview lessons</div></div>
+        <div class="p-3 bg-white rounded-xl border text-center"><div class="text-xl font-bold">{{ analytics.completion_rate }}%</div><div class="text-xs text-slate-500">Completion</div></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Step 2 — Sections &amp; Lessons</h2>
+        <a href="{% url 'courses_manage:module_add' level_id=level.id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">+ Add Section</a>
+    </div>
+
+    {% if first_lesson %}
+    <p class="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mb-4">Preview rule: only <strong>Lesson 1 — {{ first_lesson.title }}</strong> can be free preview. Max 1 preview per course.</p>
+    {% endif %}
+
+    {% for module in level.modules.all %}
+    <div class="mb-6 bg-white rounded-xl border overflow-hidden">
+        <div class="p-4 bg-slate-50 border-b flex flex-wrap justify-between items-center gap-2">
+            <h3 class="font-bold">Section {{ module.order }}: {{ module.title }}</h3>
+            <div class="flex items-center gap-1 text-sm">
+                <a href="{% url 'courses_manage:module_move' module_id=module.id direction='up' %}" class="px-2 py-1.5 border rounded-lg" title="Move up">↑</a>
+                <a href="{% url 'courses_manage:module_move' module_id=module.id direction='down' %}" class="px-2 py-1.5 border rounded-lg" title="Move down">↓</a>
+                <a href="{% url 'courses_manage:module_edit' module_id=module.id %}" class="px-3 py-1.5 border rounded-lg">Edit</a>
+                <a href="{% url 'courses_manage:module_delete' module_id=module.id %}" class="px-3 py-1.5 border border-red-300 text-red-600 rounded-lg">Delete</a>
+                <a href="{% url 'courses_manage:lesson_add' module_id=module.id %}" class="px-3 py-1.5 bg-primary-600 text-white rounded-lg">+ Lesson</a>
+            </div>
+        </div>
+        <div class="divide-y">
+            {% for lesson in module.lessons.all %}
+            <div class="p-4 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="{{ lesson.thumbnail_url }}" alt="" class="w-24 h-14 rounded-lg object-cover border flex-shrink-0">
+                    <div class="min-w-0">
+                        <div class="font-medium truncate flex items-center gap-2">
+                            {{ lesson.order }}. {{ lesson.title }}
+                            {% if lesson.is_preview %}<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Free Preview</span>
+                            {% else %}{% load ha_icons %}{% status_badge_icon label="LOCKED" %}{% endif %}
+                        </div>
+                        <div class="text-xs text-slate-500">{{ lesson.duration_minutes }} min{% if lesson.pdf_file %} · PDF{% endif %}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 text-sm">
+                    <a href="{% url 'courses_manage:lesson_move' lesson_id=lesson.id direction='up' %}" class="px-2 py-1.5 border rounded-lg">↑</a>
+                    <a href="{% url 'courses_manage:lesson_move' lesson_id=lesson.id direction='down' %}" class="px-2 py-1.5 border rounded-lg">↓</a>
+                    <a href="{% url 'courses_manage:lesson_edit' lesson_id=lesson.id %}" class="px-3 py-1.5 border rounded-lg">Edit</a>
+                    <a href="{% url 'courses_manage:lesson_delete' lesson_id=lesson.id %}" class="px-3 py-1.5 border border-red-300 text-red-600 rounded-lg">Delete</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="p-4 text-slate-500 text-sm">No lessons yet. <a href="{% url 'courses_manage:lesson_add' module_id=module.id %}" class="text-primary-600 hover:underline">Add first lesson</a></p>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-12 rounded-2xl border border-dashed">
+        <p class="text-slate-500 mb-4">No sections yet. Start with Section 1: Introduction.</p>
+        <a href="{% url 'courses_manage:module_add' level_id=level.id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg">+ Add Section</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

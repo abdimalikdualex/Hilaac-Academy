@@ -1,0 +1,6 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">FAQ</h1>
+<form method="post" class="bg-white p-6 rounded-xl border max-w-lg space-y-4">{% csrf_token %}{% for field in form %}<div><label class="block text-sm mb-1">{{ field.label }}</label>{{ field }}</div>{% endfor %}<button class="px-6 py-2 bg-primary-600 text-white rounded-lg">Save</button></form>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "instructor/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    {% if level %}<a href="{% url 'instructor:level' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">&larr; Course Builder</a>
+    {% else %}<a href="{% url 'instructor:dashboard' %}" class="text-primary-600 text-sm hover:underline">&larr; My Courses</a>{% endif %}
+    <h1 class="text-2xl font-bold mt-2 mb-2">{{ title }}</h1>
+    <p class="text-sm text-slate-500 mb-6">Step 1 — Enter course details. Next, add sections and lessons.</p>
+
+    {% include "partials/course_builder_steps.html" with current_step=builder_step|default:1 %}
+
+    <form method="post" enctype="multipart/form-data" x-data="{
+            cover: '{% if level and level.thumbnail %}{{ level.thumbnail.url }}{% endif %}',
+            banner: '{% if level and level.banner %}{{ level.banner.url }}{% endif %}',
+            preview(e, key){ const f=e.target.files[0]; if(f) this[key]=URL.createObjectURL(f); }
+        }"
+        class="space-y-5 p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label class="block text-sm font-medium mb-1">{{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}</label>
+            {% if field.help_text %}<p class="text-xs text-slate-500 mb-1">{{ field.help_text }}</p>{% endif %}
+            {% if field.name == 'thumbnail' %}
+                <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp" class="w-full text-sm" @change="preview($event,'cover')" {% if field.field.required %}required{% endif %}>
+                <div x-show="cover" x-cloak class="mt-2"><img :src="cover" class="w-full max-w-xs rounded-lg border aspect-video object-cover"></div>
+            {% elif field.name == 'banner' %}
+                <input type="file" name="banner" accept=".jpg,.jpeg,.png,.webp" class="w-full text-sm" @change="preview($event,'banner')">
+                <div x-show="banner" x-cloak class="mt-2"><img :src="banner" class="w-full rounded-lg border object-cover" style="max-height:140px"></div>
+            {% else %}
+                {{ field }}
+            {% endif %}
+            {% if field.errors %}<p class="text-red-600 text-sm mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="px-6 py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Save Course</button>
+            {% if level %}<a href="{% url 'instructor:level' level_id=level.id %}" class="px-6 py-2.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Open Course Builder →</a>{% endif %}
+        </div>
+        <p class="text-xs text-slate-500">New courses start as a <strong>Draft</strong>. Add sections and lessons, then publish.</p>
+    </form>
+</div>
+{% endblock %}

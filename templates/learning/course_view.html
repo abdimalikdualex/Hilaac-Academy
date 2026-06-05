@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load ha_icons %}
+{% block title %}{{ level.name }} - Learning{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <a href="{% url 'accounts:dashboard' %}" class="text-primary-600 text-sm hover:underline mb-4 inline-block">&larr; Back to Dashboard</a>
+    <h1 class="text-2xl font-bold mb-2">{{ level.language.name }} - {{ level.name }}</h1>
+    <div class="flex items-center gap-3 mb-8">
+        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+            <div class="bg-primary-600 h-3 rounded-full transition-all" style="width: {{ progress_pct }}%"></div>
+        </div>
+        <span class="font-semibold text-primary-600">{{ progress_pct }}%</span>
+    </div>
+
+    {% for module in level.modules.all %}
+    <div class="mb-6">
+        <h2 class="text-lg font-bold mb-3">Module {{ module.order }}: {{ module.title }}</h2>
+        <div class="space-y-2">
+            {% for lesson in module.lessons.all %}
+            <a href="{% url 'learning:lesson_player' lesson_id=lesson.id %}" class="group flex items-center gap-4 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-500 transition">
+                <div class="relative w-28 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                    <img src="{{ lesson.thumbnail_url }}" alt="" loading="lazy" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                    {% if lesson.id in completed_lesson_ids %}<span class="absolute top-1 right-1 bg-green-500 text-white p-0.5 rounded-full">{% ha_icon "check" size=12 class_name="text-white" %}</span>{% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-medium truncate">{{ lesson.title }}</div>
+                    <div class="text-xs text-slate-500">{{ lesson.get_lesson_type_display }} · {{ lesson.duration_minutes }} min</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% for quiz in module.quizzes.all %}
+        <a href="{% url 'assessments:take_quiz' quiz_id=quiz.id %}" class="mt-2 flex items-center gap-3 p-4 rounded-xl bg-accent-500/10 border border-accent-500/30 hover:bg-accent-500/20 transition">
+            {% ha_icon "clipboard-list" size=18 class_name="text-amber-600" %} {{ quiz.title }} (Pass: {{ quiz.pass_mark }}%)
+        </a>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    {% for quiz in level.quizzes.all %}
+    {% if quiz.is_final %}
+    <a href="{% url 'assessments:take_quiz' quiz_id=quiz.id %}" class="block p-4 rounded-xl bg-primary-600 text-white text-center font-semibold hover:bg-primary-700">
+        {% ha_icon "graduation-cap" size=18 class_name="inline" %} Final Assessment: {{ quiz.title }}
+    </a>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

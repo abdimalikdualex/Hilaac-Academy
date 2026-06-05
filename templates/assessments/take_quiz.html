@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load ha_icons %}
+{% block title %}{{ quiz.title }} - Quiz{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8" {% if quiz.time_limit_minutes %}x-data="quizTimer({{ quiz.time_limit_minutes }})" x-init="start()"{% endif %}>
+    <h1 class="text-2xl font-bold mb-2">{{ quiz.title }}</h1>
+    <div class="flex flex-wrap gap-4 mb-6 text-sm text-slate-600 dark:text-slate-400">
+        <span>Pass mark: {{ quiz.pass_mark }}%</span>
+        {% if quiz.time_limit_minutes %}
+        <span class="font-semibold text-red-600 inline-flex items-center gap-1" x-show="remaining !== null">{% ha_icon "clock" size=16 %} Time left: <span x-text="formatTime(remaining)"></span></span>
+        {% endif %}
+    </div>
+
+    <form method="post" id="quiz-form" class="space-y-8">
+        {% csrf_token %}
+        {% for question in quiz.questions.all %}
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <p class="font-semibold mb-4">{{ forloop.counter }}. {{ question.text }}</p>
+
+            {% if question.passage %}
+            <div class="p-4 mb-4 bg-slate-50 dark:bg-slate-900 rounded-lg text-sm border-l-4 border-primary-500">
+                <span class="text-xs font-semibold text-primary-600 uppercase">Reading Passage</span>
+                <div class="mt-2">{{ question.passage|linebreaks }}</div>
+            </div>
+            {% endif %}
+
+            {% if question.audio_url %}
+            <div class="mb-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                <span class="text-xs font-semibold text-primary-600 uppercase inline-flex items-center gap-1">{% ha_icon "headphones" size=14 %} Listen carefully</span>
+                <audio controls class="w-full mt-2" src="{{ question.audio_url }}"></audio>
+            </div>
+            {% endif %}
+
+            {% if question.question_type == 'mcq' or question.question_type == 'true_false' or question.question_type == 'reading' or question.question_type == 'listening' %}
+            <div class="space-y-2">
+                {% for option in question.options.all %}
+                <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">
+                    <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" required class="text-primary-600">
+                    <span>{{ option.text }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% elif question.question_type == 'fill_blank' %}
+            <input type="text" name="question_{{ question.id }}" required class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 outline-none" placeholder="Your answer">
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700">Submit Quiz</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if quiz.time_limit_minutes %}
+<script>
+function quizTimer(minutes) {
+    return {
+        remaining: minutes * 60,
+        start() {
+            const interval = setInterval(() => {
+                this.remaining--;
+                if (this.remaining <= 0) {
+                    clearInterval(interval);
+                    document.getElementById('quiz-form').submit();
+                }
+            }, 1000);
+        },
+        formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+    };
+}
+</script>
+{% endif %}
+{% endblock %}

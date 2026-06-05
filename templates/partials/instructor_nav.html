@@ -1,0 +1,15 @@
+{% load ha_icons %}
+<a href="{% url 'instructor:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">{% ha_icon "bar-chart" size=18 class_name="opacity-80" %} Dashboard</a>
+<a href="{% url 'instructor:courses' %}" class="sidebar-link {% if request.resolver_match.url_name == 'courses' or request.resolver_match.url_name == 'level' %}active{% endif %}">{% ha_icon "book-open" size=18 class_name="opacity-80" %} My Courses</a>
+<a href="{% url 'instructor:course_add' %}" class="sidebar-link {% if request.resolver_match.url_name == 'course_add' %}active{% endif %}">{% ha_icon "award" size=18 class_name="opacity-80" %} Create Course</a>
+<a href="{% url 'instructor:courses' %}" class="sidebar-link">{% ha_icon "video" size=18 class_name="opacity-80" %} Curriculum Builder</a>
+<a href="{% url 'instructor:assignments' %}" class="sidebar-link {% if 'assignment' in request.resolver_match.url_name %}active{% endif %}">{% ha_icon "clipboard-list" size=18 class_name="opacity-80" %} Assignments</a>
+<a href="{% url 'instructor:quizzes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'quizzes' %}active{% endif %}">{% ha_icon "help-circle" size=18 class_name="opacity-80" %} Quizzes</a>
+<a href="{% url 'instructor:students' %}" class="sidebar-link {% if request.resolver_match.url_name == 'students' %}active{% endif %}">{% ha_icon "users" size=18 class_name="opacity-80" %} Students</a>
+<a href="{% url 'instructor:analytics' %}" class="sidebar-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">{% ha_icon "trending-up" size=18 class_name="opacity-80" %} Analytics</a>
+<a href="{% url 'instructor:notifications' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+    {% ha_icon "bell" size=18 class_name="opacity-80" %} Notifications
+    {% if unread_notification_count %}<span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{{ unread_notification_count }}</span>{% endif %}
+</a>
+<a href="{% url 'instructor:profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">{% ha_icon "user-check" size=18 class_name="opacity-80" %} Profile</a>
+<a href="{% url 'instructor:settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">{% ha_icon "settings" size=18 class_name="opacity-80" %} Settings</a>

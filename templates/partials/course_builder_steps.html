@@ -1,0 +1,25 @@
+{# current_step: 1=course, 2=sections, 3=lessons (includes preview control) #}
+<nav class="mb-8" aria-label="Course builder steps">
+    <ol class="flex flex-wrap gap-2 text-xs sm:text-sm">
+        <li class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold {% if current_step == 1 %}bg-primary-600 text-white{% elif current_step > 1 %}bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300{% else %}bg-slate-100 text-slate-500{% endif %}">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]">1</span> Create Course
+            </span>
+            <span class="text-slate-300 hidden sm:inline">→</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold {% if current_step == 2 %}bg-primary-600 text-white{% elif current_step > 2 %}bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300{% else %}bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400{% endif %}">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]">2</span> Sections
+            </span>
+            <span class="text-slate-300 hidden sm:inline">→</span>
+        </li>
+        <li class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold {% if current_step == 3 %}bg-primary-600 text-white{% else %}bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400{% endif %}">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]">3</span> Lessons &amp; Preview
+            </span>
+        </li>
+    </ol>
+    {% if current_step == 3 %}
+    <p class="text-xs text-amber-700 dark:text-amber-300 mt-2">Preview rule: only the <strong>first lesson</strong> can be Free Preview (max 1). All others stay locked until enrollment.</p>
+    {% endif %}
+</nav>

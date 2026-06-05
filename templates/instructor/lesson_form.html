@@ -1,0 +1,30 @@
+{% extends "instructor/base.html" %}
+{% block title %}{% if lesson %}Edit{% else %}Add{% endif %} Lesson{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <a href="{% url 'instructor:level' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">&larr; {{ level.name }}</a>
+    <h1 class="text-2xl font-bold mt-2 mb-2">{% if lesson %}Edit Lesson{% else %}Add Lesson{% endif %}</h1>
+    <p class="text-sm text-slate-500 mb-2">Section: <strong>{{ module.title }}</strong></p>
+
+    {% include "partials/course_builder_steps.html" with current_step=builder_step|default:3 %}
+
+    <form method="post" enctype="multipart/form-data" x-data="lessonMedia()"
+          class="space-y-5 p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+        {% include "courses/_lesson_form_body.html" %}
+
+        {% if lesson and lesson.playable_video_url %}
+        <div class="p-4 rounded-lg bg-slate-50 dark:bg-slate-900">
+            <p class="text-sm font-medium mb-2">Current video</p>
+            <video controls class="w-full rounded-lg max-h-48" src="{{ lesson.playable_video_url }}" poster="{{ lesson.thumbnail_url }}"></video>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">{% if lesson %}Save Lesson{% else %}Upload Lesson{% endif %}</button>
+
+        <video x-ref="hiddenVideo" class="hidden" muted playsinline></video>
+        <canvas x-ref="canvas" class="hidden"></canvas>
+    </form>
+</div>
+
+{% include "courses/_lesson_media_script.html" %}
+{% endblock %}

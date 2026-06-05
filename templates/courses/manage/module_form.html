@@ -1,0 +1,23 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}{% if module %}Edit{% else %}Add{% endif %} Section{% endblock %}
+{% block content %}
+<div class="max-w-lg">
+    <a href="{% url 'courses_manage:level_detail' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">&larr; {{ level.name }}</a>
+    <h1 class="text-2xl font-bold mt-2 mb-2">{% if module %}Edit Section{% else %}Add Section{% endif %}</h1>
+    <p class="text-sm text-slate-500 mb-6">Step 2 — Organize course content into sections.</p>
+
+    {% include "partials/course_builder_steps.html" with current_step=builder_step|default:2 %}
+
+    <form method="post" class="space-y-4 p-6 rounded-2xl bg-white border shadow">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<p class="text-red-600 text-sm">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">{% if module %}Save Section{% else %}Create Section{% endif %}</button>
+    </form>
+</div>
+{% endblock %}

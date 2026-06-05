@@ -1,0 +1,58 @@
+<script>
+function lessonMedia() {
+    return {
+        thumbPreview: "{% if lesson.thumbnail %}{{ lesson.thumbnail.url }}{% endif %}",
+        dims: "",
+        manualThumb: false,
+
+        onThumbChange(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            this.manualThumb = true;
+            const url = URL.createObjectURL(file);
+            this.thumbPreview = url;
+            const img = new Image();
+            img.onload = () => { this.dims = "(" + img.naturalWidth + "x" + img.naturalHeight + ")"; };
+            img.src = url;
+        },
+
+        onVideoChange(e) {
+            const file = e.target.files[0];
+            // Only auto-generate when no manual thumbnail was chosen.
+            if (!file || this.manualThumb) return;
+            this.captureFromVideo(file);
+        },
+
+        captureFromVideo(file) {
+            const video = this.$refs.hiddenVideo;
+            const canvas = this.$refs.canvas;
+            const thumbInput = this.$refs.thumbInput;
+            video.preload = "metadata";
+            video.muted = true;
+            video.src = URL.createObjectURL(file);
+
+            video.addEventListener("loadeddata", () => {
+                const t = video.duration && isFinite(video.duration) ? Math.min(1, video.duration / 2) : 0.1;
+                try { video.currentTime = t; } catch (err) {}
+            }, { once: true });
+
+            video.addEventListener("seeked", () => {
+                if (!video.videoWidth) return;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+                this.thumbPreview = canvas.toDataURL("image/jpeg", 0.85);
+                this.dims = "(" + canvas.width + "x" + canvas.height + ", auto)";
+                canvas.toBlob((blob) => {
+                    if (!blob || !thumbInput) return;
+                    try {
+                        const dt = new DataTransfer();
+                        dt.items.add(new File([blob], "auto_thumbnail.jpg", { type: "image/jpeg" }));
+                        thumbInput.files = dt.files;
+                    } catch (err) {}
+                }, "image/jpeg", 0.85);
+            }, { once: true });
+        },
+    };
+}
+</script>

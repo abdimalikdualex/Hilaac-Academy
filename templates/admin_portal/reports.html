@@ -1,0 +1,46 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Reports & Analytics</h1>
+<div class="grid md:grid-cols-3 gap-4 mb-8">
+<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Daily Revenue</div><div class="text-2xl font-bold text-green-600">KES {{ daily_revenue }}</div></div>
+<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Monthly Revenue</div><div class="text-2xl font-bold text-green-600">KES {{ monthly_revenue }}</div></div>
+<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Annual Revenue</div><div class="text-2xl font-bold text-green-600">KES {{ annual_revenue }}</div></div>
+</div>
+<div class="bg-white p-5 rounded-xl border mb-6"><div class="text-sm text-slate-500">Course Completion Rate</div><div class="text-3xl font-bold text-primary-700">{{ completion_rate }}%</div><div class="text-sm text-slate-400">{{ total_students }} students</div></div>
+<h2 class="font-bold mb-3">Course Performance</h2>
+<div class="bg-white rounded-xl border overflow-x-auto">
+<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Course</th><th class="p-3 text-left">Enrollments</th><th class="p-3 text-left">Completions</th></tr></thead>
+<tbody>{% for c in course_stats %}<tr class="border-t"><td class="p-3">{{ c.name }}</td><td class="p-3">{{ c.enrollments_count }}</td><td class="p-3">{{ c.completions }}</td></tr>{% endfor %}</tbody></table>
+</div>
+
+<h2 class="font-bold mb-3 mt-8">Preview Lesson Analytics</h2>
+<div class="grid md:grid-cols-2 gap-6">
+    <div>
+        <h3 class="text-sm font-semibold text-slate-500 mb-2">Most Viewed Preview Lessons</h3>
+        <div class="bg-white rounded-xl border overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50"><tr><th class="p-3 text-left">Lesson</th><th class="p-3 text-left">Course</th><th class="p-3 text-left">Views</th></tr></thead>
+                <tbody>
+                {% for l in top_preview_lessons %}
+                <tr class="border-t"><td class="p-3">{{ l.title }}</td><td class="p-3">{{ l.module.level.name }}</td><td class="p-3 font-semibold">{{ l.preview_views }}</td></tr>
+                {% empty %}<tr><td colspan="3" class="p-4 text-center text-slate-400">No preview views yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div>
+        <h3 class="text-sm font-semibold text-slate-500 mb-2">Courses with Preview Content</h3>
+        <div class="bg-white rounded-xl border overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50"><tr><th class="p-3 text-left">Course</th><th class="p-3 text-left">Previews</th><th class="p-3 text-left">Total Views</th><th class="p-3 text-left">Enrolled</th></tr></thead>
+                <tbody>
+                {% for c in preview_courses %}
+                <tr class="border-t"><td class="p-3">{{ c.name }}</td><td class="p-3">{{ c.preview_count }}</td><td class="p-3 font-semibold">{{ c.preview_views_total|default:0 }}</td><td class="p-3">{{ c.enrollments_count }}</td></tr>
+                {% empty %}<tr><td colspan="4" class="p-4 text-center text-slate-400">No courses with preview lessons yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

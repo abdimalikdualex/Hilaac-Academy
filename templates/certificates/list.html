@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}My Certificates - Hilaac Academy{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">My Certificates</h1>
+    <div class="space-y-4">
+        {% for cert in certificates %}
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <div>
+                <div class="font-semibold text-lg">{{ cert.level.language.name }} - {{ cert.level.name }}</div>
+                <div class="text-sm text-slate-500 font-mono">{{ cert.certificate_id }}</div>
+                <div class="text-sm text-slate-400">Issued {{ cert.issued_at|date:"M d, Y" }}</div>
+            </div>
+            <a href="{% url 'certificates:download' certificate_id=cert.certificate_id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">Download PDF</a>
+        </div>
+        {% empty %}
+        <p class="text-slate-500">Complete a course to earn your first certificate!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

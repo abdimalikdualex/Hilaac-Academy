@@ -1,0 +1,3 @@
+{% load static %}
+<div class="portal-bg portal-bg-{{ variant|default:'student' }}" aria-hidden="true"></div>
+{% include "partials/watermark.html" with position=watermark_position|default:"bottom-right" %}

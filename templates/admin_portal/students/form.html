@@ -1,0 +1,11 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">{{ title }}</h1>
+<form method="post" class="bg-white p-6 rounded-xl shadow border max-w-lg space-y-4">
+    {% csrf_token %}
+    {% for field in form %}<div><label class="block text-sm font-medium mb-1">{{ field.label }}</label>{{ field }}{% if field.errors %}<p class="text-red-600 text-sm">{{ field.errors.0 }}</p>{% endif %}</div>{% endfor %}
+    <div><label class="block text-sm font-medium mb-1">Password {% if student %}(leave blank to keep){% endif %}</label><input type="password" name="password" class="form-input"></div>
+    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg">Save</button>
+</form>
+{% endblock %}

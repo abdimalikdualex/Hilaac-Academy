@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Digital Library - Hilaac Academy{% endblock %}
+
+
+
+{% block content %}
+
+<div class="relative library-bg min-h-[70vh]">
+    <div class="absolute inset-0 bg-cover bg-center opacity-[0.08]" style="background-image: url('{{ hero_background_url }}');" aria-hidden="true"></div>
+    {% include "partials/watermark.html" with position="bottom-right" %}
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-8">
+
+    <div class="welcome-card p-6 mb-8 pl-8">
+
+        <div class="flex flex-wrap items-center gap-4">
+
+            {% include "partials/logo.html" with show_name=False img_class="h-12 w-12" %}
+
+            <div>
+
+                <h1 class="text-3xl font-bold text-primary-900">Maktabadda Dijitaalka ah</h1>
+
+                <p class="text-slate-600 mt-1">Maktabadda Dijitaalka ah ee Hilaac Academy waxay kuu sahleysaa helitaanka buugaagta iyo agabka waxbarashada.</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <form method="get" class="flex flex-wrap gap-3 mb-8">
+
+        <input type="search" name="q" value="{{ query }}" placeholder="Search resources..." class="flex-1 min-w-[200px] px-4 py-2 rounded-lg border border-slate-300 bg-white outline-none focus:ring-2 focus:ring-primary-500">
+
+        <select name="category" class="px-4 py-2 rounded-lg border border-slate-300 bg-white">
+
+            <option value="">All Categories</option>
+
+            {% for val, label in categories %}
+
+            <option value="{{ val }}" {% if category == val %}selected{% endif %}>{{ label }}</option>
+
+            {% endfor %}
+
+        </select>
+
+        <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Search</button>
+
+    </form>
+
+
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for resource in resources %}
+
+        <div class="bookshelf-card p-6">
+
+            <span class="text-xs font-semibold text-teal-600">{{ resource.get_category_display }}</span>
+
+            <h3 class="font-bold text-lg mt-1 mb-2 text-primary-900">{{ resource.title }}</h3>
+
+            <p class="text-sm text-slate-600 mb-4">{{ resource.description|truncatewords:15 }}</p>
+
+            {% if resource.file %}
+
+            <a href="{{ resource.file.url }}" download class="inline-block px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">Download</a>
+
+            {% else %}
+
+            <span class="text-sm text-slate-400">File upload pending — contact admin</span>
+
+            {% endif %}
+
+        </div>
+
+        {% empty %}
+
+        {% load ha_icons %}{% empty_state "books" "No books found" "Try a different search or check back later for new learning resources." %}
+
+        {% endfor %}
+
+    </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+

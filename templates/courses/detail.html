@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% load ha_icons %}
+{% block title %}{{ level.name }} - Hilaac Academy{% endblock %}
+
+{% block content %}
+<div class="course-page-bg">
+<!-- HERO -->
+<section class="relative bg-primary-900 text-white overflow-hidden">
+    {% include "partials/watermark.html" with position="center" %}
+    <div class="absolute inset-0">
+        <img src="{{ level.banner_url }}" alt="" class="w-full h-full object-cover opacity-20">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/70"></div>
+    </div>
+    <div class="relative max-w-6xl mx-auto px-4 py-10 grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <div class="flex items-center gap-3 mb-4">
+                {% load static %}
+                <img src="{% static 'images/logo.png' %}" alt="Hilaac Academy" class="h-9 w-9 object-contain rounded-full" width="36" height="36">
+                <span class="text-xs font-semibold tracking-widest text-amber-400 uppercase">Hilaac Academy</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-sm mb-3">
+                <span class="px-2.5 py-1 rounded-full bg-primary-600/90 font-semibold">{{ level.language.name }}</span>
+                {% if level.level_tag %}<span class="px-2.5 py-1 rounded-full bg-white/10">{{ level.get_level_tag_display }}</span>{% endif %}
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">{{ level.name }}</h1>
+            {% if level.subtitle %}<p class="text-lg text-slate-300 mt-2">{{ level.subtitle }}</p>{% endif %}
+
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-slate-300">
+                <span class="flex items-center gap-1.5 font-semibold">
+                    {% if level.average_rating %}{% star_rating level.average_rating size=14 %}<span class="text-amber-400 ml-1">{{ level.average_rating }}</span>{% else %}<span class="text-amber-400">New</span>{% endif %}
+                    {% if level.review_count %}<span class="text-slate-400 font-normal">({{ level.review_count }})</span>{% endif %}
+                </span>
+                <span class="inline-flex items-center gap-1.5">{% ha_icon "users" size=16 %} {{ level.enrollment_count }} student{{ level.enrollment_count|pluralize }}</span>
+                <span class="inline-flex items-center gap-1.5">{% ha_icon "video" size=16 %} {{ level.total_lessons }} lessons</span>
+                <span class="inline-flex items-center gap-1.5">{% ha_icon "clipboard-list" size=16 %} {{ level.total_assessments }} assessment{{ level.total_assessments|pluralize }}</span>
+                <span class="inline-flex items-center gap-1.5">{% ha_icon "clock" size=16 %} {{ level.duration_weeks }} weeks · {{ level.total_duration_minutes }} min</span>
+            </div>
+
+            {% if level.instructor %}
+            <div class="flex items-center gap-3 mt-5">
+                <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center font-bold">{{ level.instructor.get_full_name|default:level.instructor.username|make_list|first|upper }}</div>
+                <div class="text-sm flex-1">
+                    <div class="text-slate-400">Instructor</div>
+                    <div class="font-semibold">{{ level.instructor.get_full_name|default:level.instructor.username }}</div>
+                </div>
+                <img src="{% static 'images/logo.png' %}" alt="" class="h-8 w-8 opacity-50 object-contain rounded-full hidden sm:block" aria-hidden="true">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-4 py-8 grid lg:grid-cols-3 gap-8" x-data="{ tab: window.location.hash === '#reviews' ? 'reviews' : 'curriculum' }">
+    <!-- MAIN -->
+    <div class="lg:col-span-2 min-w-0">
+        {% if access.access_state == 'pending' %}
+        <div class="mb-6 p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700">
+            <p class="font-semibold text-yellow-800 dark:text-yellow-200 inline-flex items-center gap-2">{% ha_icon "hourglass" size=18 %} Pending Verification</p>
+            <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">Your payment is being reviewed. Access will be granted once payment is approved.</p>
+            <a href="{% url 'payments:pending' payment_id=access.pending_payment.pk %}" class="inline-block mt-2 text-sm text-primary-600 hover:underline">View payment status →</a>
+        </div>
+        {% elif access.access_state == 'rejected' %}
+        <div class="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700">
+            <p class="font-semibold text-red-800 dark:text-red-200">Payment Rejected</p>
+            <p class="text-sm text-red-700 dark:text-red-300 mt-1">Your previous payment was not approved. You may submit a new payment.</p>
+        </div>
+        {% elif not is_enrolled and not level.is_free %}
+        <div class="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <p class="font-semibold text-slate-800 dark:text-slate-200 inline-flex items-center gap-2">{% ha_icon "lock" size=18 %} Locked Content</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Purchase this course to unlock premium videos, assignments, quizzes, exams, and downloads. Free preview lessons are available below.</p>
+        </div>
+        {% endif %}
+        {% if is_enrolled %}
+        <div class="mb-6 p-4 rounded-xl bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
+            <div class="flex justify-between text-sm font-medium mb-2">
+                <span>Your progress</span><span>{{ progress_pct }}% Complete</span>
+            </div>
+            <div class="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full bg-primary-600" style="width: {{ progress_pct }}%"></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- TABS -->
+        <div class="flex gap-1 border-b border-slate-200 dark:border-slate-700 mb-6 overflow-x-auto">
+            <button @click="tab='overview'" :class="tab==='overview' ? 'border-primary-600 text-primary-600' : 'border-transparent text-slate-500'" class="px-4 py-2.5 font-medium border-b-2 whitespace-nowrap">Overview</button>
+            <button @click="tab='curriculum'" :class="tab==='curriculum' ? 'border-primary-600 text-primary-600' : 'border-transparent text-slate-500'" class="px-4 py-2.5 font-medium border-b-2 whitespace-nowrap">Curriculum</button>
+            <button @click="tab='instructor'" :class="tab==='instructor' ? 'border-primary-600 text-primary-600' : 'border-transparent text-slate-500'" class="px-4 py-2.5 font-medium border-b-2 whitespace-nowrap">Instructor</button>
+            <button @click="tab='reviews'" :class="tab==='reviews' ? 'border-primary-600 text-primary-600' : 'border-transparent text-slate-500'" class="px-4 py-2.5 font-medium border-b-2 whitespace-nowrap">Reviews</button>
+        </div>
+
+        <!-- OVERVIEW -->
+        <div x-show="tab==='overview'" x-cloak class="space-y-8">
+            {% if level.description %}
+            <div>
+                <h2 class="text-xl font-bold mb-3">About this course</h2>
+                <p class="text-slate-600 dark:text-slate-400 whitespace-pre-line">{{ level.description }}</p>
+            </div>
+            {% endif %}
+            {% if objectives %}
+            <div>
+                <h2 class="text-xl font-bold mb-3">What you'll learn</h2>
+                <div class="grid sm:grid-cols-2 gap-2">
+                    {% for o in objectives %}<div class="flex gap-2 text-sm items-start">{% ha_icon "check" size=16 class_name="text-primary-600 mt-0.5" %}<span>{{ o }}</span></div>{% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% if skills %}
+            <div>
+                <h2 class="text-xl font-bold mb-3">Skills you'll gain</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for s in skills %}<span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-sm">{{ s }}</span>{% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% if audience %}
+            <div>
+                <h2 class="text-xl font-bold mb-3">Who this course is for</h2>
+                <ul class="space-y-1.5">{% for a in audience %}<li class="flex gap-2 text-sm text-slate-600 dark:text-slate-400"><span class="text-primary-600">›</span>{{ a }}</li>{% endfor %}</ul>
+            </div>
+            {% endif %}
+            {% if requirements %}
+            <div>
+                <h2 class="text-xl font-bold mb-3">Requirements</h2>
+                <ul class="space-y-1.5">{% for r in requirements %}<li class="flex gap-2 text-sm text-slate-600 dark:text-slate-400"><span class="text-primary-600">•</span>{{ r }}</li>{% endfor %}</ul>
+            </div>
+            {% endif %}
+            {% if not level.description and not objectives and not skills and not audience and not requirements %}
+            <p class="text-slate-500">No additional details provided for this course yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- CURRICULUM -->
+        <div x-show="tab==='curriculum'" x-cloak x-data="{ collapseAll: false }">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-bold">Curriculum</h2>
+                    <p class="text-sm text-slate-500">{{ level.total_modules }} sections · {{ level.total_lessons }} lessons · {{ level.total_duration_minutes }} min total</p>
+                </div>
+                <button @click="collapseAll=!collapseAll" class="text-sm text-primary-600 hover:underline" x-text="collapseAll ? 'Expand all' : 'Collapse all'"></button>
+            </div>
+
+            {% if level.certificate_included %}
+            <div class="mb-5 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10">
+                <div class="font-semibold text-sm mb-2 inline-flex items-center gap-2">{% ha_icon "graduation-cap" size=18 %} Certificate Requirements</div>
+                <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                    <li class="flex gap-2 items-center">{% ha_icon "check" size=14 class_name="text-primary-600" %} Complete all lessons</li>
+                    <li class="flex gap-2 items-center">{% ha_icon "check" size=14 class_name="text-primary-600" %} Complete all assignments</li>
+                    <li class="flex gap-2 items-center">{% ha_icon "check" size=14 class_name="text-primary-600" %} Pass the final exam (if applicable)</li>
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="space-y-3">
+                {% for s in sections %}
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800" x-data="{ open: collapseAll ? false : {% if forloop.first %}true{% else %}false{% endif %} }" x-effect="if(collapseAll) open=false">
+                    <button @click="open=!open" class="w-full flex items-center justify-between gap-3 p-4 text-left bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900/70 transition">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-semibold">Section {{ s.module.order }}: {{ s.module.title }}</div>
+                            <div class="text-xs text-slate-500 mt-0.5">
+                                {{ s.total }} lesson{{ s.total|pluralize }} · {{ s.duration }} min{% if is_enrolled and s.total %} · {{ s.pct }}% complete{% endif %}
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-semibold flex-shrink-0">{{ s.total }}</span>
+                        <span class="text-slate-400 flex-shrink-0" x-show="open">{% ha_icon "chevron-up" size=18 %}</span>
+                        <span class="text-slate-400 flex-shrink-0" x-show="!open">{% ha_icon "chevron-down" size=18 %}</span>
+                    </button>
+                    <div x-show="open" x-collapse>
+                        {% if is_enrolled and s.total %}
+                        <div class="h-1 bg-slate-100 dark:bg-slate-700"><div class="h-full bg-primary-500 transition-all" style="width: {{ s.pct }}%"></div></div>
+                        {% endif %}
+                        <div class="divide-y divide-slate-100 dark:divide-slate-700">
+                            {% if s.module.description %}<p class="px-4 py-2 text-sm text-slate-500 border-b border-slate-100 dark:border-slate-700">{{ s.module.description }}</p>{% endif %}
+                            {% for item in s.lessons %}
+                            {% with lesson=item.lesson %}
+                            {% if is_enrolled %}
+                            <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                                <img src="{{ lesson.thumbnail_url }}" alt="" loading="lazy" class="w-16 h-10 rounded object-cover flex-shrink-0 border border-slate-200 dark:border-slate-600">
+                                {% render_lesson_icon lesson %}
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-medium truncate">Lesson {{ item.number }} — {{ lesson.title }}</div>
+                                    <div class="text-xs text-slate-500">{{ lesson.get_lesson_type_display }} · {{ lesson.duration_minutes }} min</div>
+                                </div>
+                                {% if lesson.id in completed_lesson_ids %}<span class="text-green-600 flex-shrink-0" title="Completed">{% ha_icon "check-circle" size=18 %}</span>{% endif %}
+                                <a href="{% url 'learning:lesson_player' lesson_id=lesson.id %}" class="px-3 py-1 bg-primary-600 text-white rounded-lg text-xs font-medium hover:bg-primary-700 flex-shrink-0">Open</a>
+                            </div>
+                            {% elif lesson.is_preview %}
+                            <a href="{% url 'courses:preview_lesson' lesson_id=lesson.id %}" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition group">
+                                <div class="relative flex-shrink-0">
+                                    <img src="{{ lesson.thumbnail_url }}" alt="" loading="lazy" class="w-16 h-10 rounded object-cover border border-slate-200 dark:border-slate-600">
+                                    <span class="absolute inset-0 flex items-center justify-center bg-black/30 rounded text-white group-hover:bg-black/40">{% ha_icon "play" size=20 class_name="text-white fill-white" %}</span>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-medium truncate">Lesson {{ item.number }} — {{ lesson.title }}</div>
+                                    <div class="text-xs text-green-600 dark:text-green-400 font-medium">Free Preview</div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-xs font-semibold flex-shrink-0">Watch</span>
+                            </a>
+                            {% else %}
+                            <a href="{{ enroll_url }}" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition group">
+                                <div class="relative flex-shrink-0 opacity-60">
+                                    <img src="{{ lesson.thumbnail_url }}" alt="" loading="lazy" class="w-16 h-10 rounded object-cover border border-slate-200 dark:border-slate-600 grayscale">
+                                    <span class="absolute inset-0 flex items-center justify-center">{% ha_icon "lock" size=20 class_name="text-white" %}</span>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-medium truncate text-slate-600 dark:text-slate-300 flex items-center gap-1.5">{% ha_icon "lock" size=14 %} Lesson {{ item.number }} — {{ lesson.title }}</div>
+                                    <div class="text-xs text-primary-600 dark:text-primary-400 group-hover:underline">Enroll to access this lesson</div>
+                                </div>
+                            </a>
+                            {% endif %}
+                            {% endwith %}
+                            {% endfor %}
+                            {% for quiz in s.quizzes %}
+                            {% if is_enrolled %}
+                            <div class="flex items-center gap-3 px-4 py-3 bg-amber-50/50 dark:bg-amber-900/10">
+                                {% ha_icon "help-circle" size=20 class_name="text-amber-600 flex-shrink-0" %}
+                                <div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">{{ quiz.title }}</div><div class="text-xs text-slate-500">Quiz · pass mark {{ quiz.pass_mark }}%{% if quiz.time_limit_minutes %} · {{ quiz.time_limit_minutes }} min{% endif %}</div></div>
+                            </div>
+                            {% else %}
+                            <a href="{{ enroll_url }}" class="flex items-center gap-3 px-4 py-3 bg-amber-50/50 dark:bg-amber-900/10 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 transition">
+                                {% ha_icon "lock" size=20 class_name="text-slate-400 flex-shrink-0" %}
+                                <div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">{{ quiz.title }}</div><div class="text-xs text-primary-600">Enroll to take this quiz</div></div>
+                            </a>
+                            {% endif %}
+                            {% endfor %}
+                            {% for a in s.assignments %}
+                            {% if is_enrolled %}
+                            <div class="flex items-center gap-3 px-4 py-3 bg-blue-50/50 dark:bg-blue-900/10">
+                                {% ha_icon "clipboard-list" size=20 class_name="text-blue-600 flex-shrink-0" %}
+                                <div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">{{ a.title }}</div><div class="text-xs text-slate-500">Assignment{% if a.due_date %} · due {{ a.due_date|date:"M j" }}{% endif %}</div></div>
+                            </div>
+                            {% else %}
+                            <a href="{{ enroll_url }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition">
+                                {% ha_icon "lock" size=20 class_name="text-slate-400 flex-shrink-0" %}
+                                <div class="min-w-0 flex-1"><div class="text-sm font-medium truncate">{{ a.title }}</div><div class="text-xs text-primary-600">Enroll to access this assignment</div></div>
+                            </a>
+                            {% endif %}
+                            {% endfor %}
+                            {% if not s.lessons and not s.quizzes and not s.assignments %}<p class="px-4 py-3 text-sm text-slate-400">No content in this section yet.</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-slate-500">Curriculum coming soon.</p>
+                {% endfor %}
+
+                {% if final_quizzes %}
+                <div class="rounded-xl border border-primary-200 dark:border-primary-800 bg-primary-50/50 dark:bg-primary-900/10 p-4">
+                    <div class="font-semibold mb-2 inline-flex items-center gap-2">{% ha_icon "graduation-cap" size=18 %} Final Assessment</div>
+                    {% for q in final_quizzes %}<div class="text-sm text-slate-600 dark:text-slate-400">{{ q.title }} · pass mark {{ q.pass_mark }}%</div>{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- INSTRUCTOR -->
+        <div x-show="tab==='instructor'" x-cloak>
+            {% if level.instructor %}
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-primary-600 text-white flex items-center justify-center text-2xl font-bold flex-shrink-0">{{ level.instructor.get_full_name|default:level.instructor.username|make_list|first|upper }}</div>
+                <div>
+                    <h2 class="text-xl font-bold">{{ level.instructor.get_full_name|default:level.instructor.username }}</h2>
+                    <p class="text-sm text-primary-600 mb-3">Language Instructor</p>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm whitespace-pre-line">{{ level.instructor.bio|default:"Experienced instructor at Hilaac Academy." }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-slate-500">Instructor information coming soon.</p>
+            {% endif %}
+        </div>
+
+        <!-- REVIEWS -->
+        <div x-show="tab==='reviews'" x-cloak id="reviews">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="text-center">
+                    <div class="text-4xl font-extrabold">{{ level.average_rating|default:"—" }}</div>
+                    {% star_rating 5 size=18 %}
+                    <div class="text-xs text-slate-500">{{ level.review_count }} review{{ level.review_count|pluralize }}</div>
+                </div>
+            </div>
+
+            {% if can_review %}
+            <form method="post" action="{% url 'courses:submit_review' level_id=level.id %}" class="mb-8 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  x-data="{ rating: {{ user_review.rating|default:5 }} }">
+                {% csrf_token %}
+                <h3 class="font-semibold mb-2">{% if user_review %}Update your review{% else %}Leave a review{% endif %}</h3>
+                <div class="flex gap-1 mb-3">
+                    {% for n in "12345" %}
+                    <button type="button" @click="rating={{ forloop.counter }}" class="inline-flex p-0.5" :class="{{ forloop.counter }}<=rating ? 'text-amber-400' : 'text-slate-300'">
+                        {% ha_icon "star" size=24 class_name="" %}
+                    </button>
+                    {% endfor %}
+                    <input type="hidden" name="rating" :value="rating">
+                </div>
+                <textarea name="comment" rows="3" placeholder="Share your experience..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 mb-3">{{ user_review.comment }}</textarea>
+                <button type="submit" class="px-5 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Submit Review</button>
+            </form>
+            {% endif %}
+
+            <div class="space-y-4">
+                {% for r in reviews %}
+                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center justify-between">
+                        <div class="font-medium">{{ r.student.get_full_name|default:r.student.username }}</div>
+                        {% star_rating r.rating size=14 %}
+                    </div>
+                    {% if r.comment %}<p class="text-sm text-slate-600 dark:text-slate-400 mt-1">{{ r.comment }}</p>{% endif %}
+                    <div class="text-xs text-slate-400 mt-1">{{ r.created_at|date:"M j, Y" }}</div>
+                </div>
+                {% empty %}
+                <p class="text-slate-500">No reviews yet. Be the first to review this course!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="lg:col-span-1">
+        <div class="lg:sticky lg:top-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden shadow-sm">
+            <div class="aspect-video bg-slate-100 dark:bg-slate-900">
+                <img src="{{ level.cover_url }}" alt="{{ level.name }}" class="w-full h-full object-cover">
+            </div>
+            <div class="p-5">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-3xl font-extrabold">{% if level.is_free %}Free{% else %}KES {{ level.price }}{% endif %}</div>
+                    {% include "partials/course_status_badge.html" with access=access %}
+                </div>
+
+                {% if is_enrolled %}
+                <a href="{% if continue_lesson %}{% url 'learning:lesson_player' lesson_id=continue_lesson.id %}{% else %}{% url 'learning:course_view' level_id=level.id %}{% endif %}" class="block text-center px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 mb-3">Continue Learning</a>
+                {% elif access.access_state == 'pending' %}
+                <a href="{% url 'payments:pending' payment_id=access.pending_payment.pk %}" class="block text-center px-6 py-3 bg-yellow-500 text-white rounded-xl font-semibold hover:bg-yellow-600 mb-3">Pending Verification</a>
+                {% else %}
+                {% if first_preview_lesson %}
+                <a href="{% url 'courses:preview_lesson' lesson_id=first_preview_lesson.id %}" class="block text-center px-6 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 mb-3">Watch Preview</a>
+                {% endif %}
+                {% if level.is_free %}
+                {% if user.is_authenticated and user.is_student %}
+                <a href="{% url 'courses:enroll' level_id=level.id %}" class="block text-center px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 mb-3">Enroll Now — Free</a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="block text-center px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 mb-3">Enroll Now — Login Required</a>
+                {% endif %}
+                {% elif user.is_authenticated and user.is_student %}
+                <a href="{% url 'payments:checkout' level_id=level.id %}" class="block text-center px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 mb-3">Purchase Course</a>
+                {% if access.can_wishlist %}
+                <a href="{% url 'courses:toggle_wishlist' level_id=level.id %}" class="block text-center px-6 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 mb-4">
+                    {% if in_wishlist %}{% ha_icon "heart" size=16 class_name="inline fill-red-500 text-red-500" %} In Wishlist{% else %}{% ha_icon "heart" size=16 class_name="inline" %} Add to Wishlist{% endif %}
+                </a>
+                {% endif %}
+                {% else %}
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="block text-center px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 mb-3">Enroll Now — Login Required</a>
+                {% endif %}
+                {% endif %}
+
+                <ul class="space-y-2.5 text-sm border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <li class="flex justify-between"><span class="text-slate-500">Lessons</span><span class="font-medium">{{ level.total_lessons }}</span></li>
+                    <li class="flex justify-between"><span class="text-slate-500">Modules</span><span class="font-medium">{{ level.total_modules }}</span></li>
+                    <li class="flex justify-between"><span class="text-slate-500">Duration</span><span class="font-medium">{{ level.duration_weeks }} weeks ({{ level.total_duration_minutes }} min)</span></li>
+                    {% if level.level_tag %}<li class="flex justify-between"><span class="text-slate-500">Skill level</span><span class="font-medium">{{ level.get_level_tag_display }}</span></li>{% endif %}
+                    <li class="flex justify-between"><span class="text-slate-500">Language</span><span class="font-medium">{{ level.language.name }}</span></li>
+                    <li class="flex justify-between"><span class="text-slate-500">Certificate</span><span class="font-medium inline-flex items-center gap-1">{% if level.certificate_included %}{% ha_icon "check" size=14 class_name="text-green-600" %} Included{% else %}—{% endif %}</span></li>
+                    <li class="flex justify-between"><span class="text-slate-500">Last updated</span><span class="font-medium">{{ level.updated_at|date:"M Y" }}</span></li>
+                </ul>
+
+                <!-- Share -->
+                <div class="border-t border-slate-100 dark:border-slate-700 pt-4 mt-4">
+                    <div class="text-xs text-slate-500 mb-2">Share this course</div>
+                    <div class="flex gap-2">
+                        <a href="https://wa.me/?text={{ request.build_absolute_uri }}" target="_blank" rel="noopener" class="flex-1 text-center py-2 rounded-lg bg-green-500 text-white text-sm hover:bg-green-600">WhatsApp</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" rel="noopener" class="flex-1 text-center py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Facebook</a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}" target="_blank" rel="noopener" class="flex-1 text-center py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-900">X</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- SOCIAL PROOF -->
+<section class="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div><div class="text-2xl font-extrabold text-primary-600">{{ level.enrollment_count }}</div><div class="text-sm text-slate-500">Students enrolled</div></div>
+        <div><div class="text-2xl font-extrabold text-primary-600">{{ level.average_rating|default:"New" }}</div><div class="text-sm text-slate-500">Average rating</div></div>
+        <div><div class="text-2xl font-extrabold text-primary-600">{{ level.total_lessons }}</div><div class="text-sm text-slate-500">Lessons</div></div>
+        <div><div class="text-2xl font-extrabold text-primary-600">{% if level.certificate_included %}Yes{% else %}—{% endif %}</div><div class="text-sm text-slate-500">Certificate</div></div>
+    </div>
+</section>
+</div>
+{% endblock %}

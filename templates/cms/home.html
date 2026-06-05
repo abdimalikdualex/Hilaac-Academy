@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% load static ha_icons %}
+{% block title %}Hilaac Academy - Learn English & Kiswahili Online{% endblock %}
+
+{% block extra_head %}
+<link rel="preload" as="image" href="{{ hero_srcset.desktop_4k }}" media="(min-width: 1280px)">
+<link rel="preload" as="image" href="{{ hero_srcset.fallback }}" media="(max-width: 1279px)">
+{% endblock %}
+
+{% block content %}
+<!-- HERO — full-screen with 4K photo background -->
+<section class="relative flex items-center justify-center overflow-hidden bg-[#0B1736] text-white min-h-[70vh] md:min-h-[80vh] lg:min-h-[95vh]">
+    <picture class="absolute inset-0 block h-full w-full" aria-hidden="true">
+        <source media="(min-width: 1280px)" srcset="{{ hero_srcset.desktop_4k }}" type="image/webp">
+        <source media="(min-width: 768px)" srcset="{{ hero_srcset.tablet }}" type="image/webp">
+        <source srcset="{{ hero_srcset.fallback }}" type="image/webp">
+        <img
+            src="{{ hero_srcset.fallback }}"
+            alt=""
+            class="h-full w-full object-cover object-center"
+            width="3840"
+            height="2160"
+            fetchpriority="high"
+            decoding="async"
+        >
+    </picture>
+    <div class="absolute inset-0" style="background: rgba(11, 23, 54, 0.65);" aria-hidden="true"></div>
+
+    <div class="relative z-10 w-full max-w-[900px] mx-auto px-4 sm:px-6 py-16 md:py-24 text-center">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-5 leading-tight tracking-tight" style="text-shadow: 0 2px 24px rgba(0,0,0,0.45);">
+            Kusoo Dhawoow Hilaac Academy
+        </h1>
+        <p class="text-xl md:text-2xl font-medium text-white mb-4" style="text-shadow: 0 1px 14px rgba(0,0,0,0.4);">
+            Baro English iyo Kiswahili adigoo jooga gurigaaga.
+        </p>
+        <p class="text-base md:text-lg text-[#F5F7FA] mx-auto mb-10 max-w-2xl leading-relaxed" style="text-shadow: 0 1px 10px rgba(0,0,0,0.35);">
+            Hel casharro muuqaal ah, buugaag dijitaal ah, imtixaano iyo shahaadooyin xirfadeed.
+        </p>
+
+        <form action="{% url 'courses:catalog' %}" method="get" class="w-full max-w-[700px] mx-auto mb-8">
+            <input
+                type="search"
+                name="q"
+                placeholder="Search courses, books or lessons..."
+                aria-label="Search courses, books or lessons"
+                class="w-full h-14 px-5 rounded-xl bg-white text-slate-900 text-base shadow-2xl border-0 outline-none focus:ring-2 focus:ring-[#0FAE9D]"
+            >
+        </form>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+                href="{% url 'accounts:register' %}"
+                class="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] h-14 px-8 rounded-xl bg-[#0FAE9D] hover:bg-[#0c8f81] text-white font-semibold text-base shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+            >Get Started</a>
+            <a
+                href="{% url 'courses:catalog' %}"
+                class="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] h-14 px-8 rounded-xl bg-transparent border border-white text-white font-semibold text-base transition-all duration-200 hover:bg-white/10 hover:-translate-y-0.5"
+            >Browse Courses</a>
+        </div>
+    </div>
+</section>
+
+<!-- TRUST / STATISTICS -->
+<section class="py-16 bg-white dark:bg-slate-900">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6">
+        {% if statistics %}
+            {% for stat in statistics %}
+            <div class="text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+                <div class="flex justify-center mb-2">{% site_stat_icon stat.icon as stat_icon %}{% ha_icon stat_icon size=32 class_name="text-primary-600" %}</div>
+                <div class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ stat.value }}+</div>
+                <div class="text-slate-600 dark:text-slate-400 mt-1 text-sm">{{ stat.label }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50"><div class="flex justify-center mb-2">{% ha_icon "users" size=32 class_name="text-primary-600" %}</div><div class="text-3xl font-bold text-primary-600">500+</div><div class="text-sm text-slate-500 mt-1">Enrolled Students</div></div>
+            <div class="text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50"><div class="flex justify-center mb-2">{% ha_icon "book-open" size=32 class_name="text-primary-600" %}</div><div class="text-3xl font-bold text-primary-600">9+</div><div class="text-sm text-slate-500 mt-1">Active Courses</div></div>
+            <div class="text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50"><div class="flex justify-center mb-2">{% ha_icon "award" size=32 class_name="text-primary-600" %}</div><div class="text-3xl font-bold text-primary-600">150+</div><div class="text-sm text-slate-500 mt-1">Certificates Issued</div></div>
+            <div class="text-center p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50"><div class="flex justify-center mb-2">{% ha_icon "user-check" size=32 class_name="text-primary-600" %}</div><div class="text-3xl font-bold text-primary-600">12+</div><div class="text-sm text-slate-500 mt-1">Expert Instructors</div></div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- FEATURED COURSES -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-2">Featured Courses</h2>
+        <p class="text-center text-slate-500 mb-10">Dooro koorso ku habboon heerkaaga</p>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for course in featured_courses %}
+            <div class="group rounded-2xl overflow-hidden shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-2xl transition-shadow duration-300">
+                <a href="{% url 'courses:detail' language_slug=course.language.slug level_slug=course.slug %}" class="block relative aspect-video overflow-hidden">
+                    <img src="{{ course.cover_url }}" alt="{{ course.name }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 text-primary-700">{{ course.language.name }}</span>
+                </a>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mt-1 mb-2">{{ course.name }}</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">{{ course.description|truncatewords:12|default:"Baro xirfado luuqadeed casri ah." }}</p>
+                    <div class="flex gap-4 text-sm text-slate-500 mb-4">
+                        <span class="inline-flex items-center gap-1">{% ha_icon "clock" size=14 %} {{ course.duration_weeks }} weeks</span>
+                        <span class="inline-flex items-center gap-1">{% ha_icon "video" size=14 %} {{ course.total_lessons }} lessons</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-lg">{% if course.is_free %}Free{% else %}KES {{ course.price }}{% endif %}</span>
+                        <a href="{% url 'courses:detail' language_slug=course.language.slug level_slug=course.slug %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="col-span-full text-center text-slate-500">Courses are coming soon.</p>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="{% url 'courses:catalog' %}" class="inline-block px-6 py-3 border-2 border-primary-600 text-primary-600 rounded-xl hover:bg-primary-600 hover:text-white transition">View All Courses</a>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE (Somali marketing) -->
+<section class="py-16 bg-slate-100 dark:bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-2">Why Choose Hilaac Academy?</h2>
+        <p class="text-center text-slate-500 mb-10">Waxaad Ka Heshaa:</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "video" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Casharro muuqaal ah</h3><p class="text-sm text-slate-500 mt-2">Video Lessons</p></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "clipboard-list" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Imtixaano Online ah</h3><p class="text-sm text-slate-500 mt-2">Online Quizzes & Exams</p></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "award" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Shahaadooyin la xaqiijin karo</h3><p class="text-sm text-slate-500 mt-2">Verifiable Certificates</p></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "smartphone" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Barasho ku habboon Mobile-ka</h3><p class="text-sm text-slate-500 mt-2">Mobile-Friendly Learning</p></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "user-check" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Macallimiin Khibrad Leh</h3><p class="text-sm text-slate-500 mt-2">Expert Instructors</p></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "handshake" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Taageero Joogto ah</h3><p class="text-sm text-slate-500 mt-2">Continuous Support</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- LEARNING PROCESS -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-10">How It Works</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div class="text-center"><div class="w-14 h-14 mx-auto rounded-full bg-primary-600 text-white flex items-center justify-center text-xl font-bold mb-3">1</div><h3 class="font-semibold text-sm">Register</h3></div>
+            <div class="text-center"><div class="w-14 h-14 mx-auto rounded-full bg-primary-600 text-white flex items-center justify-center text-xl font-bold mb-3">2</div><h3 class="font-semibold text-sm">Choose a Course</h3></div>
+            <div class="text-center"><div class="w-14 h-14 mx-auto rounded-full bg-primary-600 text-white flex items-center justify-center text-xl font-bold mb-3">3</div><h3 class="font-semibold text-sm">Watch Lessons</h3></div>
+            <div class="text-center"><div class="w-14 h-14 mx-auto rounded-full bg-primary-600 text-white flex items-center justify-center text-xl font-bold mb-3">4</div><h3 class="font-semibold text-sm">Take Quizzes</h3></div>
+            <div class="text-center"><div class="w-14 h-14 mx-auto rounded-full bg-accent-500 text-slate-900 flex items-center justify-center text-xl font-bold mb-3">5</div><h3 class="font-semibold text-sm">Get Certificate</h3></div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS (Somali) -->
+<section class="py-16 bg-slate-100 dark:bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-10">What Our Students Say</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            {% if testimonials %}
+                {% for t in testimonials %}
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700">
+                    <div class="mb-3">{% star_rating t.rating size=16 %}</div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-4">"{{ t.quote }}"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold">{{ t.student_name|first }}</div>
+                        <div><div class="font-semibold text-sm">{{ t.student_name }}</div><div class="text-xs text-slate-500">{{ t.course_name }}</div></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow-lg border">
+                    <div class="mb-3">{% star_rating 5 size=16 %}</div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-4">"Waxaan si weyn u horumariyay Ingiriisigayga kadib markaan dhammeeyay koorsada Hilaac Academy."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold">A</div><div><div class="font-semibold text-sm">Amina Hassan</div><div class="text-xs text-slate-500">English Beginner</div></div></div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- DIGITAL LIBRARY -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-10 items-center">
+        <div>
+            <h2 class="text-3xl font-bold mb-4">Maktabadda Dijitaalka ah</h2>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">Maktabadda Dijitaalka ah ee Hilaac Academy waxay kuu sahleysaa helitaanka buugaagta iyo agabka waxbarashada.</p>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-100 dark:bg-slate-800">{% ha_icon "book-open" size=18 class_name="text-primary-600" %} Books</div>
+                <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-100 dark:bg-slate-800">{% ha_icon "file-text" size=18 class_name="text-primary-600" %} PDFs</div>
+                <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-100 dark:bg-slate-800">{% ha_icon "library" size=18 class_name="text-primary-600" %} Vocabulary Guides</div>
+                <div class="flex items-center gap-2 p-3 rounded-lg bg-slate-100 dark:bg-slate-800">{% ha_icon "pencil" size=18 class_name="text-primary-600" %} Grammar Notes</div>
+            </div>
+            <a href="{% url 'library:home' %}" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700">Explore Library</a>
+        </div>
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl bg-[#0B1736] aspect-[4/3] lg:aspect-[16/10] min-h-[280px] lg:min-h-[400px] ring-1 ring-[#1E4D8F]/30">
+            <picture class="absolute inset-0 block h-full w-full">
+                <source media="(min-width: 1280px)" srcset="{% static 'images/library-hero-4k.webp' %}" type="image/webp">
+                <source media="(min-width: 768px)" srcset="{% static 'images/library-hero-tablet.webp' %}" type="image/webp">
+                <source srcset="{% static 'images/library-hero.webp' %}" type="image/webp">
+                <img
+                    src="{% static 'images/library-hero.webp' %}"
+                    alt="Ardayda Hilaac Academy oo wada baranaya maktabadda dijitaalka ah"
+                    class="h-full w-full object-cover object-center"
+                    loading="lazy"
+                    decoding="async"
+                    width="3840"
+                    height="2160"
+                >
+            </picture>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0B1736]/50 via-[#1E4D8F]/10 to-transparent pointer-events-none" aria-hidden="true"></div>
+        </div>
+    </div>
+</section>
+
+<!-- CERTIFICATE -->
+<section class="py-16 bg-gradient-to-br from-primary-700 to-primary-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+        <div class="flex justify-center mb-4">{% ha_icon "award" size=48 class_name="text-white" %}</div>
+        <h2 class="text-3xl font-bold mb-4">Earn a Recognized Certificate</h2>
+        <p class="text-primary-100 max-w-2xl mx-auto mb-8">Marka aad dhammaysato koorsada oo aad gudubto imtixaanka kama dambaysta ah, waxaad heli doontaa shahaado rasmi ah.</p>
+        <div class="grid md:grid-cols-3 gap-6 text-left">
+            <div class="glass rounded-2xl p-6"><div class="flex justify-center mb-2">{% ha_icon "check-circle" size=32 %}</div><h3 class="font-semibold mb-1">Issued on Completion</h3><p class="text-sm text-primary-100">Certificates are issued after you complete a course.</p></div>
+            <div class="glass rounded-2xl p-6"><div class="flex justify-center mb-2">{% ha_icon "hash" size=32 %}</div><h3 class="font-semibold mb-1">Unique Verification Number</h3><p class="text-sm text-primary-100">Each certificate has a unique verification number.</p></div>
+            <div class="glass rounded-2xl p-6"><div class="flex justify-center mb-2">{% ha_icon "qr-code" size=32 %}</div><h3 class="font-semibold mb-1">QR Code Verification</h3><p class="text-sm text-primary-100">Verify any certificate instantly via QR code.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- INSTRUCTORS -->
+{% if instructors %}
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-10">Our Instructors</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for ins in instructors %}
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border shadow text-center">
+                {% if ins.profile_photo %}
+                <img src="{{ ins.profile_photo.url }}" class="w-20 h-20 rounded-full mx-auto mb-3 object-cover">
+                {% else %}
+                <div class="w-20 h-20 rounded-full mx-auto mb-3 bg-primary-600 text-white flex items-center justify-center text-2xl font-bold">{{ ins.first_name|first|default:ins.username|first }}</div>
+                {% endif %}
+                <h3 class="font-semibold">{{ ins.get_full_name|default:ins.username }}</h3>
+                <p class="text-sm text-slate-500">{{ ins.bio|truncatewords:6|default:"Language Instructor" }}</p>
+                <p class="text-xs text-primary-600 mt-2">{{ ins.student_count }} students</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- FAQ -->
+<section class="py-16 bg-slate-100 dark:bg-slate-900/50" x-data="{ open: null }">
+    <div class="max-w-3xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
+        <div class="space-y-3">
+            {% if faqs %}
+                {% for faq in faqs %}
+                <div class="rounded-xl bg-white dark:bg-slate-800 border overflow-hidden">
+                    <button @click="open = open === {{ forloop.counter }} ? null : {{ forloop.counter }}" class="w-full px-6 py-4 text-left font-semibold flex justify-between items-center">
+                        {{ faq.question }}<span x-text="open === {{ forloop.counter }} ? '−' : '+'"></span>
+                    </button>
+                    <div x-show="open === {{ forloop.counter }}" x-collapse x-cloak class="px-6 pb-4 text-slate-600 dark:text-slate-400">{{ faq.answer }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="rounded-xl bg-white dark:bg-slate-800 border overflow-hidden"><button @click="open = open === 1 ? null : 1" class="w-full px-6 py-4 text-left font-semibold flex justify-between items-center">Sidee ayaan isu diiwaangeliyaa?<span x-text="open === 1 ? '−' : '+'"></span></button><div x-show="open === 1" x-collapse x-cloak class="px-6 pb-4 text-slate-600 dark:text-slate-400">Riix "Register", buuxi foomka, kadibna xaqiiji emailkaaga.</div></div>
+                <div class="rounded-xl bg-white dark:bg-slate-800 border overflow-hidden"><button @click="open = open === 2 ? null : 2" class="w-full px-6 py-4 text-left font-semibold flex justify-between items-center">Sidee ayaan lacagta ku bixiyaa?<span x-text="open === 2 ? '−' : '+'"></span></button><div x-show="open === 2" x-collapse x-cloak class="px-6 pb-4 text-slate-600 dark:text-slate-400">Waxaad ku bixin kartaa M-Pesa (Kenya) ama EVC Plus (Soomaaliya).</div></div>
+                <div class="rounded-xl bg-white dark:bg-slate-800 border overflow-hidden"><button @click="open = open === 3 ? null : 3" class="w-full px-6 py-4 text-left font-semibold flex justify-between items-center">Ma heli karaa shahaado?<span x-text="open === 3 ? '−' : '+'"></span></button><div x-show="open === 3" x-collapse x-cloak class="px-6 pb-4 text-slate-600 dark:text-slate-400">Haa, waxaad heli doontaa shahaado marka aad dhammaysato koorsada.</div></div>
+                <div class="rounded-xl bg-white dark:bg-slate-800 border overflow-hidden"><button @click="open = open === 4 ? null : 4" class="w-full px-6 py-4 text-left font-semibold flex justify-between items-center">Koorsooyinka ma ku shaqeeyaan mobilka?<span x-text="open === 4 ? '−' : '+'"></span></button><div x-show="open === 4" x-collapse x-cloak class="px-6 pb-4 text-slate-600 dark:text-slate-400">Haa, barta waa mobile-friendly waxayna si fiican uga shaqaysaa taleefannada.</div></div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT (Somali) -->
+<section id="about" class="py-16">
+    <div class="max-w-5xl mx-auto px-4 text-center mb-10">
+        <h2 class="text-3xl font-bold mb-4">About Hilaac Academy</h2>
+        <p class="text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">Hilaac Academy waxaa loo aas aasay si loo hormariyo xirfadaha luqadaha iyo aqoonta casriga ah ee bulshada Soomaaliyeed.</p>
+    </div>
+    <div class="max-w-5xl mx-auto px-4 grid md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border"><h3 class="font-bold text-lg mb-2">About</h3><p class="text-sm text-slate-500">Madal waxbarasho online ah oo u heellan barashada luuqadaha English iyo Kiswahili.</p></div>
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border"><h3 class="font-bold text-lg mb-2">Mission</h3><p class="text-sm text-slate-500">Inaan u sahlanno bulshada Soomaaliyeed inay helaan waxbarasho tayo leh oo la awoodi karo.</p></div>
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border"><h3 class="font-bold text-lg mb-2">Vision</h3><p class="text-sm text-slate-500">Inaan noqonno barta waxbarasho online-ka ugu horreysa ee bulshada Soomaaliyeed.</p></div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="py-16 bg-slate-100 dark:bg-slate-900/50">
+    <div class="max-w-5xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-10">Nala Soo Xiriir</h2>
+        <p class="text-center text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">Wax su'aalo ah ma qabtaa? Nala soo xiriir, kooxdeena taageerada ayaa diyaar kuu ah.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+            <a href="{{ WHATSAPP_LINK }}" target="_blank" class="p-6 rounded-2xl bg-white dark:bg-slate-800 border hover:border-green-500 transition"><div class="flex justify-center mb-2"><svg viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-green-600" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24z"/></svg></div><div class="font-semibold">WhatsApp</div><div class="text-sm text-slate-500">{{ WHATSAPP_SUPPORT_NUMBER }}</div></a>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border"><div class="flex justify-center mb-2">{% ha_icon "phone" size=32 class_name="text-primary-600" %}</div><div class="font-semibold">Phone</div><div class="text-sm text-slate-500">{{ WHATSAPP_SUPPORT_NUMBER }}</div></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border"><div class="flex justify-center mb-2">{% ha_icon "mail" size=32 class_name="text-primary-600" %}</div><div class="font-semibold">Email</div><div class="text-sm text-slate-500">info@hilaacacademy.com</div></div>
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border"><div class="flex justify-center mb-2">{% ha_icon "map-pin" size=32 class_name="text-primary-600" %}</div><div class="font-semibold">Location</div><div class="text-sm text-slate-500">Eastleigh, Nairobi, Kenya</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-16 bg-primary-700 text-white text-center">
+    <div class="max-w-3xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-4">Diyaar ma u tahay inaad bilowdo?</h2>
+        <p class="text-primary-100 mb-8">Ku biir kumannaan arday oo horumarinaya xirfadahooda luuqadeed.</p>
+        <a href="{% url 'accounts:register' %}" class="inline-block px-8 py-3 bg-white text-primary-800 rounded-xl font-semibold hover:bg-primary-50 transition">Register Free</a>
+    </div>
+</section>
+{% endblock %}

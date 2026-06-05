@@ -1,0 +1,10 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Quizzes{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Quizzes & Exams</h1>
+<p class="text-sm text-slate-500 mb-4">Create detailed quizzes in <a href="/admin/assessments/quiz/" class="text-primary-600">Django Admin → Assessments</a></p>
+<div class="bg-white rounded-xl border overflow-x-auto">
+<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Title</th><th class="p-3 text-left">Course/Module</th><th class="p-3 text-left">Pass %</th><th class="p-3 text-left">Timer</th><th class="p-3 text-left">Final</th><th class="p-3"></th></tr></thead>
+<tbody>{% for q in quizzes %}<tr class="border-t"><td class="p-3">{{ q.title }}</td><td class="p-3">{% if q.level %}{{ q.level.name }}{% else %}{{ q.module.title }}{% endif %}</td><td class="p-3">{{ q.pass_mark }}%</td><td class="p-3">{{ q.time_limit_minutes|default:"—" }} min</td><td class="p-3">{% if q.is_final %}Yes{% endif %}</td><td class="p-3"><a href="{% url 'admin_portal:quiz_delete' pk=q.pk %}" class="text-red-600">Delete</a></td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

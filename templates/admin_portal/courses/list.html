@@ -1,0 +1,15 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<div class="flex justify-between mb-6">
+    <h1 class="text-2xl font-bold">Courses</h1>
+    <div class="flex gap-2">
+        <a href="{% url 'courses_manage:list' %}" class="px-4 py-2 border rounded-lg text-sm">All Builders</a>
+        <a href="{% url 'admin_portal:course_create' %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">+ Create Course</a>
+    </div>
+</div>
+<div class="bg-white rounded-xl shadow border overflow-x-auto">
+<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Cover</th><th class="p-3 text-left">Course</th><th class="p-3 text-left">Instructor</th><th class="p-3 text-left">Price</th><th class="p-3 text-left">Enrolled</th><th class="p-3 text-left">Status</th><th class="p-3"></th></tr></thead>
+<tbody>{% for l in levels %}<tr class="border-t"><td class="p-3"><img src="{{ l.cover_url }}" alt="" loading="lazy" class="w-20 h-12 rounded object-cover"></td><td class="p-3"><strong>{{ l.language.name }}</strong> — {{ l.name }}</td><td class="p-3">{{ l.instructor.get_full_name|default:"—" }}</td><td class="p-3">{% if l.is_free %}Free{% else %}KES {{ l.price }}{% endif %}</td><td class="p-3">{{ l.enrolled_count }}</td><td class="p-3">{% if l.is_archived %}Archived{% elif l.is_published %}Published{% else %}Draft{% endif %}</td><td class="p-3 space-x-2 whitespace-nowrap"><a href="{% url 'courses_manage:level_detail' level_id=l.id %}" class="text-primary-600 font-medium">Builder</a><a href="{% url 'admin_portal:course_edit' pk=l.pk %}" class="text-primary-600">Edit</a><a href="{% url 'admin_portal:course_delete' pk=l.pk %}" class="text-red-600">Delete</a></td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

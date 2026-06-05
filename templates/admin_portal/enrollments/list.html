@@ -1,0 +1,17 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Enrollments{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Enrollments</h1>
+<div class="bg-white p-5 rounded-xl border mb-6">
+<h2 class="font-bold mb-3">Manual Enrollment</h2>
+<form method="post" action="{% url 'admin_portal:enrollment_create' %}" class="flex flex-wrap gap-3 items-end">{% csrf_token %}
+<select name="student" class="form-input max-w-xs" required>{% for s in students %}<option value="{{ s.id }}">{{ s.username }}</option>{% endfor %}</select>
+<select name="level" class="form-input max-w-xs" required>{% for l in levels %}<option value="{{ l.id }}">{{ l.language.name }} - {{ l.name }}</option>{% endfor %}</select>
+<button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">Enroll Student</button>
+</form>
+</div>
+<div class="bg-white rounded-xl border overflow-x-auto">
+<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Student</th><th class="p-3 text-left">Course</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Date</th><th class="p-3"></th></tr></thead>
+<tbody>{% for e in enrollments %}<tr class="border-t"><td class="p-3">{{ e.student.username }}</td><td class="p-3">{{ e.level.name }}</td><td class="p-3">{{ e.get_status_display }}</td><td class="p-3">{{ e.enrolled_at|date:"M d, Y" }}</td><td class="p-3"><a href="{% url 'admin_portal:enrollment_delete' pk=e.pk %}" class="text-red-600 text-sm" onclick="return confirm('Remove enrollment?')">Remove</a></td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

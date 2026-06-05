@@ -1,0 +1,91 @@
+{% extends "student/base.html" %}
+{% load ha_icons %}
+{% block title %}Processing Payment{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto text-center" x-data="paymentPoller()" x-init="start()">
+    <!-- Processing state -->
+    <div x-show="status === 'pending'" class="py-8">
+        <div class="relative w-20 h-20 mx-auto mb-6">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-200"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-primary-600 border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">{% ha_icon "smartphone" size=28 class_name="text-primary-600" %}</div>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">Processing Payment...</h1>
+        <p class="text-slate-600 mb-2">Please complete the transaction on your phone.</p>
+        {% if pin_message %}
+        <p class="text-sm text-primary-700 bg-primary-50 rounded-lg px-4 py-3 mb-6">{{ pin_message }}</p>
+        {% endif %}
+        <div class="bg-white rounded-2xl border p-5 text-left text-sm space-y-2">
+            <div class="flex justify-between"><span class="text-slate-500">Course</span><span class="font-medium">{{ payment.level.name }}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Amount</span><span class="font-bold text-primary-600">KES {{ payment.amount }}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Method</span><span>{{ payment.get_method_display }}</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Phone</span><span>{{ payment.phone_number }}</span></div>
+        </div>
+        <p class="text-xs text-slate-400 mt-6" x-text="pollMessage">Waiting for payment confirmation...</p>
+    </div>
+
+    <!-- Success -->
+    <div x-show="status === 'completed'" class="py-8">
+        <div class="flex justify-center mb-4">{% ha_icon "check-circle" size=64 class_name="text-green-600" %}</div>
+        <h1 class="text-2xl font-bold text-green-700 mb-2">Payment Successful!</h1>
+        <p class="text-slate-600 mb-6">Welcome to your course. Redirecting...</p>
+    </div>
+
+    <!-- Failed -->
+    <div x-show="status === 'failed'" class="py-8">
+        <div class="flex justify-center mb-4">{% ha_icon "x-circle" size=64 class_name="text-red-600" %}</div>
+        <h1 class="text-2xl font-bold text-red-600 mb-2">Payment Not Completed</h1>
+        <p class="text-slate-600 mb-6" x-text="errorMessage"></p>
+        <div class="flex flex-col gap-3">
+            <a href="{% url 'payments:checkout' level_id=payment.level.id %}" class="py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700">Retry Payment</a>
+            <a href="{{ payment.level.get_absolute_url }}" class="py-2 text-sm text-slate-500 hover:underline">Back to Course</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function paymentPoller() {
+    const statusUrl = "{% url 'payments:status' payment_id=payment.id %}";
+    let interval = null;
+
+    return {
+        status: 'pending',
+        pollMessage: 'Waiting for payment confirmation...',
+        errorMessage: '',
+        start() {
+            window.addEventListener('beforeunload', this.onBeforeUnload);
+            this.poll();
+            interval = setInterval(() => this.poll(), 2500);
+        },
+        onBeforeUnload(e) {
+            if (this.status === 'pending') {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        },
+        async poll() {
+            try {
+                const resp = await fetch(statusUrl, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+                const data = await resp.json();
+                if (data.status === 'completed') {
+                    this.status = 'completed';
+                    clearInterval(interval);
+                    window.removeEventListener('beforeunload', this.onBeforeUnload);
+                    setTimeout(() => { window.location.href = data.redirect_url; }, 1500);
+                } else if (data.status === 'failed' || data.status === 'cancelled') {
+                    this.status = 'failed';
+                    this.errorMessage = data.message || 'Payment was not completed.';
+                    clearInterval(interval);
+                    window.removeEventListener('beforeunload', this.onBeforeUnload);
+                } else {
+                    this.pollMessage = data.message || 'Waiting for payment confirmation...';
+                }
+            } catch (e) {
+                this.pollMessage = 'Checking payment status...';
+            }
+        }
+    };
+}
+</script>
+{% endblock %}

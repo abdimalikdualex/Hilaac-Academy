@@ -1,0 +1,58 @@
+{% extends "admin_portal/base.html" %}
+{% load ha_icons %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="welcome-card mb-6 p-6 pl-8">
+    <h1 class="text-2xl font-bold text-primary-900">Super Admin Dashboard</h1>
+    <p class="text-slate-600 mt-1">Halkaan waxaad ka maamuli kartaa dhammaan qaybaha Hilaac Academy.</p>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "users" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ total_students }}</div></div><div class="text-sm text-slate-500">Students</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "user-check" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ total_instructors }}</div></div><div class="text-sm text-slate-500">Instructors</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "book-open" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ total_courses }}</div></div><div class="text-sm text-slate-500">Courses</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "clipboard-list" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ active_enrollments }}</div></div><div class="text-sm text-slate-500">Active Enrollments</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "dollar-sign" size=18 class_name="text-green-500" %}<div class="text-2xl font-bold text-green-600">KES {{ total_revenue }}</div></div><div class="text-sm text-slate-500">Total Revenue</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "trending-up" size=18 class_name="text-green-500" %}<div class="text-2xl font-bold text-green-600">KES {{ monthly_revenue }}</div></div><div class="text-sm text-slate-500">Monthly Revenue</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "graduation-cap" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ total_certificates }}</div></div><div class="text-sm text-slate-500">Certificates</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "file-text" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ assignments_submitted }}</div></div><div class="text-sm text-slate-500">Assignments</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "help-circle" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ quizzes_completed }}</div></div><div class="text-sm text-slate-500">Quizzes Done</div></div>
+</div>
+
+<div class="grid lg:grid-cols-3 gap-6 mb-8">
+    <div class="lg:col-span-2 bg-white rounded-xl shadow border p-5">
+        <h2 class="font-bold mb-4">Most Popular Courses</h2>
+        {% for c in popular_courses %}
+        <div class="flex justify-between py-2 border-b text-sm"><span>{{ c.language.name }} - {{ c.name }}</span><span class="font-semibold">{{ c.cnt }} enrolled</span></div>
+        {% empty %}<p class="text-slate-500 text-sm">No data yet.</p>{% endfor %}
+    </div>
+    <div class="bg-white rounded-xl shadow border p-5">
+        <h2 class="font-bold mb-4">Recent Activity</h2>
+        {% for a in recent_activities %}
+        <div class="text-sm py-2 border-b"><div>{{ a.text }}</div><div class="text-xs text-slate-400">{{ a.date|timesince }} ago</div></div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-xl shadow border p-5">
+        <h2 class="font-bold mb-4">Recent Payments</h2>
+        {% for p in recent_payments %}
+        <div class="flex justify-between py-2 border-b text-sm">
+            <span>{{ p.student.username }} · {{ p.level.name }}</span>
+            <span class="{% if p.status == 'completed' %}text-green-600{% elif p.status == 'pending' %}text-yellow-600{% else %}text-red-500{% endif %}">KES {{ p.amount }} · {{ p.get_status_display }}</span>
+        </div>
+        {% endfor %}
+        <a href="{% url 'admin_portal:payment_list' %}?status=pending" class="text-primary-600 text-sm mt-3 inline-block">View pending →</a>
+    </div>
+    <div class="bg-white rounded-xl shadow border p-5">
+        <h2 class="font-bold mb-4">New Registrations</h2>
+        {% for s in new_registrations %}
+        <div class="flex justify-between py-2 border-b text-sm">
+            <a href="{% url 'admin_portal:student_detail' pk=s.pk %}" class="text-primary-600 hover:underline">{{ s.get_full_name|default:s.username }}</a>
+            <span class="text-slate-400">{{ s.date_joined|date:"M d" }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

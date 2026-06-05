@@ -1,0 +1,12 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Grade Submission{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Grade: {{ submission.assignment.title }}</h1>
+<p class="text-sm mb-4">Student: {{ submission.student.username }} · <a href="{{ submission.file.url }}" class="text-primary-600">Download file</a></p>
+<form method="post" class="bg-white p-6 rounded-xl border max-w-md space-y-4">{% csrf_token %}
+<input type="number" name="grade" value="{{ submission.grade|default:'' }}" class="form-input" placeholder="Grade" step="0.01">
+<textarea name="feedback" class="form-input" rows="4" placeholder="Feedback">{{ submission.feedback }}</textarea>
+<select name="status" class="form-input"><option value="graded">Graded</option><option value="approved">Approved</option><option value="resubmit">Request Resubmission</option></select>
+<button class="px-6 py-2 bg-primary-600 text-white rounded-lg">Save Grade</button>
+</form>
+{% endblock %}

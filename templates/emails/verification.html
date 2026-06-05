@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+{% block email_body %}
+<h1 style="margin:0 0 16px;font-size:22px;color:#0f766e;">Welcome to Hilaac Academy</h1>
+<p style="margin:0 0 16px;line-height:1.6;color:#334155;">Thank you for joining Hilaac Academy. Please verify your email address to activate your account.</p>
+<p style="margin:0 0 24px;text-align:center;">
+    <a href="{{ verify_url }}" style="display:inline-block;padding:14px 28px;background:#0f766e;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;">Verify Email</a>
+</p>
+<p style="margin:0;line-height:1.6;color:#64748b;font-size:14px;">Baro Xirfado Casri ah, Dhis Mustaqbalkaaga.</p>
+{% endblock %}

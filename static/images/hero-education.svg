@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-label="African learners studying online">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1736"/>
+      <stop offset="45%" stop-color="#1E4D8F"/>
+      <stop offset="100%" stop-color="#16386a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D4A017"/>
+      <stop offset="100%" stop-color="#e4bc3a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#0FAE9D" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0B1736" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#sky)"/>
+  <rect width="1440" height="900" fill="url(#glow)"/>
+  <!-- abstract classroom shapes -->
+  <circle cx="200" cy="180" r="120" fill="#1E4D8F" opacity="0.35"/>
+  <circle cx="1240" cy="220" r="160" fill="#0FAE9D" opacity="0.15"/>
+  <circle cx="1100" cy="680" r="200" fill="#D4A017" opacity="0.08"/>
+  <!-- laptop screens -->
+  <g opacity="0.55">
+    <rect x="180" y="520" width="220" height="140" rx="12" fill="#ffffff" opacity="0.12"/>
+    <rect x="200" y="540" width="180" height="95" rx="6" fill="#0FAE9D" opacity="0.35"/>
+    <rect x="420" y="560" width="260" height="12" rx="6" fill="#ffffff" opacity="0.2"/>
+  </g>
+  <g opacity="0.55">
+    <rect x="980" y="480" width="260" height="160" rx="14" fill="#ffffff" opacity="0.12"/>
+    <rect x="1005" y="505" width="210" height="105" rx="8" fill="#D4A017" opacity="0.3"/>
+  </g>
+  <!-- mobile learning -->
+  <rect x="720" y="560" width="70" height="120" rx="14" fill="#ffffff" opacity="0.15"/>
+  <rect x="730" y="575" width="50" height="80" rx="6" fill="#0FAE9D" opacity="0.35"/>
+  <!-- books stack -->
+  <g transform="translate(560 590)" opacity="0.5">
+    <rect x="0" y="30" width="90" height="18" rx="3" fill="#D4A017"/>
+    <rect x="8" y="15" width="90" height="18" rx="3" fill="#0FAE9D"/>
+    <rect x="16" y="0" width="90" height="18" rx="3" fill="#ffffff" opacity="0.35"/>
+  </g>
+  <!-- language symbols -->
+  <text x="320" y="420" fill="#ffffff" opacity="0.18" font-family="Georgia, serif" font-size="96" font-weight="700">Aa</text>
+  <text x="880" y="390" fill="#ffffff" opacity="0.14" font-family="Georgia, serif" font-size="72" font-weight="700">EN � SW</text>
+  <!-- learner silhouettes -->
+  <g fill="#ffffff" opacity="0.12">
+    <circle cx="350" cy="470" r="28"/>
+    <path d="M310 560 Q350 520 390 560 L390 620 L310 620 Z"/>
+    <circle cx="620" cy="450" r="24"/>
+    <path d="M590 525 Q620 495 650 525 L650 575 L590 575 Z"/>
+    <circle cx="1050" cy="430" r="26"/>
+    <path d="M1015 515 Q1050 480 1085 515 L1085 565 L1015 565 Z"/>
+  </g>
+  <!-- bottom fade for text readability -->
+  <rect x="0" y="650" width="1440" height="250" fill="#0B1736" opacity="0.35"/>
+  <rect x="0" y="0" width="1440" height="900" fill="url(#sky)" opacity="0.15"/>
+</svg>

@@ -1,0 +1,10 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Website CMS{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Website Content</h1>
+<div class="grid lg:grid-cols-3 gap-6">
+<div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Statistics</h2>{% for s in statistics %}<div class="text-sm py-1">{{ s.label }}: {{ s.value }}</div>{% endfor %}<a href="/admin/cms/sitestatistic/" class="text-primary-600 text-sm mt-2 inline-block">Edit in Admin →</a></div>
+<div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Testimonials</h2>{% for t in testimonials|slice:":5" %}<div class="text-sm py-1 border-b">{{ t.student_name }}</div>{% endfor %}<a href="/admin/cms/testimonial/" class="text-primary-600 text-sm mt-2 inline-block">Manage →</a></div>
+<div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">FAQ</h2>{% for f in faqs|slice:":5" %}<div class="text-sm py-1 border-b flex justify-between gap-2"><span>{{ f.question|truncatewords:8 }}</span><span class="space-x-2 flex-shrink-0"><a href="{% url 'admin_portal:cms_faq_edit' pk=f.pk %}" class="text-primary-600">Edit</a><a href="{% url 'admin_portal:faq_delete' pk=f.pk %}" class="text-red-600">Delete</a></span></div>{% endfor %}<a href="{% url 'admin_portal:cms_faq_add' %}" class="text-primary-600 text-sm mt-2 inline-block">+ Add FAQ</a></div>
+</div>
+{% endblock %}

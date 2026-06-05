@@ -1,0 +1,6 @@
+{% load ha_icons %}
+<a href="{{ url }}" class="{{ link_class }}{% if active %} active{% endif %}">
+    {% if icon %}{% ha_icon icon size=18 class_name="opacity-80 shrink-0" %}{% endif %}
+    <span>{{ label }}</span>
+    {{ slot }}
+</a>

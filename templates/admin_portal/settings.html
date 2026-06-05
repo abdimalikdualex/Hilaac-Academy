@@ -1,0 +1,6 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Academy Settings</h1>
+<form method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-xl border max-w-2xl space-y-4">{% csrf_token %}{% for field in form %}<div><label class="block text-sm font-medium mb-1">{{ field.label }}</label>{{ field }}</div>{% endfor %}<button class="px-6 py-2 bg-primary-600 text-white rounded-lg">Save Settings</button></form>
+{% endblock %}

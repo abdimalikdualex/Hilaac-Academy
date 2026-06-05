@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Manage Courses - Hilaac Academy{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+        <div>
+            <a href="{% url 'admin_portal:dashboard' %}" class="text-primary-600 text-sm hover:underline">&larr; Admin Dashboard</a>
+            <h1 class="text-3xl font-bold mt-2">Manage Courses & Videos</h1>
+            <p class="text-slate-600 dark:text-slate-400">Add modules, upload lessons, and attach videos to each course.</p>
+        </div>
+        <a href="/admin/courses/level/add/" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">+ New Course Level</a>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for level in levels %}
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow hover:border-primary-500 transition">
+            <span class="text-xs font-semibold text-primary-600 uppercase">{{ level.language.name }}</span>
+            <h2 class="text-xl font-bold mt-1 mb-2">{{ level.name }}</h2>
+            <p class="text-sm text-slate-500 mb-4">{{ level.modules.count }} modules · {{ level.total_lessons }} lessons</p>
+            <div class="flex gap-2">
+                <a href="{% url 'courses_manage:level_detail' level_id=level.id %}" class="flex-1 text-center py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">Manage Content</a>
+                <a href="/admin/courses/level/{{ level.id }}/change/" class="px-3 py-2 border rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700" title="Edit settings">{% load ha_icons %}{% ha_icon "settings" size=18 %}</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-slate-500">No courses yet. <a href="/admin/" class="text-primary-600 hover:underline">Create in Django Admin</a></p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

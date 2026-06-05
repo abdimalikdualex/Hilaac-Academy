@@ -1,0 +1,29 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+    <a href="{% url 'admin_portal:course_list' %}" class="text-primary-600 text-sm hover:underline">&larr; All Courses</a>
+    <h1 class="text-2xl font-bold mt-2 mb-2">{{ title }}</h1>
+    <p class="text-sm text-slate-500 mb-6">Step 1 — Course details. After saving, add sections and lessons in the Course Builder.</p>
+
+    {% include "partials/course_builder_steps.html" with current_step=1 %}
+
+    <form method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-xl shadow border space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label class="block text-sm font-medium mb-1">{{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}</label>
+            {% if field.help_text %}<p class="text-xs text-slate-500 mb-1">{{ field.help_text }}</p>{% endif %}
+            {{ field }}
+            {% if field.errors %}<p class="text-red-600 text-sm mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Save Course</button>
+            {% if level %}
+            <a href="{% url 'courses_manage:level_detail' level_id=level.id %}" class="px-6 py-2 border rounded-lg hover:bg-slate-50">Open Course Builder →</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

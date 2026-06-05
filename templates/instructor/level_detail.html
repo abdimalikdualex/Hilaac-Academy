@@ -1,0 +1,114 @@
+{% extends "instructor/base.html" %}
+{% block title %}{{ level.name }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <a href="{% url 'instructor:dashboard' %}" class="text-primary-600 text-sm">&larr; My Courses</a>
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mt-2 mb-6">
+        <div class="flex items-center gap-4">
+            <img src="{{ level.cover_url }}" alt="{{ level.name }}" class="w-28 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-700">
+            <div>
+                <span class="text-xs font-semibold text-primary-600">{{ level.language.name }}{% if level.level_tag %} · {{ level.get_level_tag_display }}{% endif %}</span>
+                <h1 class="text-2xl font-bold">{{ level.name }}</h1>
+                {% if level.subtitle %}<p class="text-sm text-slate-500">{{ level.subtitle }}</p>{% endif %}
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+                {% if level.is_archived %}bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300
+                {% elif level.is_published %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300
+                {% else %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300{% endif %}">{{ level.status_label }}</span>
+            <a href="{% url 'instructor:course_edit' level_id=level.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Edit course</a>
+            {% if not level.is_archived %}
+            <a href="{% url 'instructor:course_publish' level_id=level.id %}" class="px-3 py-1.5 rounded-lg text-white {% if level.is_published %}bg-amber-600 hover:bg-amber-700{% else %}bg-green-600 hover:bg-green-700{% endif %}">{% if level.is_published %}Unpublish{% else %}Publish{% endif %}</a>
+            {% endif %}
+            <a href="{% url 'instructor:course_archive' level_id=level.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">{% if level.is_archived %}Restore{% else %}Archive{% endif %}</a>
+        </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border text-center">
+            <div class="text-2xl font-bold">{{ analytics.student_count }}</div>
+            <div class="text-xs text-slate-500">Students</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border text-center">
+            <div class="text-2xl font-bold">KES {{ analytics.revenue }}</div>
+            <div class="text-xs text-slate-500">Revenue</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border text-center">
+            <div class="text-2xl font-bold">{{ analytics.lessons_completed }}</div>
+            <div class="text-xs text-slate-500">Lessons completed</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border text-center">
+            <div class="text-2xl font-bold">{{ analytics.avg_progress }}%</div>
+            <div class="text-xs text-slate-500">Avg progress</div>
+        </div>
+        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border text-center">
+            <div class="text-2xl font-bold">{{ analytics.completion_rate }}%</div>
+            <div class="text-xs text-slate-500">Completion rate</div>
+        </div>
+    </div>
+
+    {% include "partials/course_builder_steps.html" with current_step=builder_step|default:2 %}
+
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Step 2 — Sections &amp; Lessons</h2>
+        <a href="{% url 'instructor:module_add' level_id=level.id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">+ Add Section</a>
+    </div>
+
+    {% if first_lesson %}
+    <p class="text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-4">Preview rule: only <strong>Lesson 1 — {{ first_lesson.title }}</strong> can be free preview (max 1).</p>
+    {% endif %}
+
+    {% for module in level.modules.all %}
+    <div class="mb-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="flex flex-wrap justify-between items-center gap-2 p-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+            <h3 class="font-bold">Section {{ module.order }}: {{ module.title }}</h3>
+            <div class="flex items-center gap-1 text-sm">
+                <a href="{% url 'instructor:module_move' module_id=module.id direction='up' %}" class="px-2 py-1.5 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="Move up">↑</a>
+                <a href="{% url 'instructor:module_move' module_id=module.id direction='down' %}" class="px-2 py-1.5 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" title="Move down">↓</a>
+                <a href="{% url 'instructor:module_edit' module_id=module.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">Edit</a>
+                <a href="{% url 'instructor:module_delete' module_id=module.id %}" class="px-3 py-1.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">Delete</a>
+                <a href="{% url 'instructor:lesson_add' module_id=module.id %}" class="px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">+ Lesson</a>
+            </div>
+        </div>
+        <div class="divide-y divide-slate-200 dark:divide-slate-700">
+            {% for lesson in module.lessons.all %}
+            <div class="p-4 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="{{ lesson.thumbnail_url }}" alt="" loading="lazy" class="w-24 h-14 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700">
+                    <div class="min-w-0">
+                        <div class="font-medium truncate flex items-center gap-2 flex-wrap">
+                            {{ lesson.order }}. {{ lesson.title }}
+                            {% if lesson.is_preview %}<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-xs font-semibold">Free Preview</span>
+                            {% else %}{% load ha_icons %}{% status_badge_icon label="LOCKED" %}{% endif %}
+                        </div>
+                        <div class="text-xs text-slate-500">{{ lesson.get_lesson_type_display }} · {{ lesson.duration_minutes }} min{% if lesson.video_filesize_display %} · {{ lesson.video_filesize_display }}{% endif %} · added {{ lesson.created_at|date:"M j, Y" }}</div>
+                        <div class="text-xs mt-0.5">
+                            {% if lesson.video_file or lesson.video_url %}<span class="text-green-600">● Video ready</span>{% elif lesson.lesson_type == 'video' %}<span class="text-red-500">● No video yet</span>{% endif %}
+                            {% if not lesson.is_published %}<span class="text-slate-400">· draft</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 text-sm">
+                    <a href="{% url 'instructor:lesson_move' lesson_id=lesson.id direction='up' %}" class="px-2 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700" title="Move up">↑</a>
+                    <a href="{% url 'instructor:lesson_move' lesson_id=lesson.id direction='down' %}" class="px-2 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700" title="Move down">↓</a>
+                    <a href="{% url 'instructor:lesson_preview' lesson_id=lesson.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Preview</a>
+                    <a href="{% url 'instructor:lesson_edit' lesson_id=lesson.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Edit</a>
+                    <a href="{% url 'instructor:lesson_delete' lesson_id=lesson.id %}" class="px-3 py-1.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">Delete</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="p-4 text-slate-500 text-sm">No lessons in this module yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-10 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600">
+        <p class="text-slate-500 mb-3">No modules yet. Start by adding your first module.</p>
+        <a href="{% url 'instructor:module_add' level_id=level.id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">+ Add Module</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

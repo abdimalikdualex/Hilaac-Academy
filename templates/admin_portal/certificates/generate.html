@@ -1,0 +1,10 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Generate Certificate{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Generate Certificate</h1>
+<form method="post" class="bg-white p-6 rounded-xl border max-w-md space-y-4">{% csrf_token %}
+<select name="student" class="form-input" required>{% for s in students %}<option value="{{ s.id }}">{{ s.username }}</option>{% endfor %}</select>
+<select name="level" class="form-input" required>{% for l in levels %}<option value="{{ l.id }}">{{ l.name }}</option>{% endfor %}</select>
+<button class="px-6 py-2 bg-primary-600 text-white rounded-lg">Generate</button>
+</form>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Instructors{% endblock %}
+{% block content %}
+<div class="flex justify-between mb-6"><h1 class="text-2xl font-bold">Instructors</h1><a href="{% url 'admin_portal:instructor_create' %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">+ Add Instructor</a></div>
+<div class="bg-white rounded-xl shadow border overflow-x-auto">
+<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Name</th><th class="p-3 text-left">Email</th><th class="p-3 text-left">Courses</th><th class="p-3 text-left">Status</th><th class="p-3"></th></tr></thead>
+<tbody>{% for i in instructors %}<tr class="border-t"><td class="p-3">{{ i.get_full_name|default:i.username }}</td><td class="p-3">{{ i.email }}</td><td class="p-3">{{ i.course_count }}</td><td class="p-3">{% if i.is_active %}Active{% else %}Suspended{% endif %}</td><td class="p-3 space-x-2"><a href="{% url 'admin_portal:instructor_edit' pk=i.pk %}" class="text-primary-600">Edit</a><a href="{% url 'admin_portal:instructor_delete' pk=i.pk %}" class="text-red-600">Delete</a></td></tr>{% empty %}<tr><td colspan="5" class="p-6 text-center text-slate-500">No instructors.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

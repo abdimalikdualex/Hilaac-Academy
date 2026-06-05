@@ -1,0 +1,7 @@
+Welcome to Hilaac Academy
+
+Thank you for joining Hilaac Academy. Please verify your email address:
+
+{{ verify_url }}
+
+— Hilaac Academy

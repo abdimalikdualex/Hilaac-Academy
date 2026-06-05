@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load ha_icons %}
+{% block title %}Courses - Hilaac Academy{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden bg-primary-900 text-white mb-8">
+    <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('{{ hero_background_url }}');" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#0B1736]/95 via-[#1E4D8F]/88 to-[#0B1736]/90" aria-hidden="true"></div>
+    <div class="relative max-w-7xl mx-auto px-4 py-12">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">Language Courses</h1>
+        <p class="text-primary-100 max-w-2xl">Kooraskani wuxuu kaa caawinayaa inaad si xirfad leh u barato luqadda English ama Kiswahili adigoo raacaya casharro nidaamsan.</p>
+    </div>
+</section>
+<div class="max-w-7xl mx-auto px-4 pb-8">
+
+    <form method="get" class="flex flex-wrap gap-3 mb-8">
+        <input type="search" name="q" value="{{ query }}" placeholder="Search courses..." class="flex-1 min-w-[200px] px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 outline-none">
+        <select name="language" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">
+            <option value="">All Languages</option>
+            {% for lang in languages %}
+            <option value="{{ lang.slug }}" {% if language_filter == lang.slug %}selected{% endif %}>{{ lang.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Filter</button>
+    </form>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for card in course_cards %}
+        {% with level=card.level access=card.access %}
+        <div class="group rounded-2xl overflow-hidden shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-2xl transition-shadow duration-300">
+            <a href="{{ level.get_absolute_url }}" class="block relative aspect-video overflow-hidden">
+                <img src="{{ level.cover_url }}" alt="{{ level.name }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 text-primary-700">{{ level.language.name }}</span>
+                <span class="absolute top-3 right-3">{% include "partials/course_status_badge.html" %}</span>
+                {% if level.has_preview %}<span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500 text-white inline-flex items-center gap-1">{% ha_icon "play" size=12 class_name="text-white fill-white" %} Preview</span>{% endif %}
+            </a>
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">{{ level.name }}</h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">{{ level.description|truncatewords:15|default:"Baro xirfado luuqadeed casri ah." }}</p>
+                <div class="flex justify-between items-center mb-4 text-sm text-slate-500">
+                    <span class="inline-flex items-center gap-1">{% ha_icon "clock" size=14 %} {{ level.duration_weeks }} weeks</span>
+                    <span class="inline-flex items-center gap-1">{% ha_icon "video" size=14 %} {{ level.total_lessons }} lessons</span>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <span class="font-bold text-lg">{% if level.is_free %}Free{% else %}KES {{ level.price }}{% endif %}</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                    {% if access.has_full_access %}
+                    <a href="{% url 'learning:course_view' level_id=level.id %}" class="block text-center px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700">Continue Learning</a>
+                    {% elif access.access_state == 'pending' %}
+                    <a href="{% url 'payments:pending' payment_id=access.pending_payment.pk %}" class="block text-center px-4 py-2.5 bg-yellow-500 text-white rounded-lg text-sm font-semibold">Pending Verification</a>
+                    {% elif level.is_free %}
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'courses:enroll' level_id=level.id %}" class="block text-center px-4 py-2.5 bg-primary-600 text-white rounded-lg text-sm font-semibold hover:bg-primary-700">Start Learning</a>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={{ level.get_absolute_url }}" class="block text-center px-4 py-2.5 bg-primary-600 text-white rounded-lg text-sm font-semibold">Start Learning</a>
+                    {% endif %}
+                    {% elif user.is_authenticated and user.is_student %}
+                    <a href="{% url 'payments:checkout' level_id=level.id %}" class="block text-center px-4 py-2.5 bg-primary-600 text-white rounded-lg text-sm font-semibold hover:bg-primary-700">Purchase Course</a>
+                    {% if access.can_wishlist %}
+                    <a href="{% url 'courses:toggle_wishlist' level_id=level.id %}" class="block text-center px-4 py-2 border rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700 inline-flex items-center justify-center gap-1.5">{% if card.in_wishlist %}{% ha_icon "heart" size=16 class_name="fill-red-500 text-red-500" %} In Wishlist{% else %}{% ha_icon "heart" size=16 %} Add to Wishlist{% endif %}</a>
+                    {% endif %}
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={{ level.get_absolute_url }}" class="block text-center px-4 py-2.5 bg-primary-600 text-white rounded-lg text-sm font-semibold">Login to Purchase</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% empty %}
+        {% empty_state "courses" "No courses found" "Try adjusting your search or filters." %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Assignments{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Assignments</h1>
+<div class="grid lg:grid-cols-2 gap-6">
+<div class="bg-white rounded-xl border p-5"><h2 class="font-bold mb-3">Assignments</h2>{% for a in assignments %}<div class="text-sm py-2 border-b flex justify-between gap-2"><span>{{ a.title }} — {{ a.module.title }}</span><a href="{% url 'admin_portal:assignment_delete' pk=a.pk %}" class="text-red-600 flex-shrink-0">Delete</a></div>{% empty %}<p class="text-slate-500 text-sm">None yet. Add via Django Admin.</p>{% endfor %}</div>
+<div class="bg-white rounded-xl border p-5"><h2 class="font-bold mb-3">Recent Submissions</h2>{% for s in submissions %}<div class="text-sm py-2 border-b flex justify-between"><span>{{ s.student.username }} — {{ s.assignment.title }}</span><a href="{% url 'admin_portal:submission_grade' pk=s.pk %}" class="text-primary-600">Grade</a></div>{% empty %}<p class="text-slate-500 text-sm">No submissions.</p>{% endfor %}</div>
+</div>
+{% endblock %}

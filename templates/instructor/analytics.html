@@ -1,0 +1,25 @@
+{% extends "instructor/base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Course Analytics</h1>
+<div class="grid md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white p-4 rounded-xl border shadow-sm"><div class="text-2xl font-bold text-primary-700">{{ total_students }}</div><div class="text-sm text-slate-500">Total Students</div></div>
+    <div class="bg-white p-4 rounded-xl border shadow-sm"><div class="text-2xl font-bold text-primary-700">{{ lesson_views }}</div><div class="text-sm text-slate-500">Lesson Views</div></div>
+    <div class="bg-white p-4 rounded-xl border shadow-sm"><div class="text-2xl font-bold text-green-600">{{ completion_rate }}%</div><div class="text-sm text-slate-500">Avg Completion</div></div>
+</div>
+<div class="space-y-4">
+    {% for item in course_stats %}
+    <div class="bg-white rounded-xl border p-5 shadow-sm">
+        <h3 class="font-bold">{{ item.level.name }}</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
+            <div><span class="text-slate-500">Students</span><div class="font-bold text-lg">{{ item.analytics.student_count }}</div></div>
+            <div><span class="text-slate-500">Avg Progress</span><div class="font-bold text-lg">{{ item.analytics.avg_progress }}%</div></div>
+            <div><span class="text-slate-500">Completed</span><div class="font-bold text-lg">{{ item.analytics.completed }}</div></div>
+            <div><span class="text-slate-500">Completion Rate</span><div class="font-bold text-lg">{{ item.analytics.completion_rate }}%</div></div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-slate-500 text-center py-12">No course data yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

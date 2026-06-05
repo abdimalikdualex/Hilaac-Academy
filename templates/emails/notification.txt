@@ -1,0 +1,9 @@
+{{ title }} — Hilaac Academy
+
+{{ message }}
+{% if action_url %}
+
+Visit: {{ action_url }}
+{% endif %}
+
+— Hilaac Academy

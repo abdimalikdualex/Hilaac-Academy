@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="relative min-h-[80vh] flex items-center justify-center px-4 py-12 overflow-hidden bg-primary-900">
+
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ hero_background_url }}');" aria-hidden="true"></div>
+
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-primary-900/92" aria-hidden="true"></div>
+
+    {% include "partials/watermark.html" with position="center" %}
+
+    <div class="relative z-10 w-full max-w-md animate-fade-in">
+
+        <div class="text-center mb-8">
+
+            {% include "partials/logo.html" with show_name=False img_class="h-24 w-24 sm:h-28 sm:w-28 mx-auto" wrapper_class="justify-center" %}
+
+            <p class="mt-4 text-white/90 text-sm sm:text-base max-w-sm mx-auto">{% block auth_welcome %}Welcome to Hilaac Academy{% endblock %}</p>
+
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/95 dark:bg-slate-800/95 shadow-xl border border-white/20 backdrop-blur-md">
+
+            {% block auth_content %}{% endblock %}
+
+        </div>
+
+        {% block auth_footer %}{% endblock %}
+
+    </div>
+
+</section>
+
+{% endblock %}
+

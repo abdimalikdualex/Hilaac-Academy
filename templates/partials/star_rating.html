@@ -1,0 +1,10 @@
+{% load ha_icons %}
+<div class="inline-flex items-center gap-0.5 {{ class_name }}" role="img" aria-label="{{ rating }} out of 5 stars">
+    {% for n in max_stars %}
+        {% if n <= rating %}
+            {% ha_icon "star" size=size class_name="text-amber-400 fill-amber-400" %}
+        {% else %}
+            {% ha_icon "star" size=size class_name="text-slate-300" %}
+        {% endif %}
+    {% endfor %}
+</div>
