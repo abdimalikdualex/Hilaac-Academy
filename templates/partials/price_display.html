@@ -1,0 +1,10 @@
+{% if pricing.is_free %}
+<span class="{% if size == 'lg' %}text-3xl font-extrabold{% elif size == 'sm' %}text-sm font-bold{% else %}text-lg font-bold{% endif %}">Free</span>
+{% elif show_usd_equiv and pricing.show_dual %}
+<span class="{% if size == 'lg' %}text-3xl font-extrabold{% elif size == 'sm' %}text-sm font-bold{% else %}text-lg font-bold{% endif %} text-primary-600">{{ pricing.primary_formatted }}</span>
+<span class="text-sm text-slate-500 block">Equivalent: {{ pricing.usd_formatted }}</span>
+{% elif pricing.show_dual %}
+<span class="{% if size == 'lg' %}text-3xl font-extrabold{% elif size == 'sm' %}text-sm font-bold{% else %}text-lg font-bold{% endif %} text-primary-600">{{ pricing.primary_formatted }}</span>
+{% else %}
+<span class="{% if size == 'lg' %}text-3xl font-extrabold{% elif size == 'sm' %}text-sm font-bold{% else %}text-lg font-bold{% endif %} text-primary-600">{{ pricing.usd_formatted }}</span>
+{% endif %}

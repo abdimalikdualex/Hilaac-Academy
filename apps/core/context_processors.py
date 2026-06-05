@@ -1,5 +1,7 @@
 from django.conf import settings
 
+from apps.payments.currency import detect_country_code, get_display_currency
+
 
 def site_settings(request):
     from apps.core.branding import resolve_hero_background_url, resolve_hero_srcset
@@ -21,4 +23,6 @@ def site_settings(request):
         "hero_background_url": resolve_hero_background_url(),
         "hero_srcset": resolve_hero_srcset(),
         "REQUIRE_EMAIL_VERIFICATION": settings.REQUIRE_EMAIL_VERIFICATION,
+        "user_country_code": detect_country_code(request, getattr(request, "user", None)),
+        "user_display_currency": get_display_currency(detect_country_code(request, getattr(request, "user", None))),
     }

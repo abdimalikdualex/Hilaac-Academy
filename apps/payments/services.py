@@ -355,6 +355,8 @@ def verify_payment_status(payment):
 
 
 def generate_receipt_pdf(payment):
+    from apps.payments.currency import format_amount, format_payment_display
+
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
@@ -372,7 +374,8 @@ def generate_receipt_pdf(payment):
         f"Student: {payment.student.get_full_name() or payment.student.username}",
         f"Email: {payment.student.email}",
         f"Course: {payment.level.language.name} - {payment.level.name}",
-        f"Amount Paid: KES {payment.amount}",
+        f"Amount Paid: {format_payment_display(payment)}",
+        f"Base Price: {format_amount(payment.amount_usd or payment.amount, 'USD')}",
         f"Payment Method: {payment.get_method_display()}",
         f"Transaction ID: {txn}",
         f"Phone: {payment.phone_number}",

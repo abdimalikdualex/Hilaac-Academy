@@ -29,7 +29,7 @@ class CourseForm(forms.ModelForm):
             "certificate_included": "Certificate included on completion",
             "thumbnail": "Course Thumbnail",
             "banner": "Course Banner",
-            "price": "Price (KES)",
+            "price": "Price (USD)",
             "duration_weeks": "Duration (weeks)",
         }
         widgets = {

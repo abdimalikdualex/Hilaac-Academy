@@ -54,11 +54,11 @@ class Command(BaseCommand):
 
         english_levels = [
             ("Beginner (A1)", "a1", 0, True, 0),
-            ("Elementary (A2)", "a2", 1, False, 2500),
-            ("Intermediate (B1)", "b1", 2, False, 3500),
-            ("Upper Intermediate (B2)", "b2", 3, False, 4500),
-            ("Advanced (C1)", "c1", 4, False, 5500),
-            ("Expert (C2)", "c2", 5, False, 6500),
+            ("Elementary (A2)", "a2", 1, False, 20),
+            ("Intermediate (B1)", "b1", 2, False, 28),
+            ("Upper Intermediate (B2)", "b2", 3, False, 35),
+            ("Advanced (C1)", "c1", 4, False, 45),
+            ("Expert (C2)", "c2", 5, False, 55),
         ]
 
         english_keywords = {
@@ -91,6 +91,9 @@ class Command(BaseCommand):
                     "duration_weeks": 4 + order,
                 },
             )
+            if level.price != price:
+                level.price = price
+                level.save(update_fields=["price"])
             if created:
                 if slug == "a1":
                     self._sync_english_a1_curriculum(level)
@@ -103,8 +106,8 @@ class Command(BaseCommand):
 
         kiswahili_levels = [
             ("Beginner", "beginner", 0, True, 0),
-            ("Intermediate", "intermediate", 1, False, 3000),
-            ("Advanced", "advanced", 2, False, 5000),
+            ("Intermediate", "intermediate", 1, False, 23),
+            ("Advanced", "advanced", 2, False, 39),
         ]
 
         kiswahili_keywords = {"beginner": "kiswahili,beginner,swahili,greetings", "intermediate": "kiswahili,intermediate,grammar", "advanced": "kiswahili,advanced,business,professional"}
@@ -130,6 +133,9 @@ class Command(BaseCommand):
                     "duration_weeks": 4 + order * 2,
                 },
             )
+            if level.price != price:
+                level.price = price
+                level.save(update_fields=["price"])
             if created:
                 self._create_sample_content(level, "Kiswahili")
 

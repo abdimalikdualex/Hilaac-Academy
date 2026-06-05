@@ -3,11 +3,18 @@
 {% block content %}
 <h1 class="text-2xl font-bold mb-6">Reports & Analytics</h1>
 <div class="grid md:grid-cols-3 gap-4 mb-8">
-<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Daily Revenue</div><div class="text-2xl font-bold text-green-600">KES {{ daily_revenue }}</div></div>
-<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Monthly Revenue</div><div class="text-2xl font-bold text-green-600">KES {{ monthly_revenue }}</div></div>
-<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Annual Revenue</div><div class="text-2xl font-bold text-green-600">KES {{ annual_revenue }}</div></div>
+<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Daily Revenue (USD)</div><div class="text-2xl font-bold text-green-600">{{ daily_revenue.usd_formatted }}</div><div class="text-xs text-slate-400">{{ daily_revenue.kes_formatted }} collected/equiv.</div></div>
+<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Monthly Revenue (USD)</div><div class="text-2xl font-bold text-green-600">{{ monthly_revenue.usd_formatted }}</div><div class="text-xs text-slate-400">{{ monthly_revenue.kes_formatted }} collected/equiv.</div></div>
+<div class="bg-white p-5 rounded-xl border"><div class="text-sm text-slate-500">Annual Revenue (USD)</div><div class="text-2xl font-bold text-green-600">{{ annual_revenue.usd_formatted }}</div><div class="text-xs text-slate-400">{{ annual_revenue.kes_formatted }} collected/equiv.</div></div>
 </div>
 <div class="bg-white p-5 rounded-xl border mb-6"><div class="text-sm text-slate-500">Course Completion Rate</div><div class="text-3xl font-bold text-primary-700">{{ completion_rate }}%</div><div class="text-sm text-slate-400">{{ total_students }} students</div></div>
+
+<h2 class="font-bold mb-3">Payment Method Breakdown</h2>
+<div class="bg-white rounded-xl border overflow-x-auto mb-8">
+<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Method</th><th class="p-3 text-left">Transactions</th><th class="p-3 text-left">Revenue (USD base)</th></tr></thead>
+<tbody>{% for row in payment_method_breakdown %}<tr class="border-t"><td class="p-3">{{ row.method }}</td><td class="p-3">{{ row.count }}</td><td class="p-3">${{ row.usd_total|floatformat:2 }}</td></tr>{% empty %}<tr><td colspan="3" class="p-4 text-center text-slate-400">No completed payments yet.</td></tr>{% endfor %}</tbody></table>
+</div>
+
 <h2 class="font-bold mb-3">Course Performance</h2>
 <div class="bg-white rounded-xl border overflow-x-auto">
 <table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Course</th><th class="p-3 text-left">Enrollments</th><th class="p-3 text-left">Completions</th></tr></thead>

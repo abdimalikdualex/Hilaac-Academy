@@ -1,0 +1,66 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Exchange Rates{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-2">Exchange Rates</h1>
+<p class="text-slate-600 mb-6">Course prices are stored in USD. Set conversion rates for local display and M-Pesa charges.</p>
+
+<div class="grid lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-xl border p-5">
+        <h2 class="font-bold mb-4">{% if editing %}Edit {{ editing.to_currency }}{% else %}Add / Update Rate{% endif %}</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% if editing %}<input type="hidden" name="pk" value="{{ editing.pk }}">{% endif %}
+            <div>
+                <label class="block text-sm font-medium mb-1">{{ form.to_currency.label }}</label>
+                {{ form.to_currency }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">{{ form.rate.label }}</label>
+                {{ form.rate }}
+                <p class="text-xs text-slate-500 mt-1">Example: 129 means 1 USD = 129 KES</p>
+            </div>
+            <label class="flex items-center gap-2 text-sm">
+                {{ form.is_active }} {{ form.is_active.label }}
+            </label>
+            <div class="flex gap-3">
+                <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold">Save Rate</button>
+                {% if editing %}<a href="{% url 'admin_portal:exchange_rates' %}" class="px-4 py-2 border rounded-lg">Cancel</a>{% endif %}
+            </div>
+        </form>
+        <p class="text-xs text-slate-400 mt-4">Automatic API rate updates can be enabled in a future release.</p>
+    </div>
+
+    <div class="bg-white rounded-xl border overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="p-3 text-left">Currency</th>
+                    <th class="p-3 text-left">Rate</th>
+                    <th class="p-3 text-left">Status</th>
+                    <th class="p-3 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rate in rates %}
+                <tr class="border-t">
+                    <td class="p-3 font-semibold">{{ rate.to_currency }}</td>
+                    <td class="p-3">1 USD = {{ rate.rate }}</td>
+                    <td class="p-3">{% if rate.is_active %}<span class="text-green-600">Active</span>{% else %}<span class="text-slate-400">Inactive</span>{% endif %}</td>
+                    <td class="p-3 space-x-2">
+                        <a href="{% url 'admin_portal:exchange_rates' %}?edit={{ rate.pk }}" class="text-primary-600">Edit</a>
+                        <form method="post" class="inline" onsubmit="return confirm('Delete this rate?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="pk" value="{{ rate.pk }}">
+                            <button type="submit" class="text-red-600">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="p-4 text-center text-slate-400">No rates configured yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

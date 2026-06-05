@@ -6,6 +6,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.certificates.models import Certificate
 from apps.courses.models import Enrollment, Level
+from apps.payments.currency import revenue_totals
 from apps.payments.models import Payment
 
 
@@ -23,15 +24,11 @@ def admin_dashboard(request):
     total_certificates = Certificate.objects.count()
     completion_rate = round((completed_enrollments / total_enrollments * 100) if total_enrollments else 0, 1)
 
-    revenue = Payment.objects.filter(status=Payment.Status.COMPLETED).aggregate(total=Sum("amount"))["total"] or 0
+    completed = Payment.objects.filter(status=Payment.Status.COMPLETED)
+    revenue = revenue_totals(completed)
     now = timezone.now()
-    monthly_revenue = (
-        Payment.objects.filter(
-            status=Payment.Status.COMPLETED,
-            created_at__year=now.year,
-            created_at__month=now.month,
-        ).aggregate(total=Sum("amount"))["total"]
-        or 0
+    monthly_revenue = revenue_totals(
+        completed.filter(created_at__year=now.year, created_at__month=now.month)
     )
     pending_payments = Payment.objects.filter(status=Payment.Status.PENDING).count()
 

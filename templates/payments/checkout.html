@@ -1,130 +1,145 @@
-{% extends "student/base.html" %}
-{% load ha_icons %}
-{% block title %}Purchase — {{ level.name }}{% endblock %}
-
-{% block content %}
-<div class="max-w-lg mx-auto" x-data="checkoutFlow()" x-cloak>
-    <!-- Step indicator -->
-    <div class="flex items-center justify-center gap-2 mb-8 text-xs font-semibold">
-        <template x-for="(label, i) in ['Course','Method','Phone','Pay']" :key="i">
-            <span class="flex items-center gap-2">
-                <span class="w-7 h-7 rounded-full flex items-center justify-center"
-                      :class="step > i+1 ? 'bg-green-500 text-white' : (step === i+1 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-500')"
-                      x-text="i+1"></span>
-                <span :class="step === i+1 ? 'text-primary-600' : 'text-slate-400'" x-text="label" class="hidden sm:inline"></span>
-                <span x-show="i < 3" class="text-slate-300">→</span>
-            </span>
-        </template>
-    </div>
-
-    <form method="post" @submit.prevent="submitPayment">
-        {% csrf_token %}
-
-        <!-- STEP 1: Course summary -->
-        <div x-show="step === 1" class="space-y-4">
-            <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
-                <img src="{{ level.cover_url }}" alt="" class="w-full aspect-video object-cover">
-                <div class="p-5">
-                    <span class="text-xs font-semibold uppercase text-primary-600">{{ level.language.name }}</span>
-                    <h2 class="font-bold text-xl mt-1">{{ level.name }}</h2>
-                    {% if level.instructor %}
-                    <p class="text-sm text-slate-500 mt-1">Instructor: {{ level.instructor.get_full_name|default:level.instructor.username }}</p>
-                    {% endif %}
-                    <div class="grid grid-cols-2 gap-2 mt-3 text-sm text-slate-600">
-                        <div class="flex items-center gap-1.5">{% ha_icon "clock" size=16 %} {{ level.duration_weeks }} weeks</div>
-                        <div class="flex items-center gap-1.5">{% ha_icon "video" size=16 %} {{ level.total_lessons }} lessons</div>
-                    </div>
-                    <p class="text-3xl font-bold text-primary-600 mt-4">KES {{ level.price }}</p>
-                </div>
-            </div>
-            <button type="button" @click="step = 2" class="w-full py-3.5 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 text-lg">
-                Proceed to Payment
-            </button>
-            <a href="{{ level.get_absolute_url }}" class="block text-center text-sm text-slate-500 hover:underline">Cancel</a>
-        </div>
-
-        <!-- STEP 2: Payment method -->
-        <div x-show="step === 2" class="space-y-4">
-            <h2 class="text-xl font-bold">Select Payment Method</h2>
-            <div class="grid gap-3">
-                {% for key, meta in payment_methods.items %}
-                <label class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition"
-                       :class="method === '{{ key }}' ? 'border-primary-600 bg-primary-50' : 'border-slate-200 hover:border-slate-300'">
-                    <input type="radio" name="method" value="{{ key }}" x-model="method" class="sr-only">
-                    <div class="w-14 h-10 flex items-center justify-center flex-shrink-0 rounded-lg bg-white border border-slate-100 p-1">
-                        {% payment_logo key height=32 %}
-                    </div>
-                    <div>
-                        <div class="font-semibold">Pay with {{ meta.label }}</div>
-                        <div class="text-xs text-slate-500">{{ meta.region }}</div>
-                    </div>
-                </label>
-                {% endfor %}
-            </div>
-            <div class="flex gap-3">
-                <button type="button" @click="step = 1" class="px-5 py-3 border rounded-xl">Back</button>
-                <button type="button" @click="if(method) step = 3" :disabled="!method" class="flex-1 py-3 bg-primary-600 text-white rounded-xl font-semibold disabled:opacity-50">Continue</button>
-            </div>
-        </div>
-
-        <!-- STEP 3: Phone number -->
-        <div x-show="step === 3" class="space-y-4">
-            <h2 class="text-xl font-bold">Enter Phone Number</h2>
-            <p class="text-sm text-slate-500" x-text="phoneHint"></p>
-            <input type="tel" name="phone_number" x-model="phone" required
-                   class="w-full px-4 py-3 rounded-xl border border-slate-300 text-lg"
-                   :placeholder="phonePlaceholder">
-            {% if form.phone_number.errors %}<p class="text-red-600 text-sm">{{ form.phone_number.errors.0 }}</p>{% endif %}
-            <div class="flex gap-3">
-                <button type="button" @click="step = 2" class="px-5 py-3 border rounded-xl">Back</button>
-                <button type="button" @click="if(phone) step = 4" :disabled="!phone" class="flex-1 py-3 bg-primary-600 text-white rounded-xl font-semibold disabled:opacity-50">Continue</button>
-            </div>
-        </div>
-
-        <!-- STEP 4: Pay Now -->
-        <div x-show="step === 4" class="space-y-4">
-            <div class="rounded-2xl bg-white border p-5 text-center">
-                <div class="flex justify-center mb-3">{% ha_icon "smartphone" size=48 class_name="text-primary-600" %}</div>
-                <h2 class="text-xl font-bold mb-2">Ready to Pay</h2>
-                <p class="text-sm text-slate-600 mb-4" x-text="pinMessage"></p>
-                <div class="text-2xl font-bold text-primary-600 mb-1">KES {{ level.price }}</div>
-                <div class="text-sm text-slate-500">{{ level.name }}</div>
-                <div class="text-xs text-slate-400 mt-2" x-text="phone"></div>
-            </div>
-            <button type="submit" :disabled="submitting" class="w-full py-3.5 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 disabled:opacity-60">
-                <span x-show="!submitting">Pay Now</span>
-                <span x-show="submitting">Sending payment request...</span>
-            </button>
-            <button type="button" @click="step = 3" class="w-full py-2 text-sm text-slate-500">Change phone number</button>
-        </div>
-    </form>
-</div>
-
-<script>
-function checkoutFlow() {
-    const methods = {{ payment_methods_json|safe }};
-    return {
-        step: 1,
-        method: '{{ form.method.value|default:"mpesa" }}',
-        phone: '{{ form.phone_number.value|default:"" }}',
-        submitting: false,
-        get phoneHint() {
-            const m = methods[this.method];
-            return m ? `Example: ${m.phone_example}` : '';
-        },
-        get phonePlaceholder() {
-            const m = methods[this.method];
-            return m ? m.phone_hint : 'Phone number';
-        },
-        get pinMessage() {
-            const m = methods[this.method];
-            return m ? m.pin_message : 'Complete payment on your phone.';
-        },
-        submitPayment() {
-            this.submitting = true;
-            this.$el.querySelector('form').submit();
-        }
-    };
-}
-</script>
-{% endblock %}
+{% extends "student/base.html" %}
+
+{% load ha_icons currency_tags %}
+
+{% block title %}Purchase — {{ level.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto" x-data="checkoutFlow()" x-cloak>
+    <div class="flex items-center justify-center gap-2 mb-8 text-xs font-semibold">
+        <template x-for="(label, i) in ['Course','Method','Phone','Pay']" :key="i">
+            <span class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-full flex items-center justify-center"
+                      :class="step > i+1 ? 'bg-green-500 text-white' : (step === i+1 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-500')"
+                      x-text="i+1"></span>
+                <span :class="step === i+1 ? 'text-primary-600' : 'text-slate-400'" x-text="label" class="hidden sm:inline"></span>
+                <span x-show="i < 3" class="text-slate-300">→</span>
+            </span>
+        </template>
+    </div>
+
+    <form method="post" @submit.prevent="submitPayment">
+        {% csrf_token %}
+
+        <!-- STEP 1: Course summary -->
+        <div x-show="step === 1" class="space-y-4">
+            <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
+                <img src="{{ level.cover_url }}" alt="" class="w-full aspect-video object-cover">
+                <div class="p-5">
+                    <span class="text-xs font-semibold uppercase text-primary-600">{{ level.language.name }}</span>
+                    <h2 class="font-bold text-xl mt-1">{{ level.name }}</h2>
+                    {% if level.instructor %}
+                    <p class="text-sm text-slate-500 mt-1">Instructor: {{ level.instructor.get_full_name|default:level.instructor.username }}</p>
+                    {% endif %}
+                    <div class="grid grid-cols-2 gap-2 mt-3 text-sm text-slate-600">
+                        <div class="flex items-center gap-1.5">{% ha_icon "clock" size=16 %} {{ level.duration_weeks }} weeks</div>
+                        <div class="flex items-center gap-1.5">{% ha_icon "video" size=16 %} {{ level.total_lessons }} lessons</div>
+                    </div>
+                    <div class="mt-4">
+                        {% price_display level size="lg" show_usd_equiv=True %}
+                    </div>
+                </div>
+            </div>
+            <button type="button" @click="step = 2" class="w-full py-3.5 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 text-lg">
+                Proceed to Payment
+            </button>
+            <a href="{{ level.get_absolute_url }}" class="block text-center text-sm text-slate-500 hover:underline">Cancel</a>
+        </div>
+
+        <!-- STEP 2: Payment method -->
+        <div x-show="step === 2" class="space-y-4">
+            <h2 class="text-xl font-bold">Select Payment Method</h2>
+            <div class="grid gap-3">
+                {% for key, meta in payment_methods.items %}
+                <label class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition"
+                       :class="method === '{{ key }}' ? 'border-primary-600 bg-primary-50' : 'border-slate-200 hover:border-slate-300'">
+                    <input type="radio" name="method" value="{{ key }}" x-model="method" class="sr-only">
+                    <div class="w-14 h-10 flex items-center justify-center flex-shrink-0 rounded-lg bg-white border border-slate-100 p-1">
+                        {% payment_logo key height=32 %}
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold">Pay with {{ meta.label }}</div>
+                        <div class="text-xs text-slate-500">{{ meta.region }}</div>
+                    </div>
+                    <div class="text-sm font-bold text-primary-600" x-text="methodPricing['{{ key }}']?.charge_formatted || ''"></div>
+                </label>
+                {% endfor %}
+            </div>
+            <div class="flex gap-3">
+                <button type="button" @click="step = 1" class="px-5 py-3 border rounded-xl">Back</button>
+                <button type="button" @click="if(method) step = 3" :disabled="!method" class="flex-1 py-3 bg-primary-600 text-white rounded-xl font-semibold disabled:opacity-50">Continue</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Phone number -->
+        <div x-show="step === 3" class="space-y-4">
+            <h2 class="text-xl font-bold">Enter Phone Number</h2>
+            <p class="text-sm text-slate-500" x-text="phoneHint"></p>
+            <input type="tel" name="phone_number" x-model="phone" required
+                   class="w-full px-4 py-3 rounded-xl border border-slate-300 text-lg"
+                   :placeholder="phonePlaceholder">
+            {% if form.phone_number.errors %}<p class="text-red-600 text-sm">{{ form.phone_number.errors.0 }}</p>{% endif %}
+            <div class="flex gap-3">
+                <button type="button" @click="step = 2" class="px-5 py-3 border rounded-xl">Back</button>
+                <button type="button" @click="if(phone) step = 4" :disabled="!phone" class="flex-1 py-3 bg-primary-600 text-white rounded-xl font-semibold disabled:opacity-50">Continue</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Pay Now -->
+        <div x-show="step === 4" class="space-y-4">
+            <div class="rounded-2xl bg-white border p-5 text-center">
+                <div class="flex justify-center mb-3">{% ha_icon "smartphone" size=48 class_name="text-primary-600" %}</div>
+                <h2 class="text-xl font-bold mb-2">Ready to Pay</h2>
+                <p class="text-sm text-slate-600 mb-4" x-text="pinMessage"></p>
+                <div class="text-2xl font-bold text-primary-600 mb-1" x-text="selectedCharge"></div>
+                <div class="text-sm text-slate-500" x-show="selectedBase">Base Price: <span x-text="selectedBase"></span></div>
+                <div class="text-sm text-slate-500 mt-2">{{ level.name }}</div>
+                <div class="text-xs text-slate-400 mt-2" x-text="phone"></div>
+            </div>
+            <button type="submit" :disabled="submitting" class="w-full py-3.5 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 disabled:opacity-60">
+                <span x-show="!submitting">Pay Now</span>
+                <span x-show="submitting">Sending payment request...</span>
+            </button>
+            <button type="button" @click="step = 3" class="w-full py-2 text-sm text-slate-500">Change phone number</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function checkoutFlow() {
+    const methods = {{ payment_methods_json|safe }};
+    const methodPricing = {{ methods_pricing_json|safe }};
+    return {
+        step: 1,
+        method: '{{ form.method.value|default:"mpesa" }}',
+        phone: '{{ form.phone_number.value|default:"" }}',
+        submitting: false,
+        methodPricing,
+        get phoneHint() {
+            const m = methods[this.method];
+            return m ? `Example: ${m.phone_example}` : '';
+        },
+        get phonePlaceholder() {
+            const m = methods[this.method];
+            return m ? m.phone_hint : 'Phone number';
+        },
+        get pinMessage() {
+            const m = methods[this.method];
+            return m ? m.pin_message : 'Complete payment on your phone.';
+        },
+        get selectedCharge() {
+            const p = this.methodPricing[this.method];
+            return p ? p.charge_formatted : '';
+        },
+        get selectedBase() {
+            const p = this.methodPricing[this.method];
+            return p ? p.usd_formatted : '';
+        },
+        submitPayment() {
+            this.submitting = true;
+            this.$el.querySelector('form').submit();
+        }
+    };
+}
+</script>
+{% endblock %}

@@ -20,10 +20,20 @@ from apps.courses.models import Enrollment, Language, Lesson, Level, Module
 from apps.learning.models import LessonProgress
 from apps.library.models import LibraryResource
 from apps.notifications.models import Notification
-from apps.payments.models import Payment
+from apps.payments.currency import format_payment_display, revenue_totals
+from apps.payments.models import ExchangeRate, Payment
 
 from .decorators import super_admin_required
-from .forms import FAQForm, InstructorForm, LevelForm, LibraryResourceForm, SiteSettingsForm, StudentForm, TestimonialForm
+from .forms import (
+    ExchangeRateForm,
+    FAQForm,
+    InstructorForm,
+    LevelForm,
+    LibraryResourceForm,
+    SiteSettingsForm,
+    StudentForm,
+    TestimonialForm,
+)
 
 User = get_user_model()
 
@@ -34,7 +44,7 @@ def _recent_activities(limit=15):
         activities.append({"text": f"{e.student.username} enrolled in {e.level.name}", "date": e.enrolled_at, "type": "enrollment"})
     for p in Payment.objects.filter(status=Payment.Status.COMPLETED).order_by("-verified_at")[:5]:
         if p.verified_at:
-            activities.append({"text": f"Payment KES {p.amount} from {p.student.username}", "date": p.verified_at, "type": "payment"})
+            activities.append({"text": f"Payment {format_payment_display(p)} from {p.student.username}", "date": p.verified_at, "type": "payment"})
     for c in Certificate.objects.order_by("-issued_at")[:5]:
         activities.append({"text": f"Certificate issued to {c.student.username}", "date": c.issued_at, "type": "certificate"})
     for log in AuditLog.objects.select_related("user").order_by("-created_at")[:5]:
@@ -52,10 +62,11 @@ def dashboard(request):
     total_instructors = User.objects.filter(role=User.Role.INSTRUCTOR).count()
     total_courses = Level.objects.filter(is_archived=False).count()
     active_enrollments = Enrollment.objects.filter(status=Enrollment.Status.ACTIVE).count()
-    total_revenue = Payment.objects.filter(status=Payment.Status.COMPLETED).aggregate(t=Sum("amount"))["t"] or 0
-    monthly_revenue = (
-        Payment.objects.filter(status=Payment.Status.COMPLETED, created_at__gte=month_start).aggregate(t=Sum("amount"))["t"] or 0
-    )
+    completed_payments = Payment.objects.filter(status=Payment.Status.COMPLETED)
+    revenue_all = revenue_totals(completed_payments)
+    revenue_month = revenue_totals(completed_payments.filter(created_at__gte=month_start))
+    total_revenue = revenue_all
+    monthly_revenue = revenue_month
     total_certificates = Certificate.objects.filter(is_revoked=False).count()
     assignments_submitted = AssignmentSubmission.objects.count()
     quizzes_completed = QuizAttempt.objects.filter(completed_at__isnull=False).count()
@@ -71,7 +82,7 @@ def dashboard(request):
         Payment.objects.filter(status=Payment.Status.COMPLETED, created_at__gte=now - timedelta(days=365))
         .annotate(month=TruncMonth("created_at"))
         .values("month")
-        .annotate(total=Sum("amount"))
+        .annotate(total=Sum("amount_usd"))
         .order_by("month")
     )
     students_by_month = (
@@ -356,7 +367,7 @@ def payment_refund(request, pk):
         "admin_portal/confirm_delete.html",
         {
             "object_name": "Refund Payment",
-            "object_label": f"{payment.student.username} — {payment.level.name} (KES {payment.amount})",
+            "object_label": f"{payment.student.username} — {payment.level.name} ({format_payment_display(payment)})",
             "warning": "This will revoke the student's enrollment for this course.",
             "cancel_url": reverse("admin_portal:payment_list"),
         },
@@ -465,15 +476,18 @@ def reports(request):
     total_enrollments = Enrollment.objects.count()
     completion_rate = round((completed / total_enrollments * 100) if total_enrollments else 0, 1)
 
-    daily_revenue = Payment.objects.filter(
-        status=Payment.Status.COMPLETED, created_at__date=timezone.now().date()
-    ).aggregate(t=Sum("amount"))["t"] or 0
-    monthly_revenue = Payment.objects.filter(
-        status=Payment.Status.COMPLETED, created_at__month=timezone.now().month, created_at__year=timezone.now().year
-    ).aggregate(t=Sum("amount"))["t"] or 0
-    annual_revenue = Payment.objects.filter(
-        status=Payment.Status.COMPLETED, created_at__year=timezone.now().year
-    ).aggregate(t=Sum("amount"))["t"] or 0
+    now = timezone.now()
+    completed = Payment.objects.filter(status=Payment.Status.COMPLETED)
+    daily_revenue = revenue_totals(completed.filter(created_at__date=now.date()))
+    monthly_revenue = revenue_totals(
+        completed.filter(created_at__month=now.month, created_at__year=now.year)
+    )
+    annual_revenue = revenue_totals(completed.filter(created_at__year=now.year))
+    payment_method_breakdown = (
+        completed.values("method")
+        .annotate(count=Count("id"), usd_total=Sum("amount_usd"))
+        .order_by("-count")
+    )
 
     course_stats = Level.objects.annotate(
         enrollments_count=Count("enrollments"),
@@ -505,6 +519,7 @@ def reports(request):
             "daily_revenue": daily_revenue,
             "monthly_revenue": monthly_revenue,
             "annual_revenue": annual_revenue,
+            "payment_method_breakdown": payment_method_breakdown,
             "course_stats": course_stats,
             "top_preview_lessons": top_preview_lessons,
             "preview_courses": preview_courses,
@@ -537,6 +552,39 @@ def cms_faq_edit(request, pk=None):
     else:
         form = FAQForm(instance=faq)
     return render(request, "admin_portal/cms/faq_form.html", {"form": form})
+
+
+@super_admin_required
+def exchange_rates(request):
+    rates = ExchangeRate.objects.order_by("to_currency")
+    edit_pk = request.GET.get("edit")
+    editing = get_object_or_404(ExchangeRate, pk=edit_pk) if edit_pk else None
+
+    if request.method == "POST":
+        if request.POST.get("action") == "delete":
+            rate = get_object_or_404(ExchangeRate, pk=request.POST.get("pk"))
+            rate.delete()
+            messages.success(request, f"Removed {rate.to_currency} rate.")
+            return redirect("admin_portal:exchange_rates")
+
+        instance = editing
+        if not instance and request.POST.get("pk"):
+            instance = get_object_or_404(ExchangeRate, pk=request.POST.get("pk"))
+        form = ExchangeRateForm(request.POST, instance=instance)
+        if form.is_valid():
+            rate = form.save(commit=False)
+            rate.from_currency = "USD"
+            rate.save()
+            messages.success(request, f"Saved USD → {rate.to_currency} rate.")
+            return redirect("admin_portal:exchange_rates")
+    else:
+        form = ExchangeRateForm(instance=editing)
+
+    return render(
+        request,
+        "admin_portal/exchange_rates.html",
+        {"rates": rates, "form": form, "editing": editing},
+    )
 
 
 @super_admin_required

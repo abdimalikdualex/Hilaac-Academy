@@ -41,7 +41,7 @@ class Level(TimeStampedModel):
     target_audience = models.TextField(blank=True, help_text="Who this course is for, one per line")
     requirements = models.TextField(blank=True, help_text="Course requirements, one per line")
     keywords = models.CharField(max_length=500, blank=True, help_text="Comma-separated search keywords")
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Base price in USD")
     is_free = models.BooleanField(default=False)
     is_published = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)

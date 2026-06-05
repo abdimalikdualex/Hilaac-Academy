@@ -11,7 +11,7 @@
             <div>
                 <span class="text-xs font-semibold text-primary-600">{{ level.language.name }}{% if level.level_tag %} · {{ level.get_level_tag_display }}{% endif %}</span>
                 <h1 class="text-2xl font-bold">{{ level.name }}</h1>
-                <p class="text-slate-500 text-sm">{% if level.is_published %}Published{% else %}Draft{% endif %} · {% if level.is_free %}Free{% else %}KES {{ level.price }}{% endif %} · {{ level.duration_weeks }} weeks</p>
+                <p class="text-slate-500 text-sm">{% if level.is_published %}Published{% else %}Draft{% endif %} · {% if level.is_free %}Free{% else %}${{ level.price }} USD{% endif %} · {{ level.duration_weeks }} weeks</p>
             </div>
         </div>
         <div class="flex flex-wrap gap-2 text-sm">

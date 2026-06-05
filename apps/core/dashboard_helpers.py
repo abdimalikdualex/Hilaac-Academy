@@ -9,6 +9,7 @@ from apps.certificates.models import Certificate
 from apps.courses.models import Enrollment, Level
 from apps.learning.models import LessonProgress
 from apps.notifications.models import Notification
+from apps.payments.currency import revenue_totals
 from apps.payments.models import Payment
 
 
@@ -57,7 +58,12 @@ def student_dashboard_context(user):
     progresses = [e.progress_percentage for e in active_list]
     avg_progress = round(sum(progresses) / len(progresses)) if progresses else 0
 
+    purchase_totals = revenue_totals(
+        Payment.objects.filter(student=user, status=Payment.Status.COMPLETED)
+    )
+
     return {
+        "purchase_totals": purchase_totals,
         "active_enrollments": active_list,
         "completed_enrollments": completed,
         "pending_payments": Payment.objects.filter(

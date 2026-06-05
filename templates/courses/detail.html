@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load ha_icons %}
+{% load ha_icons currency_tags %}
 {% block title %}{{ level.name }} - Hilaac Academy{% endblock %}
 
 {% block content %}
@@ -322,7 +322,7 @@
             </div>
             <div class="p-5">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="text-3xl font-extrabold">{% if level.is_free %}Free{% else %}KES {{ level.price }}{% endif %}</div>
+                    <div>{% price_display level size="lg" show_usd_equiv=True %}</div>
                     {% include "partials/course_status_badge.html" with access=access %}
                 </div>
 

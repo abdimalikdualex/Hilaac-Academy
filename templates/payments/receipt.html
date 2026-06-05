@@ -1,4 +1,5 @@
 {% extends "student/base.html" %}
+{% load currency_tags %}
 {% block title %}Receipt — {{ payment.receipt_number }}{% endblock %}
 
 {% block content %}
@@ -13,7 +14,8 @@
             <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Date</span><span>{{ payment.verified_at|default:payment.created_at|date:"M d, Y H:i" }}</span></div>
             <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Student</span><span>{{ payment.student.get_full_name|default:payment.student.username }}</span></div>
             <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Course</span><span class="text-right">{{ payment.level.name }}</span></div>
-            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Amount Paid</span><span class="font-bold text-primary-600">KES {{ payment.amount }}</span></div>
+            <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Amount Paid</span><span class="font-bold text-primary-600">{% payment_amount_display payment %}</span></div>
+            {% if payment.amount_usd %}<div class="flex justify-between border-b pb-2"><span class="text-slate-500">Base Price</span><span>${{ payment.amount_usd|floatformat:2 }} USD</span></div>{% endif %}
             <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Payment Method</span><span>{{ payment.get_method_display }}</span></div>
             <div class="flex justify-between border-b pb-2"><span class="text-slate-500">Transaction ID</span><span class="font-mono text-xs">{{ payment.transaction_id|default:payment.checkout_request_id|default:"—" }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500">Status</span><span class="font-semibold text-green-600">{{ payment.get_status_display }}</span></div>

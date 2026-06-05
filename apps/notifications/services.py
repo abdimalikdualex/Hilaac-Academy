@@ -94,11 +94,13 @@ def notify_payment_rejected(payment):
 def notify_admin_payment_submitted(payment):
     from django.contrib.auth import get_user_model
 
+    from apps.payments.currency import format_payment_display
+
     User = get_user_model()
     admins = User.objects.filter(role=User.Role.SUPER_ADMIN, is_active=True)
     message = (
         f"Push payment initiated by {payment.student.username} for {payment.level.name} "
-        f"({payment.get_method_display()}, KES {payment.amount}, phone: {payment.phone_number})."
+        f"({payment.get_method_display()}, {format_payment_display(payment)}, phone: {payment.phone_number})."
     )
     for admin in admins:
         create_notification(
@@ -112,12 +114,14 @@ def notify_admin_payment_submitted(payment):
 def notify_admin_payment_completed(payment):
     from django.contrib.auth import get_user_model
 
+    from apps.payments.currency import format_payment_display
+
     User = get_user_model()
     admins = User.objects.filter(role=User.Role.SUPER_ADMIN, is_active=True)
     txn = payment.transaction_id or payment.checkout_request_id or "—"
     message = (
         f"Payment confirmed: {payment.student.username} enrolled in {payment.level.name} "
-        f"via {payment.get_method_display()} (KES {payment.amount}, txn: {txn})."
+        f"via {payment.get_method_display()} ({format_payment_display(payment)}, txn: {txn})."
     )
     for admin in admins:
         create_notification(

@@ -16,6 +16,7 @@ from apps.notifications.services import notify_admin_payment_submitted
 from apps.core.brand_assets import BrandAssetManager
 
 from .constants import PAYMENT_METHOD_META
+from .currency import build_payment_amounts, get_checkout_methods_pricing, get_pricing
 from .forms import InstantPaymentForm
 from .models import Payment
 from .services import generate_receipt_pdf, initiate_push_payment, verify_payment_status
@@ -45,10 +46,14 @@ def checkout(request, level_id):
                 messages.info(request, "You already purchased this course.")
                 return redirect("learning:course_view", level_id=level.id)
 
+            amounts = build_payment_amounts(request, level, form.cleaned_data["method"])
             payment = Payment.objects.create(
                 student=request.user,
                 level=level,
-                amount=level.price,
+                amount=amounts["amount"],
+                amount_usd=amounts["amount_usd"],
+                currency=amounts["currency"],
+                exchange_rate=amounts["exchange_rate"],
                 method=form.cleaned_data["method"],
                 phone_number=form.cleaned_data["phone_number"],
                 status=Payment.Status.PENDING,
@@ -66,14 +71,18 @@ def checkout(request, level_id):
     else:
         form = InstantPaymentForm(initial={"phone_number": request.user.phone or ""})
 
+    pricing = get_pricing(request, level)
+    methods_pricing = get_checkout_methods_pricing(request, level)
     return render(
         request,
         "payments/checkout.html",
         {
             "level": level,
             "form": form,
+            "pricing": pricing,
             "payment_methods": BrandAssetManager.payment_methods(),
             "payment_methods_json": json.dumps(BrandAssetManager.payment_methods()),
+            "methods_pricing_json": json.dumps(methods_pricing),
         },
     )
 

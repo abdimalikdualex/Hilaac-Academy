@@ -59,4 +59,5 @@ urlpatterns = [
     path("cms/faq/<int:pk>/delete/", views.faq_delete, name="faq_delete"),
     path("notifications/", views.notification_list, name="notification_list"),
     path("settings/", views.settings_view, name="settings"),
+    path("exchange-rates/", views.exchange_rates, name="exchange_rates"),
 ]

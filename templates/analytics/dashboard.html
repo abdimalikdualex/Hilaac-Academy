@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load currency_tags %}
 {% block title %}Admin Dashboard - Hilaac Academy{% endblock %}
 
 {% block content %}
@@ -12,7 +13,7 @@
         <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-green-600">{{ completed_enrollments }}</div><div class="text-sm text-slate-500">Completed</div></div>
         <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ completion_rate }}%</div><div class="text-sm text-slate-500">Completion Rate</div></div>
         <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-primary-600">{{ total_certificates }}</div><div class="text-sm text-slate-500">Certificates</div></div>
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-green-600">KES {{ revenue }}</div><div class="text-sm text-slate-500">Total Revenue</div></div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-green-600">{{ revenue.usd_formatted }}</div><div class="text-sm text-slate-500">Total Revenue (USD)</div></div>
         <div class="p-4 rounded-xl bg-white dark:bg-slate-800 shadow border"><div class="text-2xl font-bold text-yellow-600">{{ pending_payments }}</div><div class="text-sm text-slate-500">Pending</div></div>
     </div>
 
@@ -45,14 +46,14 @@
                 {% for p in pending_payment_list %}
                 <div class="p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                     <div class="font-semibold">{{ p.student.username }}</div>
-                    <div class="text-sm">{{ p.level.name }} · KES {{ p.amount }}</div>
+                    <div class="text-sm">{{ p.level.name }} · {% payment_amount_display p %}</div>
                     <div class="text-xs text-slate-500">{{ p.get_method_display }} · {{ p.reference|default:"No ref" }}</div>
                 </div>
                 {% empty %}
                 <p class="text-slate-500 text-sm">No pending payments.</p>
                 {% endfor %}
             </div>
-            <p class="text-sm text-slate-500 mt-4">Monthly revenue: <strong>KES {{ monthly_revenue }}</strong></p>
+            <p class="text-sm text-slate-500 mt-4">Monthly revenue: <strong>{{ monthly_revenue.usd_formatted }}</strong></p>
         </div>
     </div>
 

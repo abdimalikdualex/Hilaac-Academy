@@ -7,6 +7,7 @@ from apps.core.imaging import ALLOWED_IMAGE_EXTS
 from apps.core.models import SiteSettings
 from apps.courses.models import Language, Level
 from apps.library.models import LibraryResource
+from apps.payments.models import ExchangeRate
 
 User = get_user_model()
 
@@ -63,7 +64,7 @@ class LevelForm(forms.ModelForm):
             "thumbnail": "Course Thumbnail",
             "banner": "Course Banner",
             "duration_weeks": "Duration (weeks)",
-            "price": "Price (KES)",
+            "price": "Price (USD)",
         }
         widgets = {
             "description": forms.Textarea(attrs={"rows": 3, "class": "form-input"}),
@@ -114,3 +115,18 @@ class TestimonialForm(forms.ModelForm):
     class Meta:
         model = Testimonial
         fields = ("student_name", "course_name", "quote", "rating", "is_featured", "order")
+
+
+class ExchangeRateForm(forms.ModelForm):
+    class Meta:
+        model = ExchangeRate
+        fields = ("to_currency", "rate", "is_active")
+        labels = {
+            "to_currency": "Currency Code",
+            "rate": "1 USD equals",
+            "is_active": "Active",
+        }
+        widgets = {
+            "to_currency": forms.TextInput(attrs={"class": "form-input", "placeholder": "KES"}),
+            "rate": forms.NumberInput(attrs={"class": "form-input", "step": "0.0001"}),
+        }

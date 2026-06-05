@@ -19,7 +19,7 @@ def course_analytics(level):
 
         revenue = (
             Payment.objects.filter(level=level, status=Payment.Status.COMPLETED).aggregate(
-                total=Sum("amount")
+                total=Sum("amount_usd")
             )["total"]
             or 0
         )
