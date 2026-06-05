@@ -4,15 +4,15 @@
 
     {% if position == "bottom-right" %}
 
-    <img src="{% static 'images/logo.png' %}" alt="" loading="lazy" class="brand-watermark absolute -bottom-8 -right-8 w-56 sm:w-72 max-w-[45vw] object-contain">
+    <img src="{% static 'images/logo.png' %}" alt="" loading="eager" decoding="sync" class="brand-watermark absolute -bottom-8 -right-8 w-56 sm:w-72 max-w-[45vw] object-contain">
 
     {% elif position == "subtle" %}
 
-    <img src="{% static 'images/logo.png' %}" alt="" loading="lazy" class="brand-watermark-subtle absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 max-w-[60vw] object-contain">
+    <img src="{% static 'images/logo.png' %}" alt="" loading="eager" decoding="sync" class="brand-watermark-subtle absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 max-w-[60vw] object-contain">
 
     {% else %}
 
-    <img src="{% static 'images/logo.png' %}" alt="" loading="lazy" class="brand-watermark absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 max-w-[70vw] object-contain">
+    <img src="{% static 'images/logo.png' %}" alt="" loading="eager" decoding="sync" class="brand-watermark absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 max-w-[70vw] object-contain">
 
     {% endif %}
 

@@ -20,7 +20,9 @@ from .forms import ProfileForm
 
 @student_required
 def dashboard(request):
-    return render(request, "student/dashboard.html", student_dashboard_context(request.user))
+    context = student_dashboard_context(request.user)
+    context.update(student_dashboard_stats(request.user))
+    return render(request, "student/dashboard.html", context)
 
 
 @student_required

@@ -8,7 +8,7 @@
     <div class="relative mb-8 p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="absolute top-3 right-3 opacity-[0.06] pointer-events-none">
             {% load static %}
-            <img src="{% static 'images/logo.png' %}" alt="" class="h-20 w-20 object-contain rounded-full" aria-hidden="true">
+            <img src="{% static 'images/logo.png' %}" alt="" class="h-20 w-20 object-contain rounded-full" aria-hidden="true" loading="eager" decoding="sync">
         </div>
         <h1 class="text-3xl font-bold mb-2">Welcome, {{ user.first_name|default:user.username }}!</h1>
         <p class="text-slate-600 dark:text-slate-400">Continue your language learning journey with Hilaac Academy.</p>
