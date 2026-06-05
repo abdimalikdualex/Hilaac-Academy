@@ -81,10 +81,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "hilaac_academy.wsgi.application"
 
 USE_SQLITE = config("USE_SQLITE", default=False, cast=bool)
-DATABASE_URL = os.environ.get("DATABASE_URL") or config("DATABASE_URL", default="")
+_on_render = bool(RENDER_EXTERNAL_HOSTNAME)
+# Render injects DATABASE_URL when a Postgres instance is linked to the web service.
+DATABASE_URL = (
+    os.environ.get("DATABASE_URL")
+    or os.environ.get("DATABASE_INTERNAL_URL")
+    or config("DATABASE_URL", default="")
+)
 
 if DATABASE_URL:
-    # Render and other PaaS providers inject DATABASE_URL for managed PostgreSQL.
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
@@ -92,7 +97,9 @@ if DATABASE_URL:
             conn_health_checks=True,
         )
     }
-elif USE_SQLITE:
+elif USE_SQLITE or (_on_render and not DATABASE_URL):
+    # On Render without a linked database, SQLite allows the app to boot.
+    # Link a Render PostgreSQL instance and set DATABASE_URL for production data.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
