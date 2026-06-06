@@ -3,6 +3,7 @@ from django.core.cache import cache
 from django.db.models import Count, Q
 from django.shortcuts import render
 
+from apps.core.cache_sync import home_cache_key
 from apps.courses.models import Level
 
 from .models import FAQ, SiteStatistic, Testimonial
@@ -40,7 +41,7 @@ def _home_context(query=""):
 
 def home(request):
     query = request.GET.get("q", "").strip()
-    cache_key = "cms:home:context"
+    cache_key = home_cache_key()
 
     if not query:
         cached = cache.get(cache_key)

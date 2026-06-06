@@ -11,7 +11,23 @@ from apps.library.models import LibraryResource
 class Command(BaseCommand):
     help = "Seed initial data for Hilaac Academy MVP"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--if-empty",
+            action="store_true",
+            help="Skip seeding when courses already exist (safe for production deploys)",
+        )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Overwrite prices and re-sync A1 curriculum (development only)",
+        )
+
     def handle(self, *args, **options):
+        if options["if_empty"] and Level.objects.exists():
+            self.stdout.write("Database already has courses; skipping seed (--if-empty).")
+            return
+
         self.stdout.write("Seeding Hilaac Academy data...")
 
         # Super Admin
@@ -133,7 +149,7 @@ class Command(BaseCommand):
                     "duration_weeks": 4 + order * 2,
                 },
             )
-            if level.price != price:
+            if options["force"] and level.price != price:
                 level.price = price
                 level.save(update_fields=["price"])
             if created:

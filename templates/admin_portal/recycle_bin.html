@@ -1,0 +1,101 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Recycle Bin{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">Recycle Bin</h1>
+    <p class="text-slate-600 mt-1">Deleted items are kept for {{ retention_days }} days before automatic permanent removal.</p>
+</div>
+
+{% if total == 0 %}
+<div class="bg-white rounded-xl shadow p-8 text-center text-slate-500">Recycle bin is empty.</div>
+{% else %}
+
+{% if courses %}
+<section class="bg-white rounded-xl shadow mb-6 overflow-hidden">
+    <h2 class="px-6 py-4 font-semibold border-b">Courses ({{ courses|length }})</h2>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-left"><tr><th class="px-6 py-3">Course</th><th class="px-6 py-3">Deleted</th><th class="px-6 py-3">Days left</th><th class="px-6 py-3">Actions</th></tr></thead>
+        <tbody>
+        {% for item in courses %}
+        <tr class="border-t">
+            <td class="px-6 py-3">{{ item }}</td>
+            <td class="px-6 py-3">{{ item.deleted_at|date:"M j, Y H:i" }}</td>
+            <td class="px-6 py-3">{{ item.days_until_purge }}</td>
+            <td class="px-6 py-3 space-x-2">
+                <form method="post" action="{% url 'admin_portal:recycle_bin_restore' 'course' item.pk %}" class="inline">{% csrf_token %}<button type="submit" class="text-primary-600 hover:underline">Restore</button></form>
+                <form method="post" action="{% url 'admin_portal:recycle_bin_purge' 'course' item.pk %}" class="inline" onsubmit="return confirm('Permanently delete this course and all related data?')">{% csrf_token %}<button type="submit" class="text-red-600 hover:underline">Delete forever</button></form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if modules %}
+<section class="bg-white rounded-xl shadow mb-6 overflow-hidden">
+    <h2 class="px-6 py-4 font-semibold border-b">Sections ({{ modules|length }})</h2>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-left"><tr><th class="px-6 py-3">Section</th><th class="px-6 py-3">Course</th><th class="px-6 py-3">Deleted</th><th class="px-6 py-3">Actions</th></tr></thead>
+        <tbody>
+        {% for item in modules %}
+        <tr class="border-t">
+            <td class="px-6 py-3">{{ item.title }}</td>
+            <td class="px-6 py-3">{{ item.level }}</td>
+            <td class="px-6 py-3">{{ item.deleted_at|date:"M j, Y H:i" }}</td>
+            <td class="px-6 py-3 space-x-2">
+                <form method="post" action="{% url 'admin_portal:recycle_bin_restore' 'module' item.pk %}" class="inline">{% csrf_token %}<button type="submit" class="text-primary-600 hover:underline">Restore</button></form>
+                <form method="post" action="{% url 'admin_portal:recycle_bin_purge' 'module' item.pk %}" class="inline" onsubmit="return confirm('Permanently delete this section?')">{% csrf_token %}<button type="submit" class="text-red-600 hover:underline">Delete forever</button></form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if lessons %}
+<section class="bg-white rounded-xl shadow mb-6 overflow-hidden">
+    <h2 class="px-6 py-4 font-semibold border-b">Lessons ({{ lessons|length }})</h2>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-left"><tr><th class="px-6 py-3">Lesson</th><th class="px-6 py-3">Course</th><th class="px-6 py-3">Deleted</th><th class="px-6 py-3">Actions</th></tr></thead>
+        <tbody>
+        {% for item in lessons %}
+        <tr class="border-t">
+            <td class="px-6 py-3">{{ item.title }}</td>
+            <td class="px-6 py-3">{{ item.module.level }}</td>
+            <td class="px-6 py-3">{{ item.deleted_at|date:"M j, Y H:i" }}</td>
+            <td class="px-6 py-3 space-x-2">
+                <form method="post" action="{% url 'admin_portal:recycle_bin_restore' 'lesson' item.pk %}" class="inline">{% csrf_token %}<button type="submit" class="text-primary-600 hover:underline">Restore</button></form>
+                <form method="post" action="{% url 'admin_portal:recycle_bin_purge' 'lesson' item.pk %}" class="inline" onsubmit="return confirm('Permanently delete this lesson?')">{% csrf_token %}<button type="submit" class="text-red-600 hover:underline">Delete forever</button></form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% if library %}
+<section class="bg-white rounded-xl shadow mb-6 overflow-hidden">
+    <h2 class="px-6 py-4 font-semibold border-b">Library Resources ({{ library|length }})</h2>
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-left"><tr><th class="px-6 py-3">Title</th><th class="px-6 py-3">Deleted</th><th class="px-6 py-3">Actions</th></tr></thead>
+        <tbody>
+        {% for item in library %}
+        <tr class="border-t">
+            <td class="px-6 py-3">{{ item.title }}</td>
+            <td class="px-6 py-3">{{ item.deleted_at|date:"M j, Y H:i" }}</td>
+            <td class="px-6 py-3 space-x-2">
+                <form method="post" action="{% url 'admin_portal:recycle_bin_restore' 'library' item.pk %}" class="inline">{% csrf_token %}<button type="submit" class="text-primary-600 hover:underline">Restore</button></form>
+                <form method="post" action="{% url 'admin_portal:recycle_bin_purge' 'library' item.pk %}" class="inline" onsubmit="return confirm('Permanently delete this resource?')">{% csrf_token %}<button type="submit" class="text-red-600 hover:underline">Delete forever</button></form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% endif %}
+{% endblock %}

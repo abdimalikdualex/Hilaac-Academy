@@ -1,23 +1,20 @@
 {% load static %}
-<a href="{% url 'cms:home' %}" class="inline-flex items-center gap-2.5 flex-shrink-0 group {{ wrapper_class|default:'' }}" aria-label="Hilaac Academy — Home">
+<a href="{% url 'cms:home' %}" class="inline-flex items-center gap-2.5 flex-shrink-0 group {{ wrapper_class|default:'' }}" aria-label="{{ SITE_NAME|default:'Hilaac Academy' }} — Home">
     <span class="rounded-full overflow-hidden flex-shrink-0 {{ bg_class|default:'' }} {{ pad_class|default:'' }}">
-        <picture>
-            <source srcset="{% static 'images/logo-nav.webp' %}" type="image/webp">
-            <img
-                src="{% static 'images/logo-nav.png' %}"
-                alt="Hilaac Academy"
-                class="site-logo-img {{ img_class|default:'h-10 w-10' }} object-contain object-center"
-                width="44"
-                height="44"
-                loading="eager"
-                decoding="sync"
-                fetchpriority="high"
-            >
-        </picture>
+        <img
+            src="{{ site_logo_url|default:'/static/images/logo-nav.webp' }}"
+            alt="{{ SITE_NAME|default:'Hilaac Academy' }}"
+            class="site-logo-img {{ img_class|default:'h-10 w-10' }} object-contain object-center"
+            width="44"
+            height="44"
+            loading="eager"
+            decoding="sync"
+            fetchpriority="high"
+        >
     </span>
     {% if show_name|default:False %}
     <span class="flex flex-col leading-tight {{ text_class|default:'' }}">
-        <span class="font-bold text-base sm:text-lg text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">Hilaac</span>
+        <span class="font-bold text-base sm:text-lg text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">{{ SITE_NAME|default:"Hilaac"|truncatewords:1 }}</span>
         <span class="text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-amber-600 dark:text-amber-400 uppercase">Academy</span>
     </span>
     {% endif %}

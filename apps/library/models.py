@@ -1,9 +1,10 @@
 from django.db import models
 
 from apps.core.models import TimeStampedModel
+from apps.core.soft_delete import SoftDeleteMixin
 
 
-class LibraryResource(TimeStampedModel):
+class LibraryResource(SoftDeleteMixin, TimeStampedModel):
     class Category(models.TextChoices):
         ENGLISH_NOTES = "english_notes", "English Notes"
         KISWAHILI_NOTES = "kiswahili_notes", "Kiswahili Notes"

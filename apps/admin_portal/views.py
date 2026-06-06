@@ -260,6 +260,7 @@ def course_edit(request, pk):
         form = LevelForm(request.POST, request.FILES, instance=level)
         if form.is_valid():
             form.save()
+            log_audit(request, "course_update", "Level", level.pk, str(level))
             messages.success(request, "Course updated.")
             return redirect("courses_manage:level_detail", level_id=level.id)
     else:
@@ -273,9 +274,9 @@ def course_delete(request, pk):
     if request.method == "POST":
         name = str(level)
         level_id = level.pk
-        level.delete()
-        log_audit(request, "course_delete", "Level", level_id, name)
-        messages.success(request, f"Course '{name}' permanently deleted.")
+        level.soft_delete(user=request.user)
+        log_audit(request, "course_soft_delete", "Level", level_id, name)
+        messages.success(request, f"Course '{name}' moved to Recycle Bin.")
         return redirect("admin_portal:course_list")
     enrolled = level.enrollments.count()
     return render(
@@ -284,7 +285,7 @@ def course_delete(request, pk):
         {
             "object_name": "Course",
             "object_label": str(level),
-            "warning": f"This will delete all sections, lessons, enrollments ({enrolled}), and related data.",
+            "warning": f"This moves the course to the Recycle Bin for 30 days. Enrollments ({enrolled}) are preserved until permanent deletion.",
             "cancel_url": reverse("admin_portal:course_list"),
         },
     )
@@ -295,6 +296,7 @@ def course_toggle_publish(request, pk):
     level = get_object_or_404(Level, pk=pk)
     level.is_published = not level.is_published
     level.save(update_fields=["is_published"])
+    log_audit(request, "course_publish_toggle", "Level", level.pk, f"published={level.is_published}")
     messages.success(request, f"Course {'published' if level.is_published else 'unpublished'}.")
     return redirect("admin_portal:course_list")
 
@@ -305,6 +307,7 @@ def course_archive(request, pk):
     level.is_archived = not level.is_archived
     level.is_published = False if level.is_archived else level.is_published
     level.save(update_fields=["is_archived", "is_published"])
+    log_audit(request, "course_archive_toggle", "Level", level.pk, f"archived={level.is_archived}")
     messages.success(request, f"Course {'archived' if level.is_archived else 'restored'}.")
     return redirect("admin_portal:course_list")
 
@@ -357,6 +360,7 @@ def payment_list(request):
 def payment_approve(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
     payment.approve()
+    log_audit(request, "payment_approve", "Payment", payment.pk, f"student={payment.student_id}")
     messages.success(request, "Payment approved and student enrolled.")
     return redirect("admin_portal:payment_list")
 
@@ -602,6 +606,7 @@ def settings_view(request):
         form = SiteSettingsForm(request.POST, request.FILES, instance=site)
         if form.is_valid():
             form.save()
+            log_audit(request, "site_settings_update", "SiteSettings", site.pk, site.academy_name)
             messages.success(request, "Settings saved.")
             return redirect("admin_portal:settings")
     else:
@@ -656,9 +661,9 @@ def library_delete(request, pk):
     resource = get_object_or_404(LibraryResource, pk=pk)
     if request.method == "POST":
         title = resource.title
-        resource.delete()
-        log_audit(request, "library_delete", "LibraryResource", pk, title)
-        messages.success(request, f"Resource '{title}' deleted.")
+        resource.soft_delete(user=request.user)
+        log_audit(request, "library_soft_delete", "LibraryResource", pk, title)
+        messages.success(request, f"Resource '{title}' moved to Recycle Bin.")
         return redirect("admin_portal:library_list")
     return render(
         request,

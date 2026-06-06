@@ -4,7 +4,7 @@ from apps.payments.currency import detect_country_code, get_display_currency
 
 
 def site_settings(request):
-    from apps.core.branding import resolve_hero_background_url, resolve_hero_srcset
+    from apps.core.branding import resolve_hero_background_url, resolve_hero_srcset, resolve_site_branding
     from apps.core.roles import role_dashboard_name
 
     dashboard_url_name = ""
@@ -14,8 +14,8 @@ def site_settings(request):
     from apps.core.brand_assets import BrandAssetManager
 
     return {
+        **resolve_site_branding(),
         "brand": BrandAssetManager,
-        "SITE_NAME": "Hilaac Academy",
         "SITE_URL": settings.SITE_URL,
         "WHATSAPP_SUPPORT_NUMBER": settings.WHATSAPP_SUPPORT_NUMBER,
         "WHATSAPP_LINK": f"https://wa.me/{settings.WHATSAPP_SUPPORT_NUMBER.replace('+', '')}",

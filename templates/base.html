@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hilaac Academy - Learn English and Kiswahili online. Baro Xirfado Casri ah, Dhis Mustaqbalkaaga.">
+    <meta name="description" content="{{ SITE_NAME }} - Learn English and Kiswahili online. {{ SITE_TAGLINE }}">
     <meta name="theme-color" content="#1E4D8F">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="icon" type="image/png" href="/static/images/favicon.png">
-    <link rel="preload" as="image" href="{% static 'images/logo-nav.webp' %}" type="image/webp" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ site_logo_url }}" fetchpriority="high">
     <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
-    <title>{% block title %}Hilaac Academy{% endblock %}</title>
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
     <style>.site-logo-img{display:block;object-fit:contain}</style>
     <link rel="stylesheet" href="/static/css/tailwind.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
@@ -110,13 +110,13 @@
                     WhatsApp
                 </a>
                 <ul class="space-y-2 text-sm">
-                    <li class="inline-flex items-center gap-2">{% ha_icon "mail" size=16 %} info@hilaacacademy.com</li>
+                    <li class="inline-flex items-center gap-2">{% ha_icon "mail" size=16 %} {{ site_contact_email|default:"info@hilaacacademy.com" }}</li>
                     <li class="inline-flex items-center gap-2">{% ha_icon "phone" size=16 %} {{ WHATSAPP_SUPPORT_NUMBER }}</li>
                 </ul>
             </div>
         </div>
         <div class="border-t border-slate-800 text-center py-4 text-sm">
-            &copy; {% now "Y" %} Hilaac Academy. Dhammaan xuquuqaha way dhowran yihiin.
+            &copy; {% now "Y" %} {{ SITE_NAME }}. {{ site_footer_text|default:"Dhammaan xuquuqaha way dhowran yihiin." }}
         </div>
     </footer>
 

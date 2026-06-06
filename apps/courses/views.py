@@ -5,6 +5,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from apps.core.cache_sync import course_detail_cache_key
 from apps.core.pagination import DEFAULT_PAGE_SIZE, paginate_queryset
 from apps.core.permissions import student_required
 from apps.core.utils import log_audit
@@ -77,7 +78,7 @@ def catalog(request):
 
 
 def course_detail(request, language_slug, level_slug):
-    cache_key = f"course:detail:{language_slug}:{level_slug}"
+    cache_key = course_detail_cache_key(language_slug, level_slug)
     cached_level_id = cache.get(cache_key) if not request.user.is_authenticated else None
 
     level = get_object_or_404(

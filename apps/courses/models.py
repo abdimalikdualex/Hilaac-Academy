@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from apps.core.models import TimeStampedModel
+from apps.core.soft_delete import SoftDeleteMixin
 
 
 class Language(TimeStampedModel):
@@ -23,7 +24,7 @@ class Language(TimeStampedModel):
         return self.name
 
 
-class Level(TimeStampedModel):
+class Level(SoftDeleteMixin, TimeStampedModel):
     class LevelTag(models.TextChoices):
         BEGINNER = "beginner", "Beginner"
         INTERMEDIATE = "intermediate", "Intermediate"
@@ -178,7 +179,7 @@ class Level(TimeStampedModel):
         return get_first_preview_lesson(self)
 
 
-class Module(TimeStampedModel):
+class Module(SoftDeleteMixin, TimeStampedModel):
     level = models.ForeignKey(Level, on_delete=models.CASCADE, related_name="modules")
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField(default=0)
@@ -201,7 +202,7 @@ class Module(TimeStampedModel):
         )["total"] or 0
 
 
-class Lesson(TimeStampedModel):
+class Lesson(SoftDeleteMixin, TimeStampedModel):
     class LessonType(models.TextChoices):
         VIDEO = "video", "Video"
         PDF = "pdf", "PDF Notes"

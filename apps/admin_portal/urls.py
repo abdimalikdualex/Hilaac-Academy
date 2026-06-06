@@ -1,7 +1,7 @@
 from django.urls import path
 from django.views.generic import RedirectView
 
-from . import views
+from . import recycle_bin, views
 
 app_name = "admin_portal"
 
@@ -59,5 +59,8 @@ urlpatterns = [
     path("cms/faq/<int:pk>/delete/", views.faq_delete, name="faq_delete"),
     path("notifications/", views.notification_list, name="notification_list"),
     path("settings/", views.settings_view, name="settings"),
+    path("recycle-bin/", recycle_bin.recycle_bin_list, name="recycle_bin"),
+    path("recycle-bin/<str:model_type>/<int:pk>/restore/", recycle_bin.recycle_bin_restore, name="recycle_bin_restore"),
+    path("recycle-bin/<str:model_type>/<int:pk>/purge/", recycle_bin.recycle_bin_purge, name="recycle_bin_purge"),
     path("exchange-rates/", views.exchange_rates, name="exchange_rates"),
 ]

@@ -82,9 +82,9 @@ def module_delete(request, module_id):
     level_id = module.level.id
     if request.method == "POST":
         title = module.title
-        module.delete()
-        log_audit(request, "module_delete", "Module", module_id, title)
-        messages.success(request, f"Module '{title}' deleted.")
+        module.soft_delete(user=request.user)
+        log_audit(request, "module_soft_delete", "Module", module_id, title)
+        messages.success(request, f"Module '{title}' moved to Recycle Bin.")
         return redirect("courses_manage:level_detail", level_id=level_id)
     return render(request, "courses/manage/module_confirm_delete.html", {"module": module, "level": module.level})
 
@@ -153,12 +153,12 @@ def lesson_delete(request, lesson_id):
     if request.method == "POST":
         title = lesson.title
         level = lesson.module.level
-        lesson.delete()
+        lesson.soft_delete(user=request.user)
         from apps.courses.preview import enforce_single_preview
 
         enforce_single_preview(level)
-        log_audit(request, "lesson_delete", "Lesson", lesson_id, title)
-        messages.success(request, f"Lesson '{title}' deleted.")
+        log_audit(request, "lesson_soft_delete", "Lesson", lesson_id, title)
+        messages.success(request, f"Lesson '{title}' moved to Recycle Bin.")
         return redirect("courses_manage:level_detail", level_id=level_id)
     return render(request, "courses/lesson_confirm_delete.html", {"lesson": lesson, "level": lesson.module.level})
 

@@ -2,6 +2,25 @@
 from django.contrib.staticfiles import finders
 from django.templatetags.static import static
 
+from apps.core.models import SiteSettings
+
+
+def resolve_site_branding():
+    """Single source of truth for academy name, logo, and contact info."""
+    site = SiteSettings.get()
+    logo_url = site.logo.url if site.logo else static("images/logo-nav.webp")
+    return {
+        "site": site,
+        "SITE_NAME": site.academy_name or "Hilaac Academy",
+        "SITE_TAGLINE": site.tagline or "Baro Xirfado Casri ah, Dhis Mustaqbalkaaga",
+        "site_logo_url": logo_url,
+        "site_banner_url": site.banner.url if site.banner else None,
+        "site_footer_text": site.footer_text,
+        "site_contact_email": site.contact_email,
+        "site_contact_phone": site.contact_phone or site.whatsapp_number,
+        "site_whatsapp_number": site.whatsapp_number,
+    }
+
 HERO_BACKGROUND_CANDIDATES = (
     "images/hero-full.webp",
     "images/hero.webp",
