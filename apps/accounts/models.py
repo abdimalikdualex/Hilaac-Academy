@@ -1,5 +1,14 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models
+
+
+class UserManager(DjangoUserManager):
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("role", "super_admin")
+        extra_fields.setdefault("is_verified", True)
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        return super().create_superuser(username, email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -15,6 +24,8 @@ class User(AbstractUser):
     profile_photo = models.ImageField(upload_to="profiles/", blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     bio = models.TextField(blank=True, help_text="Instructor biography")
+
+    objects = UserManager()
 
     class Meta:
         ordering = ["-date_joined"]
