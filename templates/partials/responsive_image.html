@@ -1,5 +1,5 @@
 {% if srcset %}
-<img src="{{ src }}" srcset="{{ srcset }}" sizes="{{ sizes }}" alt="{{ alt }}"{% if css_class %} class="{{ css_class }}"{% endif %} loading="{{ loading }}"{% if fetchpriority %} fetchpriority="{{ fetchpriority }}"{% endif %} decoding="sync" width="800" height="450">
+<img src="{{ src }}" srcset="{{ srcset }}" sizes="{{ sizes }}" alt="{{ alt }}"{% if css_class %} class="{{ css_class }}"{% endif %} loading="{{ loading }}"{% if fetchpriority %} fetchpriority="{{ fetchpriority }}"{% endif %} decoding="async"{% if width %} width="{{ width }}"{% else %} width="1280"{% endif %}{% if height %} height="{{ height }}"{% else %} height="720"{% endif %}>
 {% else %}
 <img src="{{ src }}" alt="{{ alt }}"{% if css_class %} class="{{ css_class }}"{% endif %} loading="{{ loading }}"{% if fetchpriority %} fetchpriority="{{ fetchpriority }}"{% endif %} decoding="sync">
 {% endif %}

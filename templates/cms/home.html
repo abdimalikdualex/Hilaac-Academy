@@ -117,12 +117,12 @@
         <h2 class="text-3xl font-bold text-center mb-2">Why Choose Hilaac Academy?</h2>
         <p class="text-center text-slate-500 mb-10">Waxaad Ka Heshaa:</p>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "video" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Casharro muuqaal ah</h3><p class="text-sm text-slate-500 mt-2">Video Lessons</p></div>
-            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "clipboard-list" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Imtixaano Online ah</h3><p class="text-sm text-slate-500 mt-2">Online Quizzes & Exams</p></div>
-            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "award" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Shahaadooyin la xaqiijin karo</h3><p class="text-sm text-slate-500 mt-2">Verifiable Certificates</p></div>
-            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "smartphone" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Barasho ku habboon Mobile-ka</h3><p class="text-sm text-slate-500 mt-2">Mobile-Friendly Learning</p></div>
-            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "user-check" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Macallimiin Khibrad Leh</h3><p class="text-sm text-slate-500 mt-2">Expert Instructors</p></div>
-            <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 shadow text-center"><div class="flex justify-center mb-3">{% ha_icon "handshake" size=36 class_name="text-primary-600" %}</div><h3 class="font-semibold">Taageero Joogto ah</h3><p class="text-sm text-slate-500 mt-2">Continuous Support</p></div>
+            {% include "partials/feature_card.html" with image_stem="images/features/video-lessons" icon="video" title="Casharro muuqaal ah" subtitle="Video Lessons" %}
+            {% include "partials/feature_card.html" with image_stem="images/features/online-quizzes" icon="clipboard-list" title="Imtixaano Online ah" subtitle="Online Quizzes & Exams" %}
+            {% include "partials/feature_card.html" with image_stem="images/features/certificates" icon="award" title="Shahaadooyin la xaqiijin karo" subtitle="Verifiable Certificates" %}
+            {% include "partials/feature_card.html" with image_stem="images/features/mobile-learning" icon="smartphone" title="Barasho ku habboon Mobile-ka" subtitle="Mobile-Friendly Learning" %}
+            {% include "partials/feature_card.html" with image_stem="images/features/expert-instructors" icon="user-check" title="Macallimiin Khibrad Leh" subtitle="Expert Instructors" %}
+            {% include "partials/feature_card.html" with image_stem="images/features/continuous-support" icon="handshake" title="Taageero Joogto ah" subtitle="Continuous Support" %}
         </div>
     </div>
 </section>

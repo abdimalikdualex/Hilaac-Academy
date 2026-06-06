@@ -12,6 +12,12 @@ IMAGE_PRESETS = {
     "dashboard_banner": {"full": (1600, 900), "medium": (1024, 576), "thumb": (512, 288)},
     "course_cover": {"full": (800, 450), "medium": (640, 360), "thumb": (400, 225)},
     "thumbnail": {"full": (400, 225), "medium": (320, 180), "thumb": (200, 112)},
+    "feature_card": {
+        "thumb": (640, 360),
+        "medium": (1280, 720),
+        "full": (1920, 1080),
+        "ultra": (3840, 2160),
+    },
 }
 
 # Legacy aliases used by model save hooks
@@ -86,6 +92,20 @@ def generate_image_variants(image_field, preset="course_cover"):
     except Exception:
         return {}
     return urls
+
+
+def responsive_static_image_data(relative_stem, preset="feature_card"):
+    """Return src/srcset for pre-generated static WebP variants (e.g. images/features/video-lessons)."""
+    sizes = IMAGE_PRESETS.get(preset, IMAGE_PRESETS["feature_card"])
+    responsive_sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+    srcset_parts = []
+    for key, dims in sizes.items():
+        srcset_parts.append(f"{static_url(f'{relative_stem}-{key}.webp')} {dims[0]}w")
+    return {
+        "src": static_url(f"{relative_stem}-full.webp"),
+        "srcset": ", ".join(srcset_parts),
+        "sizes": responsive_sizes,
+    }
 
 
 def responsive_image_data(image_field, preset="course_cover", placeholder=None):
