@@ -1,36 +1,82 @@
+"""
+Seed Hilaac Academy data.
+
+SAFE BY DEFAULT — never overwrites or resurrects courses unless you pass --demo --force.
+
+  python manage.py seed_data              # admin/student accounts + languages only
+  python manage.py seed_data --demo       # first-time demo courses (once per database)
+  python manage.py seed_data --demo --force  # dev only: rebuild demo curriculum (destructive)
+"""
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError
 
 from apps.accounts.models import User
 from apps.assessments.models import AnswerOption, Question, Quiz
 from apps.cms.models import FAQ, SiteStatistic, Testimonial
+from apps.core.models import SiteSettings
 from apps.courses.models import Language, Lesson, Level, Module
 from apps.courses.preview import enforce_single_preview
 from apps.library.models import LibraryResource
 
 
 class Command(BaseCommand):
-    help = "Seed initial data for Hilaac Academy MVP"
+    help = "Seed users/languages (safe) or optional one-time demo content"
 
     def add_arguments(self, parser):
         parser.add_argument(
+            "--demo",
+            action="store_true",
+            help="Include demo courses, lessons, CMS samples (runs once per database)",
+        )
+        parser.add_argument(
             "--if-empty",
             action="store_true",
-            help="Skip seeding when courses already exist (safe for production deploys)",
+            help="Alias for --demo (kept for deploy scripts)",
         )
         parser.add_argument(
             "--force",
             action="store_true",
-            help="Overwrite prices and re-sync A1 curriculum (development only)",
+            help="With --demo: overwrite demo prices/curriculum (development only)",
         )
 
     def handle(self, *args, **options):
-        if options["if_empty"] and Level.objects.exists():
-            self.stdout.write("Database already has courses; skipping seed (--if-empty).")
+        include_demo = options["demo"] or options["if_empty"]
+        site = SiteSettings.get()
+
+        self._seed_users()
+
+        english, kiswahili = self._seed_languages()
+
+        if not include_demo:
+            self.stdout.write(self.style.SUCCESS("Accounts and languages ready (no demo courses touched)."))
             return
 
-        self.stdout.write("Seeding Hilaac Academy data...")
+        if site.demo_content_seeded and not options["force"]:
+            self.stdout.write(
+                "Demo content was already seeded for this database; skipping. "
+                "Your courses are never auto-restored. Use --demo --force only in development."
+            )
+            return
 
-        # Super Admin
+        if Level.objects.exists() and not options["force"]:
+            self.stdout.write(
+                "Active courses already exist; skipping demo seed to protect your data. "
+                "Use --demo --force only if you intend to reset demo curriculum."
+            )
+            if not site.demo_content_seeded:
+                site.demo_content_seeded = True
+                site.save(update_fields=["demo_content_seeded"])
+            return
+
+        self.stdout.write("Seeding one-time demo content...")
+        self._seed_demo_courses(english, kiswahili, force=options["force"])
+        self._seed_demo_cms(english, kiswahili)
+
+        site.demo_content_seeded = True
+        site.save(update_fields=["demo_content_seeded"])
+        self.stdout.write(self.style.SUCCESS("Demo seed complete. This will not run again unless --demo --force."))
+
+    def _seed_users(self):
         if not User.objects.filter(username="admin").exists():
             User.objects.create_superuser(
                 username="admin",
@@ -43,7 +89,6 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS("Created super admin (admin / admin123)"))
 
-        # Test Student
         if not User.objects.filter(username="student").exists():
             User.objects.create_user(
                 username="student",
@@ -58,7 +103,7 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS("Created test student (student / student123)"))
 
-        # Languages
+    def _seed_languages(self):
         english, _ = Language.objects.get_or_create(
             slug="english",
             defaults={"name": "English", "description": "Learn English from beginner to expert level."},
@@ -67,7 +112,23 @@ class Command(BaseCommand):
             slug="kiswahili",
             defaults={"name": "Kiswahili", "description": "Learn Kiswahili from beginner to advanced level."},
         )
+        return english, kiswahili
 
+    def _level_get_or_create(self, language, slug, defaults):
+        """Never resurrect soft-deleted or duplicate slug rows."""
+        tombstone = Level.all_objects.filter(language=language, slug=slug).first()
+        if tombstone:
+            if tombstone.is_deleted:
+                self.stdout.write(f"  Skip {slug} (in recycle bin — restore manually if needed)")
+            return tombstone, False
+        try:
+            level, created = Level.objects.get_or_create(language=language, slug=slug, defaults=defaults)
+            return level, created
+        except IntegrityError:
+            existing = Level.all_objects.filter(language=language, slug=slug).first()
+            return existing, False
+
+    def _seed_demo_courses(self, english, kiswahili, force=False):
         english_levels = [
             ("Beginner (A1)", "a1", 0, True, 0),
             ("Elementary (A2)", "a2", 1, False, 20),
@@ -76,7 +137,6 @@ class Command(BaseCommand):
             ("Advanced (C1)", "c1", 4, False, 45),
             ("Expert (C2)", "c2", 5, False, 55),
         ]
-
         english_keywords = {
             "a1": "english,beginner,a1,alphabet,greetings,basic",
             "a2": "english,elementary,a2,grammar,conversation",
@@ -87,13 +147,16 @@ class Command(BaseCommand):
         }
 
         for name, slug, order, is_free, price in english_levels:
-            level, created = Level.objects.get_or_create(
-                language=english,
-                slug=slug,
+            level, created = self._level_get_or_create(
+                english,
+                slug,
                 defaults={
                     "name": name,
                     "subtitle": f"Build confidence in {name} English step by step",
-                    "level_tag": {"a1": "beginner", "a2": "beginner", "b1": "intermediate", "b2": "intermediate", "c1": "advanced", "c2": "advanced"}.get(slug, "beginner"),
+                    "level_tag": {
+                        "a1": "beginner", "a2": "beginner", "b1": "intermediate",
+                        "b2": "intermediate", "c1": "advanced", "c2": "advanced",
+                    }.get(slug, "beginner"),
                     "order": order,
                     "is_free": is_free,
                     "price": price,
@@ -107,31 +170,33 @@ class Command(BaseCommand):
                     "duration_weeks": 4 + order,
                 },
             )
-            if level.price != price:
-                level.price = price
-                level.save(update_fields=["price"])
             if created:
                 if slug == "a1":
-                    self._sync_english_a1_curriculum(level)
+                    self._sync_english_a1_curriculum(level, force=force)
                 else:
                     self._create_sample_content(level, "English")
-
-        a1_level = Level.objects.filter(language=english, slug="a1").first()
-        if a1_level:
-            self._sync_english_a1_curriculum(a1_level)
+            elif force and not level.is_deleted:
+                if level.price != price:
+                    level.price = price
+                    level.save(update_fields=["price"])
+                if slug == "a1":
+                    self._sync_english_a1_curriculum(level, force=force)
 
         kiswahili_levels = [
             ("Beginner", "beginner", 0, True, 0),
             ("Intermediate", "intermediate", 1, False, 23),
             ("Advanced", "advanced", 2, False, 39),
         ]
-
-        kiswahili_keywords = {"beginner": "kiswahili,beginner,swahili,greetings", "intermediate": "kiswahili,intermediate,grammar", "advanced": "kiswahili,advanced,business,professional"}
+        kiswahili_keywords = {
+            "beginner": "kiswahili,beginner,swahili,greetings",
+            "intermediate": "kiswahili,intermediate,grammar",
+            "advanced": "kiswahili,advanced,business,professional",
+        }
 
         for name, slug, order, is_free, price in kiswahili_levels:
-            level, created = Level.objects.get_or_create(
-                language=kiswahili,
-                slug=slug,
+            level, created = self._level_get_or_create(
+                kiswahili,
+                slug,
                 defaults={
                     "name": name,
                     "subtitle": f"Learn Kiswahili at {name} level with expert guidance",
@@ -149,17 +214,17 @@ class Command(BaseCommand):
                     "duration_weeks": 4 + order * 2,
                 },
             )
-            if options["force"] and level.price != price:
-                level.price = price
-                level.save(update_fields=["price"])
             if created:
                 self._create_sample_content(level, "Kiswahili")
+            elif force and not level.is_deleted and level.price != price:
+                level.price = price
+                level.save(update_fields=["price"])
 
-        # Ensure existing courses have preview lessons and overview content
-        self._ensure_preview_lessons()
-        self._ensure_overview_content()
+        if force:
+            self._ensure_preview_lessons()
+            self._ensure_overview_content()
 
-        # Digital Library sample resources (metadata only — upload files via admin)
+    def _seed_demo_cms(self, english, kiswahili):
         library_items = [
             ("English Grammar Basics", LibraryResource.Category.GRAMMAR, english, "Essential English grammar rules for beginners."),
             ("Kiswahili Vocabulary List", LibraryResource.Category.VOCABULARY, kiswahili, "Common Kiswahili words and phrases."),
@@ -168,9 +233,11 @@ class Command(BaseCommand):
             ("English Vocabulary Book", LibraryResource.Category.ENGLISH_NOTES, english, "500 essential English words with examples."),
         ]
         for title, category, lang, desc in library_items:
-            LibraryResource.objects.get_or_create(title=title, defaults={"category": category, "language": lang, "description": desc, "is_published": True})
+            LibraryResource.objects.get_or_create(
+                title=title,
+                defaults={"category": category, "language": lang, "description": desc, "is_published": True},
+            )
 
-        # Site Statistics
         stats = [
             ("Total Students", 500, "students", 0),
             ("Total Courses", 9, "courses", 1),
@@ -180,7 +247,6 @@ class Command(BaseCommand):
         for label, value, icon, order in stats:
             SiteStatistic.objects.get_or_create(label=label, defaults={"value": value, "icon": icon, "order": order})
 
-        # Testimonials
         testimonials = [
             ("Amina Hassan", "English Beginner (A1)", "Hilaac Academy helped me learn English from scratch. Now I can communicate confidently at work!", 5),
             ("Mohamed Ali", "Kiswahili Beginner", "The Kiswahili course is excellent. Clear lessons and great support via WhatsApp.", 5),
@@ -193,7 +259,6 @@ class Command(BaseCommand):
                 defaults={"quote": quote, "rating": rating, "order": i, "is_featured": True},
             )
 
-        # FAQs
         faqs = [
             ("What languages do you offer?", "We currently offer English and Kiswahili courses for all proficiency levels."),
             ("Are there free courses?", "Yes! Both English Beginner (A1) and Kiswahili Beginner courses are completely free."),
@@ -204,9 +269,9 @@ class Command(BaseCommand):
         for i, (question, answer) in enumerate(faqs):
             FAQ.objects.get_or_create(question=question, defaults={"answer": answer, "order": i})
 
-        self.stdout.write(self.style.SUCCESS("Seed data created successfully!"))
-
     def _create_sample_content(self, level, lang_name):
+        if level.is_deleted:
+            return
         module, _ = Module.objects.get_or_create(
             level=level,
             order=1,
@@ -291,8 +356,11 @@ class Command(BaseCommand):
 
         enforce_single_preview(level)
 
-    def _sync_english_a1_curriculum(self, level):
-        """MVP: English Beginner (A1) — 3 sections, 7 lessons, quiz, certificate."""
+    def _sync_english_a1_curriculum(self, level, force=False):
+        """Only touch English A1 when newly created or --demo --force."""
+        if level.is_deleted:
+            return
+
         video_url = "https://www.w3schools.com/html/mov_bbb.mp4"
         structure = [
             ("Introduction", "Your first steps into English.", [
@@ -331,7 +399,8 @@ class Command(BaseCommand):
                     },
                 )
 
-        Module.objects.filter(level=level).exclude(order__in=[1, 2, 3]).delete()
+        if force:
+            Module.objects.filter(level=level).exclude(order__in=[1, 2, 3]).delete()
 
         grammar_module = Module.objects.filter(level=level, order=3).first()
         if grammar_module:
@@ -377,12 +446,10 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"  Synced English A1 curriculum ({level.name})"))
 
     def _ensure_preview_lessons(self):
-        """Ensure only the first lesson is marked free preview on every course."""
         for level in Level.objects.filter(is_published=True):
             enforce_single_preview(level)
 
     def _ensure_overview_content(self):
-        """Fill overview fields on courses that are missing them."""
         defaults = {
             "learning_objectives": "Speak confidently in everyday situations\nWrite clear messages\nUnderstand lessons at your level",
             "skills": "Conversation\nGrammar\nVocabulary\nListening",

@@ -45,6 +45,10 @@ class SiteSettings(models.Model):
     twitter_url = models.URLField(blank=True)
     whatsapp_number = models.CharField(max_length=30, blank=True)
     footer_text = models.TextField(blank=True)
+    demo_content_seeded = models.BooleanField(
+        default=False,
+        help_text="Set after first demo seed so deploys never restore deleted demo courses.",
+    )
 
     class Meta:
         verbose_name = "Site Settings"

@@ -38,7 +38,7 @@ A production-ready, mobile-first online language learning platform built with Dj
 pip install -r requirements/base.txt
 copy .env.example .env   # set USE_SQLITE=True for local dev
 python manage.py migrate
-python manage.py seed_data
+python manage.py seed_data --demo   # first-time demo courses only (never overwrites your data)
 python manage.py runserver
 ```
 

@@ -7,6 +7,10 @@ class CoreConfig(AppConfig):
     verbose_name = "Core"
 
     def ready(self):
+        from apps.core.boot_checks import check_database_persistence
+
+        check_database_persistence()
+
         from apps.cms.models import FAQ, SiteStatistic, Testimonial
         from apps.core.models import SiteSettings
         from apps.core.signals import connect_cache_signals, register_cache_sync
