@@ -19,17 +19,13 @@
     </div>
     <button type="submit" class="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Login</button>
 </form>
-<p class="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
-    Super Admin? After login go to
-    <a href="{% url 'admin_portal:dashboard' %}" class="text-primary-600 hover:underline">Admin Portal</a>
-    (not <code class="text-[11px]">/admin/</code>).
-</p>
 {% endblock %}
 
 {% block auth_footer %}
-<p class="text-center mt-4 text-sm text-slate-600 dark:text-slate-400">
-    <a href="{% url 'accounts:password_reset' %}" class="text-primary-600 hover:underline">Forgot password?</a>
-    &nbsp;·&nbsp;
-    Don't have an account? <a href="{% url 'accounts:register' %}" class="text-primary-600 hover:underline">Register</a>
-</p>
+<div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-600 text-center text-sm sm:text-base text-slate-700 dark:text-slate-200">
+    <a href="{% url 'accounts:password_reset' %}" class="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 hover:underline">Forgot password?</a>
+    <span class="mx-2 text-slate-400 dark:text-slate-500" aria-hidden="true">·</span>
+    <span>Don&apos;t have an account?</span>
+    <a href="{% url 'accounts:register' %}" class="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 hover:underline">Register</a>
+</div>
 {% endblock %}
