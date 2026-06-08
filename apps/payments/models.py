@@ -70,6 +70,12 @@ class Payment(TimeStampedModel):
     def __str__(self):
         return f"{self.student} - {self.level} ({self.status})"
 
+    @property
+    def screenshot_url(self):
+        from apps.core.protected_media import protected_url
+
+        return protected_url(self.screenshot)
+
     def save(self, *args, **kwargs):
         if not self.receipt_number:
             self.receipt_number = f"HA-RCP-{timezone.now().strftime('%Y%m%d%H%M%S')}-{self.student_id or 0}"

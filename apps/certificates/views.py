@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import redirect, render
 from apps.core.permissions import get_owned_or_404, student_required
 
@@ -37,4 +37,15 @@ def download_certificate(request, certificate_id):
     certificate = get_owned_or_404(Certificate, request.user, "student", certificate_id=certificate_id)
     if not certificate.pdf_file:
         raise Http404("Certificate PDF not available.")
-    return FileResponse(certificate.pdf_file.open("rb"), as_attachment=True, filename=f"{certificate.certificate_id}.pdf")
+
+    filename = f"{certificate.certificate_id}.pdf"
+    if settings.USE_X_ACCEL_REDIRECT:
+        from urllib.parse import quote
+
+        response = HttpResponse()
+        del response["Content-Type"]
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        response["X-Accel-Redirect"] = settings.X_ACCEL_INTERNAL_PREFIX + quote(certificate.pdf_file.name)
+        return response
+
+    return FileResponse(certificate.pdf_file.open("rb"), as_attachment=True, filename=filename)

@@ -1,0 +1,19 @@
+[Unit]
+Description=Hilaac Academy Celery worker
+After=network.target redis-server.service postgresql.service
+
+[Service]
+Type=simple
+User=hilaac
+Group=www-data
+WorkingDirectory=/home/hilaac/hilaac-academy
+EnvironmentFile=/home/hilaac/hilaac-academy/.env
+ExecStart=/home/hilaac/hilaac-academy/venv/bin/celery -A hilaac_academy worker \
+    --loglevel=info --concurrency=2 --max-tasks-per-child=200
+Restart=always
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

@@ -22,6 +22,7 @@ urlpatterns = [
     path("admin-portal/courses/", include("apps.courses.manage_urls")),
     path("instructor/", include("apps.admin_portal.instructor_urls")),
     path("api/", include("apps.core.api_urls")),
+    path("secure-media/", include("apps.core.media_urls")),
 ]
 
 if settings.DEBUG:

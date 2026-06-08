@@ -269,8 +269,22 @@ class Lesson(SoftDeleteMixin, TimeStampedModel):
     def playable_video_url(self):
         """Return the best available video source for the lesson player."""
         if self.video_file:
-            return self.video_file.url
+            from apps.core.protected_media import protected_url
+
+            return protected_url(self.video_file)
         return self.video_url or ""
+
+    @property
+    def audio_src(self):
+        from apps.core.protected_media import protected_url
+
+        return protected_url(self.audio_file)
+
+    @property
+    def pdf_src(self):
+        from apps.core.protected_media import protected_url
+
+        return protected_url(self.pdf_file)
 
     @property
     def thumbnail_url(self):
@@ -326,6 +340,12 @@ class LessonResource(TimeStampedModel):
 
     def __str__(self):
         return f"{self.lesson.title} — {self.title}"
+
+    @property
+    def download_url(self):
+        from apps.core.protected_media import protected_url
+
+        return protected_url(self.file)
 
 
 class Enrollment(TimeStampedModel):

@@ -1,0 +1,18 @@
+[Unit]
+Description=Hilaac Academy Celery beat scheduler
+After=network.target redis-server.service postgresql.service
+
+[Service]
+Type=simple
+User=hilaac
+Group=www-data
+WorkingDirectory=/home/hilaac/hilaac-academy
+EnvironmentFile=/home/hilaac/hilaac-academy/.env
+ExecStart=/home/hilaac/hilaac-academy/venv/bin/celery -A hilaac_academy beat \
+    --loglevel=info \
+    --scheduler django_celery_beat.schedulers:DatabaseScheduler
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

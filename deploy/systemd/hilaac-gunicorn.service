@@ -1,0 +1,23 @@
+[Unit]
+Description=Hilaac Academy Gunicorn application server
+Requires=hilaac-gunicorn.socket
+After=network.target hilaac-gunicorn.socket
+
+[Service]
+Type=notify
+User=hilaac
+Group=www-data
+RuntimeDirectory=hilaac
+WorkingDirectory=/home/hilaac/hilaac-academy
+EnvironmentFile=/home/hilaac/hilaac-academy/.env
+ExecStart=/home/hilaac/hilaac-academy/venv/bin/gunicorn \
+    --config /home/hilaac/hilaac-academy/deploy/gunicorn/gunicorn.conf.py \
+    hilaac_academy.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=3
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

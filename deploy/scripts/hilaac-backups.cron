@@ -1,0 +1,18 @@
+# Hilaac Academy backup schedule.
+# Install for the hilaac user:  crontab -u hilaac deploy/scripts/hilaac-backups.cron
+# All times are server local time. Adjust APP/BACKUP paths if different.
+
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+APP_DIR=/home/hilaac/hilaac-academy
+MEDIA_DIR=/home/hilaac/media
+BACKUP_ROOT=/home/hilaac/backups
+
+# Daily database backup at 02:00
+0 2 * * * /home/hilaac/hilaac-academy/deploy/scripts/backup_db.sh >> /home/hilaac/backups/backup.log 2>&1
+
+# Daily media backup at 02:30
+30 2 * * * /home/hilaac/hilaac-academy/deploy/scripts/backup_media.sh >> /home/hilaac/backups/backup.log 2>&1
+
+# Weekly full backup every Sunday at 03:00 (also stores monthly copy on the 1st)
+0 3 * * 0 /home/hilaac/hilaac-academy/deploy/scripts/backup_weekly.sh >> /home/hilaac/backups/backup.log 2>&1

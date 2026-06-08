@@ -71,11 +71,11 @@
 
             <div class="rounded-2xl overflow-hidden border border-slate-200 mb-5 bg-white">
 
-                <iframe src="{{ lesson.pdf_file.url }}" class="w-full" style="height:70vh" title="PDF viewer"></iframe>
+                <iframe src="{{ lesson.pdf_src }}" class="w-full" style="height:70vh" title="PDF viewer"></iframe>
 
             </div>
 
-            <a href="{{ lesson.pdf_file.url }}" download class="inline-flex items-center gap-2 px-4 py-2 mb-5 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">{% ha_icon "file-text" size=16 %} Download PDF</a>
+            <a href="{{ lesson.pdf_src }}" download class="inline-flex items-center gap-2 px-4 py-2 mb-5 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">{% ha_icon "file-text" size=16 %} Download PDF</a>
 
 
 
@@ -85,7 +85,7 @@
 
                 <p class="text-sm text-slate-500 mb-3 inline-flex items-center gap-1.5">{% ha_icon "headphones" size=16 %} Audio Lesson</p>
 
-                <audio id="lesson-audio" controls class="w-full" src="{{ lesson.audio_file.url }}" data-lesson-id="{{ lesson.id }}"></audio>
+                <audio id="lesson-audio" controls class="w-full" src="{{ lesson.audio_src }}" data-lesson-id="{{ lesson.id }}"></audio>
 
             </div>
 
@@ -127,7 +127,7 @@
 
                     {% for res in lesson.resources.all %}
 
-                    <a href="{{ res.file.url }}" download class="flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-primary-50 transition">
+                    <a href="{{ res.download_url }}" download class="flex items-center gap-3 p-3 rounded-lg bg-white hover:bg-primary-50 transition">
 
                         {% ha_icon "paperclip" size=20 class_name="text-primary-600" %}
 
