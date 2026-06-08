@@ -1,0 +1,30 @@
+# Hilaac Academy — persistent SQLite (no PostgreSQL required).
+# One-time setup in Render Dashboard after first deploy:
+#   1. Web service → Disks → Add Disk
+#   2. Mount path: /app/data
+#   3. Size: 1 GB (increase later if needed)
+# Persistent disks require a paid Render plan (Starter or above).
+
+services:
+  - type: web
+    name: hilaac-academy
+    runtime: docker
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: USE_SQLITE
+        value: "True"
+      - key: PERSISTENT_DATA_DIR
+        value: /app/data
+      - key: GUNICORN_WORKERS
+        value: "1"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: hilaac-data
+      mountPath: /app/data
+      sizeGB: 1

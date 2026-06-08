@@ -7,9 +7,13 @@ class CoreConfig(AppConfig):
     verbose_name = "Core"
 
     def ready(self):
+        from django.db.backends.signals import connection_created
+
         from apps.core.boot_checks import check_database_persistence
+        from apps.core.persistence import configure_sqlite
 
         check_database_persistence()
+        connection_created.connect(configure_sqlite, dispatch_uid="hilaac_sqlite_wal")
 
         from apps.cms.models import FAQ, SiteStatistic, Testimonial
         from apps.core.models import SiteSettings

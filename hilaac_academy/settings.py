@@ -6,6 +6,10 @@ from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+from apps.core.persistence import ensure_data_dirs, resolve_data_dir  # noqa: E402
+
+DATA_DIR = ensure_data_dirs(resolve_data_dir(BASE_DIR))
+
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-dev-key-change-me")
 DEBUG = config("DEBUG", default=True, cast=bool)
 
@@ -81,7 +85,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "hilaac_academy.wsgi.application"
 
 USE_SQLITE = config("USE_SQLITE", default=False, cast=bool)
-_on_render = bool(RENDER_EXTERNAL_HOSTNAME)
+_on_render = bool(RENDER_EXTERNAL_HOSTNAME or os.environ.get("RENDER"))
 # Render injects DATABASE_URL when a Postgres instance is linked to the web service.
 DATABASE_URL = (
     os.environ.get("DATABASE_URL")
@@ -89,7 +93,7 @@ DATABASE_URL = (
     or config("DATABASE_URL", default="")
 )
 
-if DATABASE_URL:
+if DATABASE_URL and not USE_SQLITE:
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
@@ -97,13 +101,13 @@ if DATABASE_URL:
             conn_health_checks=True,
         )
     }
-elif USE_SQLITE or (_on_render and not DATABASE_URL):
-    # On Render without a linked database, SQLite allows the app to boot.
-    # Link a Render PostgreSQL instance and set DATABASE_URL for production data.
+elif USE_SQLITE or _on_render:
+    # SQLite on a Render persistent disk (PERSISTENT_DATA_DIR=/app/data) survives redeploys.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": DATA_DIR / "db.sqlite3",
+            "OPTIONS": {"timeout": 30},
         }
     }
 else:
@@ -119,6 +123,10 @@ else:
     }
 
 AUTH_USER_MODEL = "accounts.User"
+
+AUTHENTICATION_BACKENDS = [
+    "apps.accounts.backends.CaseInsensitiveUsernameBackend",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -144,7 +152,13 @@ else:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path(config("MEDIA_ROOT", default=str(DATA_DIR / "media")))
+
+# Serve sensitive media (videos, certificates, payment proofs) only after an auth
+# check. Enable on the VPS so Nginx blocks direct /media/ access to these folders
+# and Django streams them via X-Accel-Redirect. Left off in dev (Django serves media).
+USE_X_ACCEL_REDIRECT = config("USE_X_ACCEL_REDIRECT", default=False, cast=bool)
+X_ACCEL_INTERNAL_PREFIX = "/_protected/"
 
 # Allow large video uploads in admin (default 2.5MB is too small)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500 MB
@@ -250,6 +264,15 @@ MPESA_ENV = config("MPESA_ENV", default="sandbox")
 EVC_PLUS_MERCHANT_ID = config("EVC_PLUS_MERCHANT_ID", default="")
 EVC_PLUS_API_KEY = config("EVC_PLUS_API_KEY", default="")
 
+# Sessions
+SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", default=60 * 60 * 24 * 14, cast=int)  # 14 days
+SESSION_EXPIRE_AT_BROWSER_CLOSE = config("SESSION_EXPIRE_AT_BROWSER_CLOSE", default=False, cast=bool)
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # required for JS-driven forms; protected by SameSite
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
 # Security (production)
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
@@ -257,3 +280,63 @@ if not DEBUG:
     X_FRAME_OPTIONS = "DENY"
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
+    SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# Logging — write app, security, and error logs to separate files under LOGS_DIR.
+LOGS_DIR = Path(config("LOGS_DIR", default=str(DATA_DIR / "logs")))
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {name} {process:d} {message}",
+            "style": "{",
+        },
+        "simple": {"format": "{asctime} {levelname} {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+        "app_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOGS_DIR / "app.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 10,
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOGS_DIR / "error.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 10,
+            "level": "ERROR",
+            "formatter": "verbose",
+        },
+        "security_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOGS_DIR / "security.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 10,
+            "formatter": "verbose",
+        },
+        "audit_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(LOGS_DIR / "audit.log"),
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 30,
+            "formatter": "verbose",
+        },
+    },
+    "root": {"handlers": ["console", "app_file", "error_file"], "level": "INFO"},
+    "loggers": {
+        "django": {"handlers": ["console", "app_file", "error_file"], "level": "INFO", "propagate": False},
+        "django.security": {"handlers": ["security_file", "console"], "level": "INFO", "propagate": False},
+        "django.request": {"handlers": ["error_file", "console"], "level": "ERROR", "propagate": False},
+        "hilaac.audit": {"handlers": ["audit_file", "console"], "level": "INFO", "propagate": False},
+    },
+}
