@@ -74,9 +74,8 @@ EOF
 fi
 
 echo "==> Installing systemd units..."
-sudo cp "$APP_DIR"/deploy/systemd/*.socket "$APP_DIR"/deploy/systemd/*.service /etc/systemd/system/
+sudo cp "$APP_DIR"/deploy/systemd/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable --now hilaac-gunicorn.socket
 sudo systemctl enable --now hilaac-gunicorn.service
 sudo systemctl enable --now hilaac-celery.service
 sudo systemctl enable --now hilaac-celerybeat.service

@@ -1,13 +1,11 @@
 [Unit]
 Description=Hilaac Academy Gunicorn application server
-Requires=hilaac-gunicorn.socket
-After=network.target hilaac-gunicorn.socket
+After=network.target postgresql.service redis-server.service
 
 [Service]
 Type=notify
 User=hilaac
 Group=www-data
-RuntimeDirectory=hilaac
 WorkingDirectory=/home/hilaac/hilaac-academy
 EnvironmentFile=/home/hilaac/hilaac-academy/.env
 ExecStart=/home/hilaac/hilaac-academy/venv/bin/gunicorn \
