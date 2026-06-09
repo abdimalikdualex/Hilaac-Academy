@@ -26,6 +26,12 @@ echo "==> Ensuring super admin exists..."
 echo "==> Collecting static files..."
 "$VENV/bin/python" manage.py collectstatic --noinput
 
+echo "==> Ensuring Nginx can read static/media..."
+# Ubuntu home dirs are often 0750; let www-data traverse and read served files.
+chmod o+x "$(dirname "$APP_DIR")" 2>/dev/null || true
+chmod -R o+rX "$APP_DIR/staticfiles" 2>/dev/null || true
+chmod -R o+rX "${MEDIA_ROOT:-/home/hilaac/media}" 2>/dev/null || true
+
 echo "==> Restarting services..."
 sudo systemctl restart hilaac-gunicorn
 sudo systemctl restart hilaac-celery

@@ -98,6 +98,10 @@ sudo -u "$APP_USER" "$APP_DIR/venv/bin/python" manage.py migrate --noinput
 sudo -u "$APP_USER" "$APP_DIR/venv/bin/python" manage.py collectstatic --noinput
 sudo -u "$APP_USER" "$APP_DIR/venv/bin/python" manage.py ensure_admin || true
 
+echo "==> Allowing Nginx (www-data) to read static/media..."
+sudo chmod o+x "$APP_HOME"
+sudo chmod -R o+rX "$APP_DIR/staticfiles" "$APP_HOME/media"
+
 echo "==> Installing backup cron..."
 sudo crontab -u "$APP_USER" "$APP_DIR/deploy/scripts/hilaac-backups.cron"
 
