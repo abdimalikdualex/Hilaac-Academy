@@ -8,6 +8,16 @@ from apps.payments.currency import detect_country_code, get_display_currency
 logger = logging.getLogger(__name__)
 
 
+def _active_announcements():
+    try:
+        from apps.cms.models import Announcement
+
+        return list(Announcement.objects.active_now().order_by("display_order", "-created_at"))
+    except (OperationalError, ProgrammingError):
+        logger.warning("Announcement table missing — run python manage.py migrate cms")
+        return []
+
+
 def _active_partner_schools():
     """Return active partner schools; empty if table missing (migration not yet applied)."""
     try:
@@ -29,8 +39,10 @@ def site_settings(request):
     from apps.core.brand_assets import BrandAssetManager
 
     partner_schools = _active_partner_schools()
+    announcements = _active_announcements()
 
     return {
+        "announcements": announcements,
         "partner_schools": partner_schools,
         **resolve_site_branding(),
         "brand": BrandAssetManager,

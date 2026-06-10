@@ -19,6 +19,36 @@
     <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "help-circle" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ quizzes_completed }}</div></div><div class="text-sm text-slate-500">Quizzes Done</div></div>
 </div>
 
+{% if platform_video %}
+<div class="bg-white rounded-xl shadow border p-5 mb-8">
+    <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+            <h2 class="font-bold">Platform Introduction Video</h2>
+            <p class="text-sm text-slate-500 mt-1">{{ platform_video.title }}</p>
+        </div>
+        <a href="{% url 'admin_portal:platform_video_list' %}" class="text-sm text-primary-600 hover:underline">Manage video →</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+        <div class="p-3 rounded-lg bg-slate-50 border">
+            <div class="text-2xl font-bold text-primary-700">{{ platform_video.impression_count }}</div>
+            <div class="text-slate-500">Video views</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+            <div class="text-2xl font-bold text-primary-700">{{ platform_video.play_count }}</div>
+            <div class="text-slate-500">Play count</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+            <div class="text-2xl font-bold text-primary-700">{{ platform_video.average_watch_seconds|floatformat:0 }}s</div>
+            <div class="text-slate-500">Avg watch time</div>
+        </div>
+        <div class="p-3 rounded-lg bg-slate-50 border">
+            <div class="text-2xl font-bold text-primary-700">{{ platform_video.completion_rate_percent }}%</div>
+            <div class="text-slate-500">Completion rate</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="grid lg:grid-cols-3 gap-6 mb-8">
     <div class="lg:col-span-2 bg-white rounded-xl shadow border p-5">
         <h2 class="font-bold mb-4">Most Popular Courses</h2>

@@ -1,15 +1,30 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Count, Q
-from django.shortcuts import render
+from django.db.utils import OperationalError, ProgrammingError
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_POST
+
+logger = logging.getLogger(__name__)
 
 from apps.core.cache_sync import home_cache_key
 from apps.courses.models import Level
 
-from .models import FAQ, SiteStatistic, Testimonial
+from .models import FAQ, PlatformIntroductionVideo, SiteStatistic, Testimonial
 
 User = get_user_model()
 HOME_CACHE_TTL = 300
+
+
+def _get_platform_video():
+    try:
+        return PlatformIntroductionVideo.get_active()
+    except (OperationalError, ProgrammingError):
+        logger.warning("PlatformIntroductionVideo table missing — run python manage.py migrate cms")
+        return None
 
 
 def _home_context(query=""):
@@ -29,14 +44,41 @@ def _home_context(query=""):
         .annotate(student_count=Count("assigned_levels__enrollments"))[:4]
     )
 
+    platform_video = _get_platform_video()
+
     return {
         "featured_courses": list(featured_courses),
         "statistics": list(SiteStatistic.objects.filter(is_active=True)),
         "testimonials": list(Testimonial.objects.filter(is_featured=True)),
         "faqs": list(FAQ.objects.filter(is_active=True)),
         "instructors": list(instructors),
+        "platform_video": platform_video,
         "query": query,
     }
+
+
+@require_POST
+def platform_video_track(request):
+    video = get_object_or_404(PlatformIntroductionVideo, pk=request.POST.get("video_id"), is_active=True)
+    event = request.POST.get("event", "").strip()
+
+    if event == "impression":
+        video.record_impression()
+    elif event == "play":
+        video.record_play()
+    elif event == "progress":
+        try:
+            seconds = max(0, int(request.POST.get("seconds", 0)))
+        except (TypeError, ValueError):
+            seconds = 0
+        if seconds:
+            video.record_watch_seconds(seconds)
+    elif event == "complete":
+        video.record_completion()
+    else:
+        return JsonResponse({"ok": False, "error": "invalid_event"}, status=400)
+
+    return JsonResponse({"ok": True})
 
 
 def home(request):

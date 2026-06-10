@@ -1,0 +1,178 @@
+{% load ha_icons static %}
+{% if platform_video %}
+<section
+    id="platform-intro"
+    class="relative py-14 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-900 overflow-hidden"
+    aria-labelledby="platform-intro-heading"
+>
+    {% include "partials/watermark.html" with position="subtle" %}
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10 md:mb-12">
+            <h2 id="platform-intro-heading" class="text-3xl md:text-4xl font-bold text-[#1E4D8F] dark:text-primary-300 mb-2">
+                {{ platform_video.title }}
+            </h2>
+            <p class="text-lg font-semibold text-[#0FAE9D] mb-3">{{ platform_video.title_somali }}</p>
+            <p class="text-slate-600 dark:text-slate-400 max-w-3xl mx-auto text-sm md:text-base leading-relaxed">
+                Watch a quick introduction to learn how to register, enroll in courses, study online, and earn certificates.
+            </p>
+            <p class="text-slate-500 dark:text-slate-500 max-w-3xl mx-auto text-sm mt-2 leading-relaxed">
+                Daawo muuqaal kooban si aad u barato sida loo diiwaangaliyo, loo iibsado koorsooyinka, loona helo shahaadooyinka.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+            <div
+                class="platform-intro-player rounded-2xl overflow-hidden shadow-2xl ring-1 ring-[#1E4D8F]/15 bg-[#0B1736] aspect-video relative"
+                data-track-url="{% url 'cms:platform_video_track' %}"
+                data-video-id="{{ platform_video.pk }}"
+                data-video-src="{{ platform_video.video_file.url }}"
+                data-video-type="{{ platform_video.video_mime_type }}"
+            >
+                <img
+                    src="{{ platform_video.thumbnail.url }}"
+                    alt="{{ platform_video.title }}"
+                    class="platform-intro-poster absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                >
+                <button
+                    type="button"
+                    class="platform-intro-play absolute inset-0 z-10 flex items-center justify-center bg-black/25 hover:bg-black/35 transition-colors group cursor-pointer"
+                    aria-label="Play platform introduction video"
+                >
+                    <span class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center shadow-lg group-hover:bg-[#D4A017] group-hover:scale-105 transition-all duration-200">
+                        {% ha_icon "play" size=32 class_name="text-white ml-1" %}
+                    </span>
+                </button>
+                <video
+                    class="platform-intro-video absolute inset-0 w-full h-full object-cover hidden"
+                    controls
+                    playsinline
+                    preload="none"
+                    poster="{{ platform_video.thumbnail.url }}"
+                ></video>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-bold text-[#1E4D8F] dark:text-primary-300 mb-4">What You Will Learn</h3>
+                <ul class="space-y-3 text-slate-700 dark:text-slate-300">
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to create an account</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to purchase courses</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to access lessons</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to track learning progress</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to download certificates</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to use the digital library</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to contact support</span></li>
+                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to learn using your phone or laptop</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 md:mt-12">
+            <a
+                href="{% url 'accounts:register' %}"
+                class="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] h-12 px-8 rounded-xl bg-[#1E4D8F] hover:bg-[#D4A017] text-white font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+            >Start Learning Today</a>
+            <a
+                href="{% url 'courses:catalog' %}"
+                class="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] h-12 px-8 rounded-xl border-2 border-[#1E4D8F] text-[#1E4D8F] hover:bg-[#1E4D8F] hover:text-white font-semibold transition-all duration-200 hover:-translate-y-0.5"
+            >Browse Courses</a>
+        </div>
+    </div>
+</section>
+
+<script>
+(function () {
+    var section = document.getElementById("platform-intro");
+    var player = document.querySelector(".platform-intro-player");
+    if (!section || !player) return;
+
+    var trackUrl = player.dataset.trackUrl;
+    var videoId = player.dataset.videoId;
+    var videoSrc = player.dataset.videoSrc;
+    var videoType = player.dataset.videoType;
+    var playBtn = player.querySelector(".platform-intro-play");
+    var poster = player.querySelector(".platform-intro-poster");
+    var video = player.querySelector(".platform-intro-video");
+    var impressionSent = false;
+    var playTracked = false;
+    var completeTracked = false;
+    var lastSentTime = 0;
+
+    function getCookie(name) {
+        var match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+        return match ? decodeURIComponent(match[1]) : "";
+    }
+
+    function track(event, extra) {
+        var body = new URLSearchParams({ video_id: videoId, event: event });
+        if (extra && extra.seconds) body.set("seconds", String(extra.seconds));
+        fetch(trackUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: body.toString(),
+            credentials: "same-origin",
+        }).catch(function () {});
+    }
+
+    if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting && !impressionSent) {
+                    impressionSent = true;
+                    track("impression");
+                    observer.disconnect();
+                }
+            });
+        }, { threshold: 0.35 });
+        observer.observe(section);
+    }
+
+    function startVideo() {
+        if (!video.querySelector("source")) {
+            var source = document.createElement("source");
+            source.src = videoSrc;
+            source.type = videoType;
+            video.appendChild(source);
+            video.load();
+        }
+        playBtn.classList.add("hidden");
+        if (poster) poster.classList.add("hidden");
+        video.classList.remove("hidden");
+        if (!playTracked) {
+            playTracked = true;
+            track("play");
+        }
+        video.play();
+    }
+
+    playBtn.addEventListener("click", startVideo);
+
+    video.addEventListener("timeupdate", function () {
+        var current = Math.floor(video.currentTime || 0);
+        if (current > lastSentTime) {
+            var delta = current - lastSentTime;
+            if (delta >= 5) {
+                track("progress", { seconds: delta });
+                lastSentTime = current;
+            }
+        }
+        if (!completeTracked && video.duration > 0 && video.currentTime / video.duration >= 0.9) {
+            completeTracked = true;
+            track("complete");
+        }
+    });
+
+    video.addEventListener("ended", function () {
+        if (!completeTracked) {
+            completeTracked = true;
+            track("complete");
+        }
+    });
+})();
+</script>
+{% endif %}

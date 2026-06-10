@@ -11,6 +11,7 @@
     <style>[x-cloak]{display:none!important}</style>
 </head>
 <body class="bg-surface-light min-h-screen text-slate-900">
+{% include "partials/announcement_ticker.html" %}
 <div class="flex min-h-screen">
     <aside class="w-64 bg-slate-800 text-white flex flex-col fixed h-full overflow-y-auto z-40 transform transition-transform lg:translate-x-0"
            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">

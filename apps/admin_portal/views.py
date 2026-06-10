@@ -13,7 +13,14 @@ from django.views.decorators.http import require_POST
 from apps.assessments.models import Assignment, AssignmentSubmission, Quiz, QuizAttempt
 from apps.certificates.models import Certificate
 from apps.certificates.services import maybe_issue_certificate
-from apps.cms.models import FAQ, PartnerSchool, SiteStatistic, Testimonial
+from apps.cms.models import (
+    Announcement,
+    FAQ,
+    PartnerSchool,
+    PlatformIntroductionVideo,
+    SiteStatistic,
+    Testimonial,
+)
 from apps.core.models import AuditLog, SiteSettings
 from apps.core.utils import log_audit
 from apps.courses.models import Enrollment, Language, Lesson, Level, Module
@@ -30,6 +37,7 @@ from .forms import (
     InstructorForm,
     LevelForm,
     LibraryResourceForm,
+    AnnouncementForm,
     PartnerSchoolForm,
     SiteSettingsForm,
     StudentForm,
@@ -94,7 +102,10 @@ def dashboard(request):
         .order_by("month")
     )
 
+    platform_video = PlatformIntroductionVideo.get_active()
+
     context = {
+        "platform_video": platform_video,
         "total_students": total_students,
         "total_instructors": total_instructors,
         "total_courses": total_courses,
@@ -504,6 +515,139 @@ def partner_school_toggle(request, pk):
     log_audit(request, "partner_school_toggle", "PartnerSchool", pk, f"{school.name} {state}")
     messages.success(request, f"'{school.name}' {state}.")
     return redirect("admin_portal:partner_school_list")
+
+
+@super_admin_required
+def announcement_list(request):
+    announcements = Announcement.objects.order_by("display_order", "-created_at")
+    return render(
+        request,
+        "admin_portal/announcement_list.html",
+        {"announcements": announcements},
+    )
+
+
+@super_admin_required
+def announcement_add(request):
+    if request.method == "POST":
+        form = AnnouncementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Announcement created.")
+            return redirect("admin_portal:announcement_list")
+    else:
+        form = AnnouncementForm()
+    return render(request, "admin_portal/announcement_form.html", {"form": form, "title": "Add Announcement"})
+
+
+@super_admin_required
+def announcement_edit(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    if request.method == "POST":
+        form = AnnouncementForm(request.POST, instance=announcement)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Announcement updated.")
+            return redirect("admin_portal:announcement_list")
+    else:
+        form = AnnouncementForm(instance=announcement)
+    return render(
+        request,
+        "admin_portal/announcement_form.html",
+        {"form": form, "title": "Edit Announcement", "announcement": announcement},
+    )
+
+
+@super_admin_required
+def announcement_toggle(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    announcement.is_active = not announcement.is_active
+    announcement.save(update_fields=["is_active", "updated_at"])
+    messages.success(
+        request,
+        f"Announcement {'activated' if announcement.is_active else 'deactivated'}.",
+    )
+    return redirect("admin_portal:announcement_list")
+
+
+@super_admin_required
+def announcement_delete(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    if request.method == "POST":
+        announcement.delete()
+        messages.success(request, "Announcement deleted.")
+        return redirect("admin_portal:announcement_list")
+    return render(
+        request,
+        "admin_portal/confirm_delete.html",
+        {
+            "object_name": "Announcement",
+            "object_label": announcement.message[:80],
+            "cancel_url": reverse("admin_portal:announcement_list"),
+        },
+    )
+
+
+@super_admin_required
+def platform_video_list(request):
+    videos = PlatformIntroductionVideo.objects.order_by("-is_active", "-updated_at")
+    return render(
+        request,
+        "admin_portal/platform_videos/list.html",
+        {"videos": videos},
+    )
+
+
+@super_admin_required
+def platform_video_edit(request, pk=None):
+    video = get_object_or_404(PlatformIntroductionVideo, pk=pk) if pk is not None else None
+    if request.method == "POST":
+        form = PlatformIntroductionVideoForm(request.POST, request.FILES, instance=video)
+        if form.is_valid():
+            saved = form.save()
+            log_audit(request, "platform_video_save", "PlatformIntroductionVideo", saved.pk, saved.title)
+            messages.success(request, f"Platform video '{saved.title}' saved.")
+            return redirect("admin_portal:platform_video_list")
+    else:
+        form = PlatformIntroductionVideoForm(instance=video)
+    title = "Edit Platform Video" if video else "Add Platform Video"
+    return render(
+        request,
+        "admin_portal/platform_videos/form.html",
+        {"form": form, "title": title, "video": video},
+    )
+
+
+@super_admin_required
+@require_POST
+def platform_video_toggle(request, pk):
+    video = get_object_or_404(PlatformIntroductionVideo, pk=pk)
+    video.is_active = not video.is_active
+    video.save()
+    state = "activated" if video.is_active else "deactivated"
+    log_audit(request, "platform_video_toggle", "PlatformIntroductionVideo", pk, f"{video.title} {state}")
+    messages.success(request, f"Platform video {state}.")
+    return redirect("admin_portal:platform_video_list")
+
+
+@super_admin_required
+def platform_video_delete(request, pk):
+    video = get_object_or_404(PlatformIntroductionVideo, pk=pk)
+    if request.method == "POST":
+        title = video.title
+        video.delete()
+        log_audit(request, "platform_video_delete", "PlatformIntroductionVideo", pk, title)
+        messages.success(request, "Platform video deleted.")
+        return redirect("admin_portal:platform_video_list")
+    return render(
+        request,
+        "admin_portal/confirm_delete.html",
+        {
+            "object_name": "Platform Introduction Video",
+            "object_label": video.title,
+            "cancel_url": reverse("admin_portal:platform_video_list"),
+        },
+    )
 
 
 @super_admin_required
