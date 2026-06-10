@@ -1,7 +1,22 @@
+import logging
+
 from django.conf import settings
+from django.db.utils import OperationalError, ProgrammingError
 
 from apps.payments.currency import detect_country_code, get_display_currency
 
+logger = logging.getLogger(__name__)
+
+
+def _active_partner_schools():
+    """Return active partner schools; empty if table missing (migration not yet applied)."""
+    try:
+        from apps.cms.models import PartnerSchool
+
+        return list(PartnerSchool.objects.filter(is_active=True).order_by("display_order", "name"))
+    except (OperationalError, ProgrammingError):
+        logger.warning("PartnerSchool table missing — run python manage.py migrate cms")
+        return []
 
 def site_settings(request):
     from apps.core.branding import resolve_hero_background_url, resolve_hero_srcset, resolve_site_branding
@@ -12,11 +27,8 @@ def site_settings(request):
         dashboard_url_name = role_dashboard_name(request.user)
 
     from apps.core.brand_assets import BrandAssetManager
-    from apps.cms.models import PartnerSchool
 
-    partner_schools = list(
-        PartnerSchool.objects.filter(is_active=True).order_by("display_order", "name")
-    )
+    partner_schools = _active_partner_schools()
 
     return {
         "partner_schools": partner_schools,

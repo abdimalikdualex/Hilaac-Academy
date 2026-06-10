@@ -287,8 +287,13 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Logging — write app, security, and error logs to separate files under LOGS_DIR.
-LOGS_DIR = Path(config("LOGS_DIR", default=str(DATA_DIR / "logs")))
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+_logs_configured = Path(config("LOGS_DIR", default=str(DATA_DIR / "logs")))
+try:
+    _logs_configured.mkdir(parents=True, exist_ok=True)
+    LOGS_DIR = _logs_configured
+except OSError:
+    LOGS_DIR = BASE_DIR / "logs"
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 LOGGING = {
     "version": 1,

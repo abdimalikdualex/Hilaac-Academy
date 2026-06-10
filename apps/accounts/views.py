@@ -35,14 +35,20 @@ class StudentLoginView(LoginView):
     def post(self, request, *args, **kwargs):
         ip = get_client_ip(request) or "unknown"
         cache_key = f"ratelimit:login:{ip}"
-        count = cache.get(cache_key, 0)
+        try:
+            count = cache.get(cache_key, 0)
+        except Exception:
+            count = 0
         if count >= self.LOGIN_RATE_LIMIT:
             messages.error(
                 request,
                 "Too many login attempts. Please wait a few minutes and try again.",
             )
             return self.get(request)
-        cache.set(cache_key, count + 1, self.LOGIN_RATE_PERIOD)
+        try:
+            cache.set(cache_key, count + 1, self.LOGIN_RATE_PERIOD)
+        except Exception:
+            pass
         return super().post(request, *args, **kwargs)
 
     def get_success_url(self):

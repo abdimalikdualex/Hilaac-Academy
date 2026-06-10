@@ -31,6 +31,10 @@ echo "==> Installing dependencies..."
 
 echo "==> Running database migrations (schema only — no data wipe)..."
 "$VENV/bin/python" manage.py migrate --noinput
+if ! "$VENV/bin/python" manage.py migrate --check; then
+  echo "ERROR: Unapplied migrations remain. Site may show 500 errors until migrate completes."
+  exit 1
+fi
 
 echo "==> Ensuring super admin exists (create only — never resets password)..."
 "$VENV/bin/python" manage.py ensure_admin || true
