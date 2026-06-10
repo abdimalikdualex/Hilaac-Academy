@@ -2,7 +2,11 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
+from apps.core.imaging import ALLOWED_IMAGE_EXTS
+
 from .models import User
+
+PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 
 
 class HilaacAuthenticationForm(AuthenticationForm):
@@ -37,7 +41,116 @@ class StudentRegistrationForm(UserCreationForm):
         return user
 
 
-class ProfileForm(forms.ModelForm):
+def _validate_profile_photo(uploaded):
+    if not uploaded:
+        return uploaded
+    ext = "." + uploaded.name.rsplit(".", 1)[-1].lower() if "." in uploaded.name else ""
+    if ext not in ALLOWED_IMAGE_EXTS:
+        raise forms.ValidationError("Use JPG, PNG, or WebP images only.")
+    if uploaded.size > PROFILE_PHOTO_MAX_BYTES:
+        raise forms.ValidationError("Profile photo must be 5 MB or smaller.")
+    return uploaded
+
+
+class BaseProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "phone", "country", "date_of_birth", "profile_photo")
+        fields = (
+            "first_name",
+            "last_name",
+            "phone",
+            "country",
+            "city",
+            "gender",
+            "date_of_birth",
+            "profile_photo",
+        )
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "profile-input"}),
+            "last_name": forms.TextInput(attrs={"class": "profile-input"}),
+            "phone": forms.TextInput(attrs={"class": "profile-input"}),
+            "country": forms.TextInput(attrs={"class": "profile-input"}),
+            "city": forms.TextInput(attrs={"class": "profile-input"}),
+            "gender": forms.Select(attrs={"class": "profile-input"}),
+            "date_of_birth": forms.DateInput(attrs={"class": "profile-input", "type": "date"}),
+        }
+
+    def clean_profile_photo(self):
+        return _validate_profile_photo(self.cleaned_data.get("profile_photo"))
+
+
+class StudentProfileForm(BaseProfileForm):
+    class Meta(BaseProfileForm.Meta):
+        fields = BaseProfileForm.Meta.fields + ("language_preference",)
+        widgets = {
+            **BaseProfileForm.Meta.widgets,
+            "language_preference": forms.Select(attrs={"class": "profile-input"}),
+        }
+
+
+class InstructorProfileForm(BaseProfileForm):
+    class Meta(BaseProfileForm.Meta):
+        fields = BaseProfileForm.Meta.fields + (
+            "bio",
+            "teaching_experience",
+            "specialization",
+            "skills",
+            "certifications",
+            "linkedin_url",
+            "website_url",
+        )
+        widgets = {
+            **BaseProfileForm.Meta.widgets,
+            "bio": forms.Textarea(attrs={"class": "profile-input", "rows": 4}),
+            "teaching_experience": forms.Textarea(attrs={"class": "profile-input", "rows": 3}),
+            "specialization": forms.TextInput(attrs={"class": "profile-input"}),
+            "skills": forms.TextInput(attrs={"class": "profile-input", "placeholder": "e.g. English, ICT, Curriculum Design"}),
+            "certifications": forms.Textarea(attrs={"class": "profile-input", "rows": 2}),
+            "linkedin_url": forms.URLInput(attrs={"class": "profile-input", "placeholder": "https://linkedin.com/in/..."}),
+            "website_url": forms.URLInput(attrs={"class": "profile-input", "placeholder": "https://"}),
+        }
+
+
+class AdminProfileForm(BaseProfileForm):
+    """Super Admin personal profile — no instructor-only fields."""
+
+
+class AccountSettingsForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("email", "phone", "city")
+        widgets = {
+            "email": forms.EmailInput(attrs={"class": "profile-input"}),
+            "phone": forms.TextInput(attrs={"class": "profile-input"}),
+            "city": forms.TextInput(attrs={"class": "profile-input"}),
+        }
+
+
+class NotificationPreferencesForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = (
+            "notify_course_updates",
+            "notify_assignments",
+            "notify_certificates",
+            "notify_marketing",
+            "notify_system",
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        labels = {
+            "notify_course_updates": "Course updates",
+            "notify_assignments": "Assignment notifications",
+            "notify_certificates": "Certificate notifications",
+            "notify_marketing": "Marketing emails",
+            "notify_system": "System announcements",
+        }
+        for field in self.fields:
+            self.fields[field].widget.attrs["class"] = "rounded"
+            if field in labels:
+                self.fields[field].label = labels[field]
+
+
+# Legacy alias used by older views
+ProfileForm = StudentProfileForm

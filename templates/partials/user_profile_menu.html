@@ -1,0 +1,46 @@
+{% load ha_icons static %}
+<div class="relative" x-data="{ open: false }" @keydown.escape.window="open = false">
+    <button
+        type="button"
+        @click="open = !open"
+        class="flex items-center gap-2 rounded-full border border-slate-200 bg-white pl-1 pr-3 py-1 hover:border-primary-300 transition shadow-sm"
+        aria-label="Account menu"
+        aria-expanded="false"
+        :aria-expanded="open"
+    >
+        {% if user.profile_photo %}
+        <img src="{{ user.profile_photo.url }}" alt="" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+        {% else %}
+        <span class="w-9 h-9 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center text-sm font-bold">
+            {{ user.first_name|first|default:user.username|first|upper }}
+        </span>
+        {% endif %}
+        <span class="hidden sm:block text-sm font-medium text-slate-700 max-w-[120px] truncate">{{ user.get_full_name|default:user.username }}</span>
+        {% ha_icon "chevron-down" size=16 class_name="text-slate-400 hidden sm:block" %}
+    </button>
+    <div
+        x-show="open"
+        x-cloak
+        @click.outside="open = false"
+        class="absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-lg py-1 z-50 text-sm"
+    >
+        {% if user.is_student %}
+        <a href="{% url 'student:profile' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "users" size=16 %} My Profile</a>
+        <a href="{% url 'student:settings' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "settings" size=16 %} Account Settings</a>
+        <a href="{% url 'student:password_change' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "lock" size=16 %} Security Settings</a>
+        <a href="{% url 'student:notifications' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "bell" size=16 %} Notifications</a>
+        {% elif user.is_instructor %}
+        <a href="{% url 'instructor:profile' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "users" size=16 %} My Profile</a>
+        <a href="{% url 'instructor:settings' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "settings" size=16 %} Account Settings</a>
+        <a href="{% url 'instructor:password_change' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "lock" size=16 %} Security Settings</a>
+        <a href="{% url 'instructor:notifications' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "bell" size=16 %} Notifications</a>
+        {% elif user.is_super_admin %}
+        <a href="{% url 'admin_portal:profile' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "users" size=16 %} My Profile</a>
+        <a href="{% url 'admin_portal:profile_settings' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "settings" size=16 %} Account Settings</a>
+        <a href="{% url 'admin_portal:profile_security' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "lock" size=16 %} Security Settings</a>
+        <a href="{% url 'admin_portal:notification_list' %}" class="flex items-center gap-2 px-4 py-2.5 hover:bg-slate-50">{% ha_icon "bell" size=16 %} Notifications</a>
+        {% endif %}
+        <div class="border-t border-slate-100 my-1"></div>
+        <a href="{% url 'accounts:logout' %}" class="flex items-center gap-2 px-4 py-2.5 text-red-600 hover:bg-red-50">{% ha_icon "unlock" size=16 %} Logout</a>
+    </div>
+</div>

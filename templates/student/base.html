@@ -31,10 +31,17 @@
     </aside>
     <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-black/40 z-30 lg:hidden" x-cloak></div>
     <div class="flex-1 lg:ml-64 min-w-0 flex flex-col">
-        <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center justify-between lg:hidden">
-            <button @click="sidebarOpen=true" class="p-2 rounded-lg hover:bg-slate-100" aria-label="Open menu">{% load ha_icons %}{% ha_icon "menu" size=22 %}</button>
-            {% include "partials/logo.html" with show_name=False img_class="h-9 w-9" %}
-            <span class="text-xs font-semibold text-primary-700">Student</span>
+        <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <button @click="sidebarOpen=true" class="p-2 rounded-lg hover:bg-slate-100 lg:hidden shrink-0" aria-label="Open menu">{% load ha_icons %}{% ha_icon "menu" size=22 %}</button>
+                <span class="text-sm font-semibold text-primary-700 hidden lg:block">Student Portal</span>
+                <nav class="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600 ml-2">
+                    <a href="{% url 'student:profile' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'profile' %}text-[#1E4D8F]{% endif %}">Profile</a>
+                    <a href="{% url 'student:settings' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'settings' or request.resolver_match.url_name == 'password_change' %}text-[#1E4D8F]{% endif %}">Settings</a>
+                    <a href="{% url 'student:notifications' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'notifications' %}text-[#1E4D8F]{% endif %}">Notifications</a>
+                </nav>
+            </div>
+            {% include "partials/user_profile_menu.html" %}
         </header>
         <main class="relative flex-1 p-4 sm:p-6">
             {% include "partials/portal_background.html" with variant="student" %}

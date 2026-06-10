@@ -1,0 +1,11 @@
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h2 class="font-bold text-lg mb-4 text-[#1E4D8F]">Account Information</h2>
+    <dl class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div><dt class="text-slate-500">Username</dt><dd class="font-medium">{{ user.username }}</dd></div>
+        <div><dt class="text-slate-500">Email</dt><dd class="font-medium">{{ user.email }}</dd></div>
+        <div><dt class="text-slate-500">Role</dt><dd class="font-medium">{{ user.get_role_display }}</dd></div>
+        <div><dt class="text-slate-500">Status</dt><dd class="font-medium">{% if user.is_active %}Active{% else %}Deactivated{% endif %}</dd></div>
+        <div><dt class="text-slate-500">Joined</dt><dd class="font-medium">{{ user.date_joined|date:"M j, Y" }}</dd></div>
+        <div><dt class="text-slate-500">Last Login</dt><dd class="font-medium">{{ user.last_login|date:"M j, Y H:i"|default:"—" }}</dd></div>
+    </dl>
+</div>

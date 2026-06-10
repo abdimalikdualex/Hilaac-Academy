@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Q
+from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
@@ -15,7 +16,11 @@ from apps.library.models import LibraryResource
 from apps.notifications.models import Notification
 from apps.payments.models import Payment
 
-from .forms import ProfileForm
+from apps.core.utils import log_audit
+
+from .forms import AccountSettingsForm, NotificationPreferencesForm
+from .profile_helpers import profile_stats_for_user
+from .profile_views import handle_profile_update
 
 
 @student_required
@@ -145,15 +150,10 @@ def notifications(request):
 
 @student_required
 def profile(request):
-    if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated successfully.")
-            return redirect("student:profile")
-    else:
-        form = ProfileForm(instance=request.user)
-    return render(request, "student/profile.html", {"form": form})
+    result = handle_profile_update(request, "student:profile")
+    if isinstance(result, (HttpResponseRedirect, HttpResponsePermanentRedirect)):
+        return result
+    return render(request, "student/profile.html", result)
 
 
 class StudentPortalPasswordChangeView(PasswordChangeView):
@@ -173,6 +173,7 @@ class StudentPortalPasswordChangeView(PasswordChangeView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
         messages.success(self.request, "Password changed successfully.")
         return super().form_valid(form)
 
@@ -185,4 +186,37 @@ def wishlist(request):
 
 @student_required
 def settings(request):
-    return render(request, "student/settings.html", {"password_form": None})
+    user = request.user
+    account_form = AccountSettingsForm(instance=user)
+    notification_form = NotificationPreferencesForm(instance=user)
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+        if form_type == "notifications":
+            notification_form = NotificationPreferencesForm(request.POST, instance=user)
+            if notification_form.is_valid():
+                notification_form.save()
+                log_audit(request, "profile_notifications_update", "User", user.pk)
+                messages.success(request, "Notification preferences saved.")
+                return redirect("student:settings")
+        elif form_type == "account":
+            account_form = AccountSettingsForm(request.POST, instance=user)
+            if account_form.is_valid():
+                old_email = user.email
+                account_form.save()
+                if old_email != user.email:
+                    log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
+                else:
+                    log_audit(request, "profile_account_update", "User", user.pk)
+                messages.success(request, "Account settings saved.")
+                return redirect("student:settings")
+
+    return render(
+        request,
+        "student/settings.html",
+        {
+            "account_form": account_form,
+            "notification_form": notification_form,
+            "profile_stats": profile_stats_for_user(user),
+        },
+    )

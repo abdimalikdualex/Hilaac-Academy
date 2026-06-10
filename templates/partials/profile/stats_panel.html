@@ -1,0 +1,28 @@
+{% load ha_icons %}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+    <h3 class="font-bold text-[#1E4D8F] text-sm uppercase tracking-wide">Quick Stats</h3>
+    {% if user.is_student %}
+    <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="p-3 rounded-lg bg-slate-50 border"><div class="text-xl font-bold text-[#1E4D8F]">{{ profile_stats.total_courses }}</div><div class="text-slate-500">Total Courses</div></div>
+        <div class="p-3 rounded-lg bg-slate-50 border"><div class="text-xl font-bold text-[#0FAE9D]">{{ profile_stats.active_courses }}</div><div class="text-slate-500">Active</div></div>
+        <div class="p-3 rounded-lg bg-slate-50 border"><div class="text-xl font-bold text-[#D4A017]">{{ profile_stats.completed_courses }}</div><div class="text-slate-500">Completed</div></div>
+        <div class="p-3 rounded-lg bg-slate-50 border"><div class="text-xl font-bold text-[#1E4D8F]">{{ profile_stats.certificates_earned }}</div><div class="text-slate-500">Certificates</div></div>
+    </div>
+  <p class="text-xs text-slate-500">Study hours: <strong>{{ profile_stats.study_hours }}</strong></p>
+    {% elif user.is_instructor %}
+    <div class="space-y-2 text-sm">
+        <div class="flex justify-between py-2 border-b"><span>Courses</span><strong>{{ profile_stats.total_courses }}</strong></div>
+        <div class="flex justify-between py-2 border-b"><span>Students</span><strong>{{ profile_stats.total_students }}</strong></div>
+        <div class="flex justify-between py-2 border-b"><span>Rating</span><strong>{{ profile_stats.course_ratings }}</strong></div>
+        <div class="flex justify-between py-2 border-b"><span>Lessons</span><strong>{{ profile_stats.lessons_uploaded }}</strong></div>
+        <div class="flex justify-between py-2"><span>Revenue</span><strong class="text-[#0FAE9D]">{{ profile_stats.total_revenue }}</strong></div>
+    </div>
+    {% elif user.is_super_admin %}
+    <div class="space-y-2 text-sm">
+        <div class="flex justify-between py-2 border-b"><span>Students</span><strong>{{ profile_stats.total_students }}</strong></div>
+        <div class="flex justify-between py-2 border-b"><span>Instructors</span><strong>{{ profile_stats.total_instructors }}</strong></div>
+        <div class="flex justify-between py-2 border-b"><span>Courses</span><strong>{{ profile_stats.total_courses }}</strong></div>
+        <div class="flex justify-between py-2"><span>Certificates</span><strong>{{ profile_stats.total_certificates }}</strong></div>
+    </div>
+    {% endif %}
+</div>

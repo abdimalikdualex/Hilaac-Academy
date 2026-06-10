@@ -7,6 +7,9 @@ app_name = "admin_portal"
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
+    path("profile/", views.admin_profile, name="profile"),
+    path("profile/settings/", views.admin_profile_settings, name="profile_settings"),
+    path("profile/security/", views.admin_profile_security, name="profile_security"),
     # Students
     path("students/", views.student_list, name="student_list"),
     path("students/add/", views.student_create, name="student_create"),

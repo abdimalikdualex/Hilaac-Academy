@@ -15,6 +15,8 @@
     <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
 
     <link rel="stylesheet" href="/static/css/tailwind.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak]{display:none!important}</style>
 
 </head>
 
@@ -48,8 +50,21 @@
 
     </aside>
 
-    <main class="relative flex-1 ml-64 p-6 min-w-0 max-w-full overflow-hidden">
+    <main class="relative flex-1 ml-64 min-w-0 max-w-full overflow-hidden flex flex-col">
 
+        <header class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-6 min-w-0">
+                <span class="text-sm font-semibold text-slate-600 shrink-0">Super Admin Portal</span>
+                <nav class="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600">
+                    <a href="{% url 'admin_portal:profile' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'profile' %}text-[#1E4D8F]{% endif %}">Profile</a>
+                    <a href="{% url 'admin_portal:profile_settings' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'profile_settings' or request.resolver_match.url_name == 'profile_security' %}text-[#1E4D8F]{% endif %}">Account</a>
+                    <a href="{% url 'admin_portal:notification_list' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'notification_list' %}text-[#1E4D8F]{% endif %}">Notifications</a>
+                </nav>
+            </div>
+            {% include "partials/user_profile_menu.html" %}
+        </header>
+
+        <div class="relative flex-1 p-6 overflow-hidden">
         {% include "partials/portal_background.html" with variant="admin" %}
 
         <div class="relative z-10">
@@ -70,6 +85,7 @@
 
             {% block content %}{% endblock %}
 
+        </div>
         </div>
 
     </main>

@@ -1,25 +1,68 @@
 {% extends "student/base.html" %}
-{% block title %}Profile{% endblock %}
+{% block title %}My Profile{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">My Profile</h1>
-<div class="mb-6 p-4 rounded-xl bg-white border border-slate-200 text-sm">
-    <span class="text-slate-500">Email:</span> <strong>{{ user.email }}</strong>
-    {% load ha_icons %}{% if user.is_verified %}<span class="ml-2 text-green-600 inline-flex items-center gap-1">{% ha_icon "check-circle" size=14 %} Verified</span>{% else %}<span class="ml-2 text-amber-600">Not verified</span>{% endif %}
-</div>
-<form method="post" enctype="multipart/form-data" class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+{% include "partials/profile/header.html" with title="My Profile" subtitle="Manage your personal information and learning profile." %}
+
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {% for field in form %}
-    <div>
-        <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
-        {% if field.name == 'profile_photo' %}
-        <input type="file" name="{{ field.name }}" accept="image/*" class="w-full text-sm">
-        {% elif field.name == 'date_of_birth' %}
-        <input type="date" name="{{ field.name }}" value="{{ field.value|date:'Y-m-d' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-primary-500">
-        {% else %}
-        <input type="text" name="{{ field.name }}" value="{{ field.value|default:'' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-primary-500">
-        {% endif %}
+    <div class="grid lg:grid-cols-3 gap-6">
+        <div class="space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
+                <div class="mx-auto w-32 h-32 mb-4">
+                    {% if user.profile_photo %}
+                    <img id="profile-photo-preview" src="{{ user.profile_photo.url }}" alt="" class="w-32 h-32 rounded-full object-cover border-4 border-[#1E4D8F]/20 mx-auto">
+                    {% else %}
+                    <div id="profile-photo-preview" class="w-32 h-32 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center text-3xl font-bold mx-auto">{{ user.first_name|first|default:user.username|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <label class="block w-full px-4 py-2 rounded-lg bg-[#1E4D8F] text-white text-sm font-medium cursor-pointer hover:bg-[#163a6d]">
+                    Upload Photo
+                    <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp" class="hidden" id="profile-photo-input">
+                </label>
+                {% if user.profile_photo %}
+                <button type="submit" name="remove_photo" value="1" class="mt-2 w-full px-4 py-2 rounded-lg border text-sm text-slate-600 hover:bg-slate-50">Remove Photo</button>
+                {% endif %}
+                <p class="text-xs text-slate-400 mt-3">JPG, PNG, WebP · Max 5 MB</p>
+            </div>
+            {% include "partials/profile/stats_panel.html" %}
+        </div>
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <h2 class="font-bold text-lg text-[#1E4D8F]">Personal Information</h2>
+                {% for field in form %}
+                {% if field.name != "profile_photo" %}
+                <div>
+                    <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+                <button type="submit" class="px-6 py-2.5 bg-[#1E4D8F] hover:bg-[#D4A017] text-white rounded-lg font-medium transition">Save Changes</button>
+            </div>
+            {% include "partials/profile/account_readonly.html" %}
+        </div>
     </div>
-    {% endfor %}
-    <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Save Changes</button>
 </form>
+<style>
+.profile-input, select.profile-input, textarea.profile-input {
+    width: 100%; padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid #cbd5e1;
+}
+</style>
+<script>
+(function () {
+    var input = document.getElementById("profile-photo-input");
+    var preview = document.getElementById("profile-photo-preview");
+    if (!input || !preview) return;
+    input.addEventListener("change", function () {
+        var file = input.files && input.files[0];
+        if (!file || file.size > 5 * 1024 * 1024) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            if (preview.tagName === "IMG") preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,58 @@
+{% load ha_icons %}
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
+    <div class="relative mx-auto w-32 h-32 mb-4">
+        {% if user.profile_photo %}
+        <img id="profile-photo-preview" src="{{ user.profile_photo.url }}" alt="Profile photo" class="w-32 h-32 rounded-full object-cover border-4 border-[#1E4D8F]/20 mx-auto">
+        {% else %}
+        <div id="profile-photo-preview" class="w-32 h-32 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center text-3xl font-bold mx-auto border-4 border-[#1E4D8F]/20">
+            {{ user.first_name|first|default:user.username|first|upper }}
+        </div>
+        {% endif %}
+    </div>
+    <p class="text-lg font-bold text-[#1E4D8F]">{{ user.get_full_name|default:user.username }}</p>
+    <p class="text-sm text-slate-500 mb-4">{{ user.get_role_display|default:user.role }}</p>
+    <div class="space-y-2">
+        <label class="block w-full px-4 py-2 rounded-lg bg-[#1E4D8F] text-white text-sm font-medium cursor-pointer hover:bg-[#163a6d] transition">
+            Upload Photo
+            <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="hidden" id="profile-photo-input">
+        </label>
+        {% if user.profile_photo %}
+        <form method="post" class="inline">
+            {% csrf_token %}
+            <input type="hidden" name="remove_photo" value="1">
+            <button type="submit" class="w-full px-4 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50">Remove Photo</button>
+        </form>
+        {% endif %}
+    </div>
+    <p class="text-xs text-slate-400 mt-3">JPG, PNG, or WebP · Max 5 MB</p>
+</div>
+<script>
+(function () {
+    var input = document.getElementById("profile-photo-input");
+    var preview = document.getElementById("profile-photo-preview");
+    if (!input || !preview) return;
+    input.addEventListener("change", function () {
+        var file = input.files && input.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image must be 5 MB or smaller.");
+            input.value = "";
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            if (preview.tagName === "IMG") {
+                preview.src = e.target.result;
+            } else {
+                var img = document.createElement("img");
+                img.id = "profile-photo-preview";
+                img.className = "w-32 h-32 rounded-full object-cover border-4 border-[#1E4D8F]/20 mx-auto";
+                img.alt = "Profile preview";
+                img.src = e.target.result;
+                preview.replaceWith(img);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>

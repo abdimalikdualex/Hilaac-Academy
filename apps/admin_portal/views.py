@@ -3,10 +3,11 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -800,6 +801,80 @@ def exchange_rates(request):
         "admin_portal/exchange_rates.html",
         {"rates": rates, "form": form, "editing": editing},
     )
+
+
+@super_admin_required
+def admin_profile(request):
+    from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
+
+    from apps.accounts.profile_views import handle_profile_update
+
+    result = handle_profile_update(request, "admin_portal:profile")
+    if isinstance(result, (HttpResponseRedirect, HttpResponsePermanentRedirect)):
+        return result
+    return render(request, "admin_portal/profile.html", result)
+
+
+@super_admin_required
+def admin_profile_settings(request):
+    from apps.accounts.forms import AccountSettingsForm, NotificationPreferencesForm
+    from apps.accounts.profile_helpers import profile_stats_for_user, security_logs_for_user
+
+    user = request.user
+    account_form = AccountSettingsForm(instance=user)
+    notification_form = NotificationPreferencesForm(instance=user)
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+        if form_type == "notifications":
+            notification_form = NotificationPreferencesForm(request.POST, instance=user)
+            if notification_form.is_valid():
+                notification_form.save()
+                log_audit(request, "profile_notifications_update", "User", user.pk)
+                messages.success(request, "Notification preferences saved.")
+                return redirect("admin_portal:profile_settings")
+        elif form_type == "account":
+            account_form = AccountSettingsForm(request.POST, instance=user)
+            if account_form.is_valid():
+                old_email = user.email
+                account_form.save()
+                if old_email != user.email:
+                    log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
+                else:
+                    log_audit(request, "profile_account_update", "User", user.pk)
+                messages.success(request, "Account settings saved.")
+                return redirect("admin_portal:profile_settings")
+
+    return render(
+        request,
+        "admin_portal/profile_settings.html",
+        {
+            "account_form": account_form,
+            "notification_form": notification_form,
+            "profile_stats": profile_stats_for_user(user),
+            "security_logs": security_logs_for_user(user),
+        },
+    )
+
+
+class AdminPasswordChangeView(PasswordChangeView):
+    template_name = "admin_portal/profile_security.html"
+    success_url = reverse_lazy("admin_portal:profile_settings")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.is_super_admin:
+            from django.core.exceptions import PermissionDenied
+
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
+        messages.success(self.request, "Password changed successfully.")
+        return super().form_valid(form)
+
+
+admin_profile_security = super_admin_required(AdminPasswordChangeView.as_view())
 
 
 @super_admin_required

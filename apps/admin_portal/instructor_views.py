@@ -101,22 +101,55 @@ def instructor_notifications(request):
 
 @instructor_required
 def instructor_profile(request):
-    from apps.accounts.forms import ProfileForm
+    from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 
-    if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated.")
-            return redirect("instructor:profile")
-    else:
-        form = ProfileForm(instance=request.user)
-    return render(request, "instructor/profile.html", {"form": form})
+    from apps.accounts.profile_views import handle_profile_update
+
+    result = handle_profile_update(request, "instructor:profile")
+    if isinstance(result, (HttpResponseRedirect, HttpResponsePermanentRedirect)):
+        return result
+    return render(request, "instructor/profile.html", result)
 
 
 @instructor_required
 def instructor_settings(request):
-    return render(request, "instructor/settings.html")
+    from apps.accounts.forms import AccountSettingsForm, NotificationPreferencesForm
+    from apps.accounts.profile_helpers import profile_stats_for_user
+
+    user = request.user
+    account_form = AccountSettingsForm(instance=user)
+    notification_form = NotificationPreferencesForm(instance=user)
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+        if form_type == "notifications":
+            notification_form = NotificationPreferencesForm(request.POST, instance=user)
+            if notification_form.is_valid():
+                notification_form.save()
+                log_audit(request, "profile_notifications_update", "User", user.pk)
+                messages.success(request, "Notification preferences saved.")
+                return redirect("instructor:settings")
+        elif form_type == "account":
+            account_form = AccountSettingsForm(request.POST, instance=user)
+            if account_form.is_valid():
+                old_email = user.email
+                account_form.save()
+                if old_email != user.email:
+                    log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
+                else:
+                    log_audit(request, "profile_account_update", "User", user.pk)
+                messages.success(request, "Account settings saved.")
+                return redirect("instructor:settings")
+
+    return render(
+        request,
+        "instructor/settings.html",
+        {
+            "account_form": account_form,
+            "notification_form": notification_form,
+            "profile_stats": profile_stats_for_user(user),
+        },
+    )
 
 
 class InstructorPasswordChangeView(PasswordChangeView):
@@ -128,6 +161,13 @@ class InstructorPasswordChangeView(PasswordChangeView):
             from django.core.exceptions import PermissionDenied
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        from apps.core.utils import log_audit
+
+        log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
+        messages.success(self.request, "Password changed successfully.")
+        return super().form_valid(form)
 
 
 # --- Course CRUD (own courses) ---

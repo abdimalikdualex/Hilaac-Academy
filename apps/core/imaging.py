@@ -19,6 +19,7 @@ IMAGE_PRESETS = {
         "ultra": (3840, 2160),
     },
     "partner_logo": {"full": (500, 500), "medium": (320, 320), "thumb": (160, 160)},
+    "profile_photo": {"full": (400, 400), "medium": (256, 256), "thumb": (128, 128)},
 }
 
 # Legacy aliases used by model save hooks

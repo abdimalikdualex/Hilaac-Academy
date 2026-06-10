@@ -140,7 +140,7 @@ def dashboard(request):
 @login_required
 def profile(request):
     if request.user.is_super_admin:
-        return redirect("admin_portal:settings")
+        return redirect("admin_portal:profile")
     if request.user.is_instructor:
         return redirect("instructor:profile")
     return redirect("student:profile")
@@ -155,9 +155,9 @@ class StudentPasswordChangeView(PasswordChangeView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             if request.user.is_super_admin:
-                return redirect("admin_portal:settings")
+                return redirect("admin_portal:profile_security")
             if request.user.is_instructor:
-                return redirect("instructor:settings")
+                return redirect("instructor:password_change")
             if request.user.is_student:
                 return redirect("student:password_change")
         return super().dispatch(request, *args, **kwargs)

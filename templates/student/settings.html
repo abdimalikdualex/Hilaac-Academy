@@ -1,10 +1,44 @@
 {% extends "student/base.html" %}
-{% block title %}Settings{% endblock %}
+{% block title %}Account Settings{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Settings</h1>
-<div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm max-w-lg">
-    <h2 class="font-bold mb-2">Security</h2>
-    <p class="text-sm text-slate-600 mb-4">Update your password to keep your account secure.</p>
-    <a href="{% url 'student:password_change' %}" class="inline-block px-5 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Change Password</a>
+{% include "partials/profile/header.html" with title="Account Settings" subtitle="Update email, phone, and notification preferences." %}
+
+<div class="grid lg:grid-cols-3 gap-6">
+    <div>{% include "partials/profile/stats_panel.html" %}</div>
+    <div class="lg:col-span-2 space-y-6">
+        <form method="post" class="bg-white rounded-2xl border p-6 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="account">
+            <h2 class="font-bold text-lg text-[#1E4D8F]">Account Information</h2>
+            {% for field in account_form %}
+            <div>
+                <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="px-6 py-2 bg-[#1E4D8F] text-white rounded-lg hover:bg-[#D4A017] transition">Save Account</button>
+        </form>
+
+        <form method="post" class="bg-white rounded-2xl border p-6 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="notifications">
+            <h2 class="font-bold text-lg text-[#1E4D8F]">Notification Settings</h2>
+            {% for field in notification_form %}
+            <label class="flex items-center gap-3 py-2">
+                {{ field }}
+                <span class="text-sm">{{ field.label }}</span>
+            </label>
+            {% endfor %}
+            <button type="submit" class="px-6 py-2 bg-[#0FAE9D] text-white rounded-lg hover:bg-[#0c8f81] transition">Save Notifications</button>
+        </form>
+
+        <div class="bg-white rounded-2xl border p-6">
+            <h2 class="font-bold mb-2">Security</h2>
+            <p class="text-sm text-slate-600 mb-4">Change your password from Security Settings.</p>
+            <a href="{% url 'student:password_change' %}" class="inline-block px-5 py-2 border-2 border-[#1E4D8F] text-[#1E4D8F] rounded-lg hover:bg-[#1E4D8F] hover:text-white transition">Security Settings</a>
+        </div>
+    </div>
 </div>
+<style>.profile-input{width:100%;padding:.5rem 1rem;border-radius:.5rem;border:1px solid #cbd5e1}</style>
 {% endblock %}

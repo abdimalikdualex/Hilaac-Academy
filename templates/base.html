@@ -32,6 +32,7 @@
                     <a href="{% url 'cms:home' %}#contact" class="hover:text-primary-600 transition">Contact</a>
                     {% if user.is_authenticated and DASHBOARD_URL_NAME %}
                         <a href="{% url DASHBOARD_URL_NAME %}" class="hover:text-primary-600 transition">Dashboard</a>
+                        <a href="{% url 'accounts:profile' %}" class="hover:text-primary-600 transition">Profile</a>
                         {% if user.is_student %}
                         <a href="{% url 'notifications:list' %}" class="relative hover:text-primary-600 transition">
                             Notifications
@@ -39,6 +40,15 @@
                             <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{{ unread_notification_count }}</span>
                             {% endif %}
                         </a>
+                        {% elif user.is_instructor %}
+                        <a href="{% url 'instructor:notifications' %}" class="relative hover:text-primary-600 transition">
+                            Notifications
+                            {% if unread_notification_count %}
+                            <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{{ unread_notification_count }}</span>
+                            {% endif %}
+                        </a>
+                        {% elif user.is_super_admin %}
+                        <a href="{% url 'admin_portal:notification_list' %}" class="hover:text-primary-600 transition">Notifications</a>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -48,8 +58,7 @@
                         <span x-show="darkMode" x-cloak>{% ha_icon "sun" size=20 class_name="text-amber-400" %}</span>
                     </button>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'accounts:profile' %}" class="text-sm hidden sm:inline">{{ user.get_full_name|default:user.username }}</a>
-                        <a href="{% url 'accounts:logout' %}" class="px-4 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">Logout</a>
+                        {% include "partials/user_profile_menu.html" %}
                     {% else %}
                         <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Login</a>
                         <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-sm rounded-lg bg-primary-600 text-white hover:bg-primary-700">Register</a>
