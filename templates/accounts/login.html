@@ -14,9 +14,7 @@
 <form method="post" class="space-y-4">
     {% csrf_token %}
     {% if form.errors %}
-    <div class="p-3 bg-red-100 text-red-800 rounded-lg text-sm">
-        Invalid username or password. Super Admins use this same login — you will be sent to the Admin Portal after sign-in.
-    </div>
+    <div class="p-3 bg-red-100 text-red-800 rounded-lg text-sm">Invalid username or password.</div>
     {% endif %}
     <div>
         <label class="block text-sm font-medium mb-1">Username</label>
