@@ -4,7 +4,7 @@
         {% for _ in "xx" %}
         <div class="announcement-ticker__group" aria-hidden="{% if forloop.counter > 1 %}true{% else %}false{% endif %}">
             {% for announcement in announcements %}
-            <span class="announcement-ticker__item" style="background-color: {{ announcement.background_color }}; color: {{ announcement.text_color }};">
+            <span class="announcement-ticker__item" style="background-color: {{ announcement.display_background_color }}; color: {{ announcement.display_text_color }};">
                 {% if announcement.link_url %}
                 <a href="{{ announcement.link_url }}" class="announcement-ticker__link">{{ announcement.message }}</a>
                 {% else %}

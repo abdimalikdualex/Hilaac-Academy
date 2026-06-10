@@ -5,12 +5,36 @@
 <form method="post" class="bg-white p-6 rounded-xl border max-w-lg space-y-4">
     {% csrf_token %}
     {% for field in form %}
+    {% if field.name == "color_theme" %}
+    <div>
+        <label class="block text-sm font-medium mb-2">{{ field.label }}</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for option in field.field.choices %}
+            <label class="relative cursor-pointer group">
+                <input
+                    type="radio"
+                    name="{{ field.html_name }}"
+                    value="{{ option.0 }}"
+                    class="peer absolute opacity-0 w-0 h-0"
+                    {% if field.value == option.0 %}checked{% endif %}
+                >
+                <span
+                    class="block px-4 py-3 rounded-lg text-sm font-semibold text-white text-center border-2 border-transparent transition-all peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:scale-[1.02] group-hover:opacity-95"
+                    style="background-color: {% if option.0 == 'primary' %}#1E4D8F{% elif option.0 == 'success' %}#0FAE9D{% elif option.0 == 'discount' %}#D4A017{% elif option.0 == 'urgent' %}#DC2626{% else %}#1E4D8F{% endif %}; --tw-ring-color: {% if option.0 == 'primary' %}#1E4D8F{% elif option.0 == 'success' %}#0FAE9D{% elif option.0 == 'discount' %}#D4A017{% elif option.0 == 'urgent' %}#DC2626{% else %}#1E4D8F{% endif %};"
+                >{{ option.1 }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
+    </div>
+    {% else %}
     <div>
         <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
         {{ field }}
         {% if field.help_text %}<p class="text-xs text-slate-500 mt-1">{{ field.help_text }}</p>{% endif %}
         {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
     </div>
+    {% endif %}
     {% endfor %}
     <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Save Announcement</button>
 </form>

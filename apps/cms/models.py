@@ -154,6 +154,43 @@ class Announcement(TimeStampedModel):
             return False
         return True
 
+    def get_theme_key(self):
+        stored = (self.background_color or "").strip()
+        if stored in ANNOUNCEMENT_THEME_COLORS:
+            return stored
+        for key, (bg, _) in ANNOUNCEMENT_THEME_COLORS.items():
+            if stored.upper() == bg.upper():
+                return key
+        return "primary"
+
+    @property
+    def theme_label(self):
+        return ANNOUNCEMENT_THEME_LABELS.get(self.get_theme_key(), "Primary Blue")
+
+    @property
+    def display_background_color(self):
+        stored = (self.background_color or "").strip()
+        if stored in ANNOUNCEMENT_THEME_COLORS:
+            return ANNOUNCEMENT_THEME_COLORS[stored][0]
+        if stored.startswith("#"):
+            return stored
+        for bg, _ in ANNOUNCEMENT_THEME_COLORS.values():
+            if stored.upper() == bg.upper():
+                return bg
+        return ANNOUNCEMENT_THEME_COLORS["primary"][0]
+
+    @property
+    def display_text_color(self):
+        stored = (self.background_color or "").strip()
+        if stored in ANNOUNCEMENT_THEME_COLORS:
+            return ANNOUNCEMENT_THEME_COLORS[stored][1]
+        if (self.text_color or "").startswith("#"):
+            return self.text_color
+        for bg, txt in ANNOUNCEMENT_THEME_COLORS.values():
+            if stored.upper() == bg.upper():
+                return txt
+        return ANNOUNCEMENT_THEME_COLORS["primary"][1]
+
 
 class PlatformIntroductionVideo(TimeStampedModel):
     """Single active platform intro video on the landing page."""

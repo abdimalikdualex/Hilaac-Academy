@@ -141,13 +141,18 @@ class PartnerSchoolForm(forms.ModelForm):
 
 
 class AnnouncementForm(forms.ModelForm):
+    color_theme = forms.ChoiceField(
+        choices=[(key, ANNOUNCEMENT_THEME_LABELS[key]) for key in ANNOUNCEMENT_THEME_COLORS],
+        label="Color theme",
+        widget=forms.RadioSelect,
+    )
+
     class Meta:
         model = Announcement
         fields = (
             "title",
             "message",
             "announcement_type",
-            "background_color",
             "link_url",
             "start_date",
             "end_date",
@@ -158,7 +163,6 @@ class AnnouncementForm(forms.ModelForm):
             "title": forms.TextInput(attrs={"class": "form-input"}),
             "message": forms.TextInput(attrs={"class": "form-input"}),
             "announcement_type": forms.Select(attrs={"class": "form-input"}),
-            "background_color": forms.Select(attrs={"class": "form-input"}),
             "link_url": forms.URLInput(attrs={"class": "form-input", "placeholder": "https:// (optional)"}),
             "start_date": forms.DateTimeInput(
                 attrs={"class": "form-input", "type": "datetime-local"},
@@ -170,7 +174,6 @@ class AnnouncementForm(forms.ModelForm):
             ),
             "display_order": forms.NumberInput(attrs={"class": "form-input", "min": 0}),
         }
-        labels = {"background_color": "Color theme"}
         help_texts = {
             "message": "Shown in the scrolling ticker. English and Somali supported.",
             "end_date": "Leave blank for no expiry.",
@@ -181,17 +184,29 @@ class AnnouncementForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["start_date"].input_formats = ["%Y-%m-%dT%H:%M"]
         self.fields["end_date"].input_formats = ["%Y-%m-%dT%H:%M"]
-        self.fields["background_color"].choices = [
-            (ANNOUNCEMENT_THEME_COLORS[key][0], ANNOUNCEMENT_THEME_LABELS[key])
-            for key in ANNOUNCEMENT_THEME_COLORS
-        ]
+        if self.instance and self.instance.pk:
+            self.initial["color_theme"] = self.instance.get_theme_key()
+        self.order_fields(
+            [
+                "title",
+                "message",
+                "announcement_type",
+                "color_theme",
+                "link_url",
+                "start_date",
+                "end_date",
+                "display_order",
+                "is_active",
+            ]
+        )
 
     def save(self, commit=True):
         announcement = super().save(commit=False)
-        for bg, txt in ANNOUNCEMENT_THEME_COLORS.values():
-            if announcement.background_color.upper() == bg.upper():
-                announcement.text_color = txt
-                break
+        theme = self.cleaned_data.get("color_theme")
+        if theme in ANNOUNCEMENT_THEME_COLORS:
+            bg, txt = ANNOUNCEMENT_THEME_COLORS[theme]
+            announcement.background_color = bg
+            announcement.text_color = txt
         if commit:
             announcement.save()
         return announcement
