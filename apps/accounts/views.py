@@ -16,8 +16,10 @@ from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
+from django.core.cache import cache
+
 from apps.core.roles import role_dashboard_url
-from apps.core.utils import log_audit, rate_limit
+from apps.core.utils import get_client_ip, log_audit, rate_limit
 from apps.notifications.services import send_verification_email
 
 from .forms import StudentRegistrationForm
@@ -27,9 +29,20 @@ from .models import User
 class StudentLoginView(LoginView):
     template_name = "accounts/login.html"
     redirect_authenticated_user = True
+    LOGIN_RATE_LIMIT = 10
+    LOGIN_RATE_PERIOD = 300
 
-    @rate_limit("login", limit=10, period=300)
     def post(self, request, *args, **kwargs):
+        ip = get_client_ip(request) or "unknown"
+        cache_key = f"ratelimit:login:{ip}"
+        count = cache.get(cache_key, 0)
+        if count >= self.LOGIN_RATE_LIMIT:
+            messages.error(
+                request,
+                "Too many login attempts. Please wait a few minutes and try again.",
+            )
+            return self.get(request)
+        cache.set(cache_key, count + 1, self.LOGIN_RATE_PERIOD)
         return super().post(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -39,6 +52,17 @@ class StudentLoginView(LoginView):
         response = super().form_valid(form)
         log_audit(self.request, "user_login", "User", self.request.user.pk)
         return response
+
+    def form_invalid(self, form):
+        username = self.request.POST.get("username", "").strip()
+        if username:
+            try:
+                user = User.objects.get(username__iexact=username)
+                if not user.is_active:
+                    messages.error(request, "This account is deactivated. Contact support.")
+            except User.DoesNotExist:
+                pass
+        return super().form_invalid(form)
 
 
 class StudentLogoutView(LogoutView):
