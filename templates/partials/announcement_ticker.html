@@ -1,16 +1,22 @@
 {% if announcements %}
 <div class="announcement-ticker" role="region" aria-label="Announcements">
-    <div class="announcement-ticker__track">
-        {% for _ in "xx" %}
-        <div class="announcement-ticker__group" aria-hidden="{% if forloop.counter > 1 %}true{% else %}false{% endif %}">
+    <div
+        class="announcement-ticker__track"
+        style="--ticker-duration: calc({{ announcements|length }} * 14s);"
+    >
+        {% for copy in "12" %}
+        <div class="announcement-ticker__group" {% if copy == "2" %}aria-hidden="true"{% endif %}>
             {% for announcement in announcements %}
-            <span class="announcement-ticker__item" style="background-color: {{ announcement.display_background_color }}; color: {{ announcement.display_text_color }};">
+            <div
+                class="announcement-ticker__item"
+                style="background-color: {{ announcement.display_background_color }}; color: {{ announcement.display_text_color }};"
+            >
                 {% if announcement.link_url %}
                 <a href="{{ announcement.link_url }}" class="announcement-ticker__link">{{ announcement.message }}</a>
                 {% else %}
-                {{ announcement.message }}
+                <span class="announcement-ticker__text">{{ announcement.message }}</span>
                 {% endif %}
-            </span>
+            </div>
             {% endfor %}
         </div>
         {% endfor %}
@@ -18,18 +24,23 @@
 </div>
 <style>
 .announcement-ticker {
+    width: 100%;
+    max-width: 100%;
     height: 3rem;
     max-height: 60px;
     overflow: hidden;
     position: relative;
     z-index: 60;
-    background-color: #1E4D8F;
+    margin: 0;
+    padding: 0;
+    left: 0;
+    right: 0;
 }
 .announcement-ticker__track {
     display: flex;
-    height: 100%;
     width: max-content;
-    animation: hilaac-ticker-scroll 55s linear infinite;
+    height: 100%;
+    animation: hilaac-ticker-scroll var(--ticker-duration, 28s) linear infinite;
     will-change: transform;
 }
 .announcement-ticker:hover .announcement-ticker__track {
@@ -42,14 +53,28 @@
     flex-shrink: 0;
 }
 .announcement-ticker__item {
-    display: inline-flex;
+    flex-shrink: 0;
+    display: flex;
     align-items: center;
+    justify-content: center;
     height: 100%;
-    padding: 0 2rem;
+    width: var(--slide-width, 100vw);
+    min-width: var(--slide-width, 100vw);
+    padding: 0 1.5rem;
+    box-sizing: border-box;
     font-weight: 700;
     font-size: 0.875rem;
     line-height: 1.25;
+    text-align: center;
     white-space: nowrap;
+}
+.announcement-ticker__text,
+.announcement-ticker__link {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .announcement-ticker__link {
     color: inherit;
@@ -60,23 +85,43 @@
     text-underline-offset: 2px;
 }
 @keyframes hilaac-ticker-scroll {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-50%, 0, 0); }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
 }
 @media (max-width: 640px) {
     .announcement-ticker { height: 2.5rem; min-height: 40px; }
     .announcement-ticker__item {
         font-size: 0.8125rem;
-        padding: 0 1.25rem;
+        padding: 0 1rem;
     }
 }
 @media (prefers-reduced-motion: reduce) {
     .announcement-ticker__track {
         animation: none;
         width: 100%;
-        justify-content: center;
     }
-    .announcement-ticker__group:last-child { display: none; }
+    .announcement-ticker__group {
+        width: 100%;
+    }
+    .announcement-ticker__group[aria-hidden="true"] {
+        display: none;
+    }
+    .announcement-ticker__item {
+        width: 100%;
+        min-width: 100%;
+    }
 }
 </style>
+<script>
+(function () {
+    var ticker = document.querySelector(".announcement-ticker");
+    if (!ticker) return;
+    function fitSlides() {
+        var width = ticker.offsetWidth;
+        ticker.style.setProperty("--slide-width", width + "px");
+    }
+    fitSlides();
+    window.addEventListener("resize", fitSlides);
+})();
+</script>
 {% endif %}
