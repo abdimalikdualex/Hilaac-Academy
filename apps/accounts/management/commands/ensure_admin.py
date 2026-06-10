@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         username = options["username"] or config("ADMIN_USERNAME", default="admin")
         email = options["email"] or config("ADMIN_EMAIL", default="admin@hilaacacademy.com")
-        password = options["password"] or config("ADMIN_PASSWORD", default="")
+        password = (options["password"] or config("ADMIN_PASSWORD", default="")).strip().strip('"').strip("'")
         reset = options["reset"]
 
         user = User.objects.filter(username__iexact=username).first()

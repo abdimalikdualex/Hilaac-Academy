@@ -22,12 +22,13 @@ from apps.core.roles import role_dashboard_url
 from apps.core.utils import get_client_ip, log_audit, rate_limit
 from apps.notifications.services import send_verification_email
 
-from .forms import StudentRegistrationForm
+from .forms import HilaacAuthenticationForm, StudentRegistrationForm
 from .models import User
 
 
 class StudentLoginView(LoginView):
     template_name = "accounts/login.html"
+    authentication_form = HilaacAuthenticationForm
     redirect_authenticated_user = True
     LOGIN_RATE_LIMIT = 10
     LOGIN_RATE_PERIOD = 300

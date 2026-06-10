@@ -11,11 +11,15 @@ class CaseInsensitiveUsernameBackend(ModelBackend):
             username = kwargs.get(User.USERNAME_FIELD)
         if username is None or password is None:
             return None
+        username = username.strip()
         try:
             user = User.objects.get(username__iexact=username)
         except User.DoesNotExist:
-            User().set_password(password)
-            return None
+            try:
+                user = User.objects.get(email__iexact=username)
+            except User.DoesNotExist:
+                User().set_password(password)
+                return None
         if user.check_password(password) and self.user_can_authenticate(user):
             return user
         return None

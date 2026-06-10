@@ -1,8 +1,18 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import User
+
+
+class HilaacAuthenticationForm(AuthenticationForm):
+    """Strip accidental whitespace; email can be typed in the username field."""
+
+    def clean_username(self):
+        return (self.cleaned_data.get("username") or "").strip()
+
+    def clean_password(self):
+        return (self.cleaned_data.get("password") or "").strip()
 
 
 class StudentRegistrationForm(UserCreationForm):
