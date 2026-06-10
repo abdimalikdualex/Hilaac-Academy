@@ -1,0 +1,131 @@
+{% if partner_schools %}
+<section class="partner-schools-section border-t border-slate-800 bg-slate-900" aria-labelledby="partner-schools-heading">
+    <div class="max-w-7xl mx-auto px-4 py-10 sm:py-12">
+        <div class="text-center mb-8 sm:mb-10">
+            <h2 id="partner-schools-heading" class="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Trusted By Schools &amp; Learning Institutions
+            </h2>
+            <p class="mt-2 text-sm sm:text-base text-primary-300 font-medium">
+                Waxaa Nagu Kalsoon Dugsiyo iyo Xarumo Waxbarasho
+            </p>
+        </div>
+
+        <div class="partner-carousel" role="region" aria-label="Partner school logos">
+            <div class="partner-carousel-track">
+                {% for school in partner_schools %}
+                <div class="partner-carousel-item">
+                    {% if school.website_url %}
+                    <a href="{{ school.website_url }}" target="_blank" rel="noopener noreferrer"
+                       class="partner-school-card group"
+                       title="{{ school.tooltip_text }}"
+                       aria-label="{{ school.name }}{% if school.country %} — {{ school.country }}{% endif %}">
+                        <img src="{{ school.logo.url }}" alt="{{ school.name }} logo" loading="lazy" decoding="async"
+                             class="partner-school-logo" width="160" height="80">
+                    </a>
+                    {% else %}
+                    <div class="partner-school-card group" title="{{ school.tooltip_text }}"
+                         aria-label="{{ school.name }}{% if school.country %} — {{ school.country }}{% endif %}">
+                        <img src="{{ school.logo.url }}" alt="{{ school.name }} logo" loading="lazy" decoding="async"
+                             class="partner-school-logo" width="160" height="80">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% for school in partner_schools %}
+                <div class="partner-carousel-item" aria-hidden="true">
+                    {% if school.website_url %}
+                    <a href="{{ school.website_url }}" target="_blank" rel="noopener noreferrer"
+                       class="partner-school-card group" tabindex="-1">
+                        <img src="{{ school.logo.url }}" alt="" loading="lazy" decoding="async"
+                             class="partner-school-logo" width="160" height="80">
+                    </a>
+                    {% else %}
+                    <div class="partner-school-card group">
+                        <img src="{{ school.logo.url }}" alt="" loading="lazy" decoding="async"
+                             class="partner-school-logo" width="160" height="80">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.partner-carousel {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+.partner-carousel-track {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    width: max-content;
+    animation: partner-school-scroll 55s linear infinite;
+    will-change: transform;
+}
+.partner-carousel:hover .partner-carousel-track,
+.partner-carousel:focus-within .partner-carousel-track {
+    animation-play-state: paused;
+}
+.partner-carousel-item {
+    flex-shrink: 0;
+}
+.partner-school-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 112px;
+    padding: 1rem 1.25rem;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.partner-school-card:hover,
+.partner-school-card:focus-visible {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(30, 77, 143, 0.15);
+    outline: 2px solid #1E4D8F;
+    outline-offset: 2px;
+}
+.partner-school-logo {
+    max-width: 160px;
+    max-height: 80px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+@keyframes partner-school-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .partner-carousel-track {
+        animation: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        gap: 1rem;
+    }
+    .partner-carousel-item:nth-child(n+6) {
+        display: none;
+    }
+}
+@media (max-width: 640px) {
+    .partner-school-card {
+        width: 160px;
+        height: 96px;
+        padding: 0.75rem 1rem;
+    }
+    .partner-school-logo {
+        max-width: 120px;
+        max-height: 64px;
+    }
+}
+</style>
+{% endif %}

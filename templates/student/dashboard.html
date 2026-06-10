@@ -99,4 +99,10 @@
         {% endif %}
     </div>
 </div>
+
+{% if partner_schools %}
+<div class="mt-8 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+    {% include "partials/partner_schools_carousel.html" %}
+</div>
+{% endif %}
 {% endblock %}

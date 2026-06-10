@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from apps.assessments.models import Assignment
-from apps.cms.models import FAQ, Testimonial
+from apps.cms.models import FAQ, PartnerSchool, Testimonial
 from apps.core.imaging import ALLOWED_IMAGE_EXTS
 from apps.core.models import SiteSettings
 from apps.courses.models import Language, Level
@@ -115,6 +115,21 @@ class TestimonialForm(forms.ModelForm):
     class Meta:
         model = Testimonial
         fields = ("student_name", "course_name", "quote", "rating", "is_featured", "order")
+
+
+class PartnerSchoolForm(forms.ModelForm):
+    class Meta:
+        model = PartnerSchool
+        fields = ("name", "logo", "website_url", "country", "display_order", "is_active")
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-input"}),
+            "website_url": forms.URLInput(attrs={"class": "form-input", "placeholder": "https://"}),
+            "country": forms.TextInput(attrs={"class": "form-input"}),
+            "display_order": forms.NumberInput(attrs={"class": "form-input", "min": 0}),
+        }
+        help_texts = {
+            "logo": "PNG or SVG with transparent background recommended (min 500×500).",
+        }
 
 
 class ExchangeRateForm(forms.ModelForm):

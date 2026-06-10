@@ -15,7 +15,7 @@ class CoreConfig(AppConfig):
         check_database_persistence()
         connection_created.connect(configure_sqlite, dispatch_uid="hilaac_sqlite_wal")
 
-        from apps.cms.models import FAQ, SiteStatistic, Testimonial
+        from apps.cms.models import FAQ, PartnerSchool, SiteStatistic, Testimonial
         from apps.core.models import SiteSettings
         from apps.core.signals import connect_cache_signals, register_cache_sync
         from apps.courses.models import Language, Lesson, Level, Module
@@ -29,6 +29,7 @@ class CoreConfig(AppConfig):
             Lesson,
             Language,
             FAQ,
+            PartnerSchool,
             Testimonial,
             SiteStatistic,
             LibraryResource,

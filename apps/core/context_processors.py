@@ -12,8 +12,14 @@ def site_settings(request):
         dashboard_url_name = role_dashboard_name(request.user)
 
     from apps.core.brand_assets import BrandAssetManager
+    from apps.cms.models import PartnerSchool
+
+    partner_schools = list(
+        PartnerSchool.objects.filter(is_active=True).order_by("display_order", "name")
+    )
 
     return {
+        "partner_schools": partner_schools,
         **resolve_site_branding(),
         "brand": BrandAssetManager,
         "SITE_URL": settings.SITE_URL,

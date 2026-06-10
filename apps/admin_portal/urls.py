@@ -57,6 +57,12 @@ urlpatterns = [
     path("cms/faq/add/", views.cms_faq_edit, {"pk": None}, name="cms_faq_add"),
     path("cms/faq/<int:pk>/edit/", views.cms_faq_edit, name="cms_faq_edit"),
     path("cms/faq/<int:pk>/delete/", views.faq_delete, name="faq_delete"),
+  # Partner Schools
+    path("partner-schools/", views.partner_school_list, name="partner_school_list"),
+    path("partner-schools/add/", views.partner_school_edit, {"pk": None}, name="partner_school_add"),
+    path("partner-schools/<int:pk>/edit/", views.partner_school_edit, name="partner_school_edit"),
+    path("partner-schools/<int:pk>/toggle/", views.partner_school_toggle, name="partner_school_toggle"),
+    path("partner-schools/<int:pk>/delete/", views.partner_school_delete, name="partner_school_delete"),
     path("notifications/", views.notification_list, name="notification_list"),
     path("settings/", views.settings_view, name="settings"),
     path("recycle-bin/", recycle_bin.recycle_bin_list, name="recycle_bin"),

@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST
 from apps.assessments.models import Assignment, AssignmentSubmission, Quiz, QuizAttempt
 from apps.certificates.models import Certificate
 from apps.certificates.services import maybe_issue_certificate
-from apps.cms.models import FAQ, SiteStatistic, Testimonial
+from apps.cms.models import FAQ, PartnerSchool, SiteStatistic, Testimonial
 from apps.core.models import AuditLog, SiteSettings
 from apps.core.utils import log_audit
 from apps.courses.models import Enrollment, Language, Lesson, Level, Module
@@ -30,6 +30,7 @@ from .forms import (
     InstructorForm,
     LevelForm,
     LibraryResourceForm,
+    PartnerSchoolForm,
     SiteSettingsForm,
     StudentForm,
     TestimonialForm,
@@ -465,6 +466,64 @@ def submission_grade(request, pk):
 def library_list(request):
     resources = LibraryResource.objects.select_related("language").order_by("-created_at")
     return render(request, "admin_portal/library/list.html", {"resources": resources})
+
+
+@super_admin_required
+def partner_school_list(request):
+    schools = PartnerSchool.objects.order_by("display_order", "name")
+    return render(request, "admin_portal/partner_schools/list.html", {"schools": schools})
+
+
+@super_admin_required
+def partner_school_edit(request, pk=None):
+    school = get_object_or_404(PartnerSchool, pk=pk) if pk is not None else None
+    if request.method == "POST":
+        form = PartnerSchoolForm(request.POST, request.FILES, instance=school)
+        if form.is_valid():
+            saved = form.save()
+            log_audit(request, "partner_school_save", "PartnerSchool", saved.pk, saved.name)
+            messages.success(request, f"Partner school '{saved.name}' saved.")
+            return redirect("admin_portal:partner_school_list")
+    else:
+        form = PartnerSchoolForm(instance=school)
+    title = "Edit Partner School" if school else "Add Partner School"
+    return render(
+        request,
+        "admin_portal/partner_schools/form.html",
+        {"form": form, "title": title, "school": school},
+    )
+
+
+@super_admin_required
+@require_POST
+def partner_school_toggle(request, pk):
+    school = get_object_or_404(PartnerSchool, pk=pk)
+    school.is_active = not school.is_active
+    school.save(update_fields=["is_active", "updated_at"])
+    state = "activated" if school.is_active else "deactivated"
+    log_audit(request, "partner_school_toggle", "PartnerSchool", pk, f"{school.name} {state}")
+    messages.success(request, f"'{school.name}' {state}.")
+    return redirect("admin_portal:partner_school_list")
+
+
+@super_admin_required
+def partner_school_delete(request, pk):
+    school = get_object_or_404(PartnerSchool, pk=pk)
+    if request.method == "POST":
+        name = school.name
+        school.delete()
+        log_audit(request, "partner_school_delete", "PartnerSchool", pk, name)
+        messages.success(request, f"Partner school '{name}' deleted.")
+        return redirect("admin_portal:partner_school_list")
+    return render(
+        request,
+        "admin_portal/confirm_delete.html",
+        {
+            "object_name": "Partner School",
+            "object_label": school.name,
+            "cancel_url": reverse("admin_portal:partner_school_list"),
+        },
+    )
 
 
 @super_admin_required

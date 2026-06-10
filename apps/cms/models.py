@@ -46,3 +46,39 @@ class FAQ(TimeStampedModel):
 
     def __str__(self):
         return self.question
+
+
+class PartnerSchool(TimeStampedModel):
+    """Partner institution logo shown in the footer carousel."""
+
+    name = models.CharField(max_length=200)
+    logo = models.ImageField(upload_to="partner_schools/")
+    website_url = models.URLField(blank=True, help_text="Opens in a new tab when the logo is clicked.")
+    country = models.CharField(max_length=100, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["display_order", "name"]
+        verbose_name = "Partner School"
+        verbose_name_plural = "Partner Schools"
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.logo:
+            from apps.core.imaging import IMAGE_PRESETS, optimize_image_field
+
+            optimize_image_field(
+                self.logo,
+                max_size=IMAGE_PRESETS["partner_logo"]["full"],
+                preset="partner_logo",
+            )
+
+    @property
+    def tooltip_text(self):
+        if self.country:
+            return f"{self.name} — {self.country}"
+        return self.name
