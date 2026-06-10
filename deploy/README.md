@@ -95,12 +95,31 @@ Migrations run automatically on every deploy, so the schema stays current.
 
 ## 4. Data persistence (no data loss on deploy)
 
-- **Database:** PostgreSQL is a separate service; `git pull` and code redeploys never
-  touch it. Deletes are permanent only via the app (recycle bin / soft delete) — they
-  do **not** reappear because seeding is one-time and guarded.
-- **Media:** stored at `/home/hilaac/media` (outside the repo). Code updates don't
-  remove it.
-- **Restores:** only from backups via `restore_db.sh`.
+Updates **never** wipe your data. Only manual deletes in the Admin Portal remove records.
+
+| What | Where it lives | On `git pull` / redeploy |
+|------|----------------|--------------------------|
+| Courses, students, payments | PostgreSQL (`DATABASE_URL`) | **Preserved** — DB is separate from code |
+| Uploads (videos, logos, PDFs) | `/home/hilaac/media` (`MEDIA_ROOT`) | **Preserved** — outside the git repo |
+| Static CSS/JS | `staticfiles/` inside repo | Rebuilt by `collectstatic` (not user data) |
+
+**Deploy safeguards (built in):**
+
+- `deploy.sh` runs **migrate only** — never `seed_data`, never `flush`, never `--force`
+- `ensure_admin` **creates** a missing admin only; it does **not** reset passwords on deploy
+- `seed_data --demo --force` is **blocked** when `DEBUG=False` (production)
+- Optional **pre-deploy DB backup** runs automatically before each deploy
+
+**Verify your `.env` on the VPS:**
+
+```
+DATABASE_URL=postgres://hilaac:...@localhost:5432/hilaac_academy
+MEDIA_ROOT=/home/hilaac/media
+```
+
+Never set `SEED_INITIAL_DATA=true` on production after first setup.
+
+**Restores:** only from backups via `restore_db.sh`.
 
 ---
 

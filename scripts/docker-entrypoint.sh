@@ -10,8 +10,10 @@ if [ ! -f "$DATA_DIR/db.sqlite3" ] && [ -f "/app/db.sqlite3" ]; then
 fi
 
 python manage.py migrate --noinput
-python manage.py ensure_admin
+# Create admin only if missing — never reset password on container restart.
+python manage.py ensure_admin || true
 
+# Demo seed runs once only when explicitly enabled AND database is empty.
 if [ "$SEED_INITIAL_DATA" = "true" ]; then
   python manage.py seed_data --demo
 fi

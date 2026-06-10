@@ -7,7 +7,8 @@ SAFE BY DEFAULT — never overwrites or resurrects courses unless you pass --dem
   python manage.py seed_data --demo       # first-time demo courses (once per database)
   python manage.py seed_data --demo --force  # dev only: rebuild demo curriculum (destructive)
 """
-from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError
 
 from apps.accounts.models import User
@@ -40,6 +41,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if options["force"] and not settings.DEBUG:
+            raise CommandError(
+                "Refusing seed_data --demo --force in production (DEBUG=False). "
+                "This would overwrite curriculum. Run only in local development."
+            )
+
         include_demo = options["demo"] or options["if_empty"]
         site = SiteSettings.get()
 

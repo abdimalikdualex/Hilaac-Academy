@@ -6,8 +6,8 @@ from apps.accounts.models import User
 
 class Command(BaseCommand):
     help = (
-        "Create or reset the super admin account. "
-        "Runs automatically on deploy when ADMIN_PASSWORD is set."
+        "Create the super admin if missing, or reset credentials with --reset. "
+        "Deploy scripts never overwrite an existing admin unless --reset is passed."
     )
 
     def add_arguments(self, parser):
@@ -30,26 +30,27 @@ class Command(BaseCommand):
         has_super_admin = User.objects.filter(role=User.Role.SUPER_ADMIN).exists()
 
         if user:
-            if not reset and not password:
+            if not reset:
                 self.stdout.write(
-                    self.style.WARNING(
-                        f"User '{user.username}' already exists. "
-                        "Use --reset or set ADMIN_PASSWORD to update the password."
+                    self.style.SUCCESS(
+                        f"Super admin '{user.username}' already exists — credentials unchanged."
                     )
                 )
                 return
             if not password:
-                raise CommandError("Provide --password or set the ADMIN_PASSWORD environment variable.")
+                raise CommandError(
+                    "Provide --password or set ADMIN_PASSWORD when using --reset."
+                )
             user.set_password(password)
             user.role = User.Role.SUPER_ADMIN
             user.is_staff = True
             user.is_superuser = True
             user.is_verified = True
             user.is_active = True
-            if email and not user.email:
+            if email:
                 user.email = email
             user.save()
-            self.stdout.write(self.style.SUCCESS(f"Updated super admin '{user.username}'."))
+            self.stdout.write(self.style.SUCCESS(f"Reset super admin '{user.username}'."))
             return
 
         if has_super_admin and not reset:
