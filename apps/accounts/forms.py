@@ -1,12 +1,26 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
 
 from apps.core.imaging import ALLOWED_IMAGE_EXTS
 
 from .models import User
 
 PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
+PASSWORD_INPUT_CLASS = (
+    "w-full px-4 py-2 rounded-lg border border-slate-300 outline-none "
+    "focus:ring-2 focus:ring-[#1E4D8F] text-slate-900"
+)
+
+
+class HilaacPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", PASSWORD_INPUT_CLASS)
+        self.fields["new_password1"].help_text = (
+            "At least 8 characters with uppercase, lowercase, a number, and a special character."
+        )
 
 
 class HilaacAuthenticationForm(AuthenticationForm):

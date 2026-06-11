@@ -13,7 +13,8 @@ from apps.cms.models import (
 )
 from apps.core.imaging import ALLOWED_IMAGE_EXTS
 from apps.core.models import SiteSettings
-from apps.courses.models import Language, Level
+from apps.courses.language_defaults import active_language_queryset
+from apps.courses.models import Level
 from apps.library.models import LibraryResource
 from apps.payments.models import ExchangeRate
 
@@ -75,6 +76,13 @@ class LevelForm(forms.ModelForm):
             "price": "Price (USD)",
         }
         widgets = {
+            "language": forms.Select(attrs={"class": "form-input"}),
+            "name": forms.TextInput(attrs={"class": "form-input"}),
+            "level_tag": forms.Select(attrs={"class": "form-input"}),
+            "slug": forms.TextInput(attrs={"class": "form-input"}),
+            "order": forms.NumberInput(attrs={"class": "form-input"}),
+            "duration_weeks": forms.NumberInput(attrs={"class": "form-input"}),
+            "price": forms.NumberInput(attrs={"class": "form-input"}),
             "description": forms.Textarea(attrs={"rows": 3, "class": "form-input"}),
             "learning_objectives": forms.Textarea(attrs={"rows": 3, "class": "form-input"}),
             "skills": forms.Textarea(attrs={"rows": 3, "class": "form-input"}),
@@ -88,6 +96,8 @@ class LevelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["language"].queryset = active_language_queryset()
+        self.fields["language"].empty_label = "Select category"
         # Cover image is required when creating a new course.
         if not (self.instance and self.instance.pk):
             self.fields["thumbnail"].required = True

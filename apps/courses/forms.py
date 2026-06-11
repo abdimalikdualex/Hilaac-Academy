@@ -1,8 +1,12 @@
 from django import forms
 
+from .language_defaults import active_language_queryset
 from .models import Lesson, Level, Module
 
-_INPUT = "w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"
+_INPUT = (
+    "w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 "
+    "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+)
 _ALLOWED_IMG = (".jpg", ".jpeg", ".png", ".webp")
 
 
@@ -53,6 +57,8 @@ class CourseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["language"].queryset = active_language_queryset()
+        self.fields["language"].empty_label = "Select category"
         if not (self.instance and self.instance.pk):
             self.fields["thumbnail"].required = True
 

@@ -22,6 +22,7 @@ from apps.cms.models import (
     SiteStatistic,
     Testimonial,
 )
+from apps.accounts.forms import HilaacPasswordChangeForm
 from apps.core.models import AuditLog, SiteSettings
 from apps.core.utils import log_audit
 from apps.courses.models import Enrollment, Language, Lesson, Level, Module
@@ -851,6 +852,7 @@ def admin_profile_settings(request):
         {
             "account_form": account_form,
             "notification_form": notification_form,
+            "password_form": HilaacPasswordChangeForm(user=user),
             "profile_stats": profile_stats_for_user(user),
             "security_logs": security_logs_for_user(user),
         },
@@ -858,6 +860,7 @@ def admin_profile_settings(request):
 
 
 class AdminPasswordChangeView(PasswordChangeView):
+    form_class = HilaacPasswordChangeForm
     template_name = "admin_portal/profile_security.html"
     success_url = reverse_lazy("admin_portal:profile_settings")
 

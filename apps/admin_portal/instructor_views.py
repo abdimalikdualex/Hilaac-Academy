@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from decimal import Decimal
 
+from apps.accounts.forms import HilaacPasswordChangeForm
 from apps.assessments.models import AssignmentSubmission, Quiz
 from apps.core.dashboard_helpers import instructor_dashboard_context
 from apps.core.utils import log_audit
@@ -147,12 +148,14 @@ def instructor_settings(request):
         {
             "account_form": account_form,
             "notification_form": notification_form,
+            "password_form": HilaacPasswordChangeForm(user=user),
             "profile_stats": profile_stats_for_user(user),
         },
     )
 
 
 class InstructorPasswordChangeView(PasswordChangeView):
+    form_class = HilaacPasswordChangeForm
     template_name = "instructor/password_change.html"
     success_url = reverse_lazy("instructor:settings")
 

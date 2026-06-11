@@ -24,7 +24,8 @@
             {% endfor %}
             <button type="submit" class="px-6 py-2 bg-[#0FAE9D] text-white rounded-lg">Save Notifications</button>
         </form>
-        <a href="{% url 'instructor:password_change' %}" class="inline-block px-5 py-2 border-2 border-[#1E4D8F] text-[#1E4D8F] rounded-lg">Security Settings</a>
+        {% url 'instructor:password_change' as password_action %}
+        {% include "partials/profile/password_change_form.html" with form=password_form password_action=password_action %}
     </div>
 </div>
 <style>.profile-input{width:100%;padding:.5rem 1rem;border:1px solid #cbd5e1;border-radius:.5rem}</style>

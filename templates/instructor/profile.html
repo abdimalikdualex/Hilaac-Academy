@@ -1,23 +1,13 @@
 {% extends "instructor/base.html" %}
 {% block title %}My Profile{% endblock %}
 {% block content %}
-{% include "partials/profile/header.html" with title="Instructor Profile" subtitle="Update your professional portfolio and personal details." %}
+{% include "partials/profile/header.html" with title="Instructor Profile" subtitle="Update your professional portfolio and profile photo." %}
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="grid lg:grid-cols-3 gap-6">
         <div class="space-y-4">
-            <div class="bg-white rounded-2xl border p-6 text-center">
-                {% if user.profile_photo %}
-                <img id="profile-photo-preview" src="{{ user.profile_photo.url }}" class="w-32 h-32 rounded-full object-cover mx-auto mb-4 border-4 border-[#1E4D8F]/20">
-                {% else %}
-                <div class="w-32 h-32 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center text-3xl font-bold mx-auto mb-4">{{ user.first_name|first|default:user.username|first|upper }}</div>
-                {% endif %}
-                <label class="block px-4 py-2 bg-[#1E4D8F] text-white rounded-lg text-sm cursor-pointer">Upload Photo
-                    <input type="file" name="profile_photo" accept=".jpg,.jpeg,.png,.webp" class="hidden">
-                </label>
-                {% if user.profile_photo %}<button type="submit" name="remove_photo" value="1" class="mt-2 w-full py-2 border rounded-lg text-sm">Remove Photo</button>{% endif %}
-            </div>
+            {% include "partials/profile/photo_upload_panel.html" %}
             {% include "partials/profile/stats_panel.html" %}
         </div>
         <div class="lg:col-span-2 space-y-6">

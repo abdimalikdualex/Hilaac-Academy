@@ -23,7 +23,9 @@ def _lines(text):
 
 
 def catalog(request):
-    languages = Language.objects.filter(is_active=True).prefetch_related("levels")
+    from .language_defaults import active_language_queryset
+
+    languages = active_language_queryset().prefetch_related("levels")
     query = request.GET.get("q", "").strip()
     language_filter = request.GET.get("language", "")
     level_filter = request.GET.get("level", "")

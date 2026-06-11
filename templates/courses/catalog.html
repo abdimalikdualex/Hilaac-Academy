@@ -14,8 +14,8 @@
 
     <form method="get" class="flex flex-wrap gap-3 mb-8">
         <input type="search" name="q" value="{{ query }}" placeholder="Search courses..." class="flex-1 min-w-[200px] px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 outline-none">
-        <select name="language" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">
-            <option value="">All Languages</option>
+        <select name="language" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+            <option value="">All Categories</option>
             {% for lang in languages %}
             <option value="{{ lang.slug }}" {% if language_filter == lang.slug %}selected{% endif %}>{{ lang.name }}</option>
             {% endfor %}

@@ -3,19 +3,8 @@
 {% block content %}
 {% include "partials/profile/header.html" with title="Security Settings" subtitle="Change your password." %}
 
-<form method="post" class="bg-white rounded-2xl border p-6 max-w-lg space-y-4">
-    {% csrf_token %}
-    {% for field in form %}
-    <div>
-        <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
-        <input type="password" name="{{ field.name }}" required class="w-full px-4 py-2 border rounded-lg">
-        {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
-    </div>
-    {% endfor %}
-    <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div id="password-strength-bar" class="h-full w-0 transition-all"></div></div>
-    <p id="password-strength-label" class="text-xs text-slate-500">Password strength</p>
-    <button type="submit" class="px-6 py-2 bg-[#1E4D8F] text-white rounded-lg">Update Password</button>
-</form>
+{% url 'admin_portal:profile_security' as password_action %}
+{% include "partials/profile/password_change_form.html" with form=form password_action=password_action %}
+
 <a href="{% url 'admin_portal:profile_settings' %}" class="text-sm text-[#1E4D8F] mt-4 inline-block">← Back to Account Settings</a>
-{% include "partials/profile/password_strength.html" %}
 {% endblock %}

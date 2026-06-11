@@ -18,7 +18,7 @@ from apps.payments.models import Payment
 
 from apps.core.utils import log_audit
 
-from .forms import AccountSettingsForm, NotificationPreferencesForm
+from .forms import AccountSettingsForm, HilaacPasswordChangeForm, NotificationPreferencesForm
 from .profile_helpers import profile_stats_for_user
 from .profile_views import handle_profile_update
 
@@ -217,6 +217,7 @@ def settings(request):
         {
             "account_form": account_form,
             "notification_form": notification_form,
+            "password_form": HilaacPasswordChangeForm(user=user),
             "profile_stats": profile_stats_for_user(user),
         },
     )

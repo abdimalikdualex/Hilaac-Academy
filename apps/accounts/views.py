@@ -22,7 +22,7 @@ from apps.core.roles import role_dashboard_url
 from apps.core.utils import get_client_ip, log_audit, rate_limit
 from apps.notifications.services import send_verification_email
 
-from .forms import HilaacAuthenticationForm, StudentRegistrationForm
+from .forms import HilaacAuthenticationForm, HilaacPasswordChangeForm, StudentRegistrationForm
 from .models import User
 
 
@@ -147,6 +147,7 @@ def profile(request):
 
 
 class StudentPasswordChangeView(PasswordChangeView):
+    form_class = HilaacPasswordChangeForm
     template_name = "accounts/password_change.html"
 
     def get_success_url(self):

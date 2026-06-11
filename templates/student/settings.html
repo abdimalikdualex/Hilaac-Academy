@@ -33,11 +33,8 @@
             <button type="submit" class="px-6 py-2 bg-[#0FAE9D] text-white rounded-lg hover:bg-[#0c8f81] transition">Save Notifications</button>
         </form>
 
-        <div class="bg-white rounded-2xl border p-6">
-            <h2 class="font-bold mb-2">Security</h2>
-            <p class="text-sm text-slate-600 mb-4">Change your password from Security Settings.</p>
-            <a href="{% url 'student:password_change' %}" class="inline-block px-5 py-2 border-2 border-[#1E4D8F] text-[#1E4D8F] rounded-lg hover:bg-[#1E4D8F] hover:text-white transition">Security Settings</a>
-        </div>
+        {% url 'student:password_change' as password_action %}
+        {% include "partials/profile/password_change_form.html" with form=password_form password_action=password_action %}
     </div>
 </div>
 <style>.profile-input{width:100%;padding:.5rem 1rem;border-radius:.5rem;border:1px solid #cbd5e1}</style>
