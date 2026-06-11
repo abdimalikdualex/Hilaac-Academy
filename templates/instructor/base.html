@@ -35,12 +35,14 @@
                 <button @click="sidebarOpen=true" class="p-2 rounded-lg hover:bg-slate-100 lg:hidden shrink-0" aria-label="Open menu">{% load ha_icons %}{% ha_icon "menu" size=22 %}</button>
                 <span class="text-sm font-semibold text-amber-600 hidden lg:block">Instructor Portal</span>
                 <nav class="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600 ml-2">
-                    <a href="{% url 'instructor:profile' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'profile' %}text-[#1E4D8F]{% endif %}">Profile</a>
-                    <a href="{% url 'instructor:settings' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'settings' or request.resolver_match.url_name == 'password_change' %}text-[#1E4D8F]{% endif %}">Settings</a>
+                    <a href="{% url 'instructor:settings' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'settings' or request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' %}text-[#1E4D8F]{% endif %}">Settings</a>
                     <a href="{% url 'instructor:notifications' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'notifications' %}text-[#1E4D8F]{% endif %}">Notifications</a>
                 </nav>
             </div>
-            {% include "partials/user_profile_menu.html" %}
+            <div class="flex items-center gap-2">
+                {% include "partials/notification_bell.html" %}
+                {% include "partials/user_profile_menu.html" %}
+            </div>
         </header>
         <main class="relative flex-1 p-4 sm:p-6 min-w-0">
             {% include "partials/portal_background.html" with variant="instructor" %}

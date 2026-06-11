@@ -16,3 +16,11 @@ def role_dashboard_name(user):
     if user.is_instructor:
         return "instructor:dashboard"
     return "student:dashboard"
+
+
+def role_settings_url(user):
+    if user.is_super_admin:
+        return reverse("admin_portal:profile_settings")
+    if user.is_instructor:
+        return reverse("instructor:settings")
+    return reverse("student:settings")

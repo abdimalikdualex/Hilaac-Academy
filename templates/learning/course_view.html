@@ -30,16 +30,25 @@
             </a>
             {% endfor %}
         </div>
+        {% for assignment in module.assignments.all %}
+        {% if assignment.is_published %}
+        <a href="{% url 'assessments:assignment_detail' assignment_id=assignment.id %}" class="mt-2 flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200 hover:bg-blue-100 transition text-slate-900">
+            {% ha_icon "clipboard-list" size=18 class_name="text-[#1E4D8F]" %} Assignment: {{ assignment.title }}
+        </a>
+        {% endif %}
+        {% endfor %}
         {% for quiz in module.quizzes.all %}
-        <a href="{% url 'assessments:take_quiz' quiz_id=quiz.id %}" class="mt-2 flex items-center gap-3 p-4 rounded-xl bg-accent-500/10 border border-accent-500/30 hover:bg-accent-500/20 transition">
+        {% if quiz.is_published %}
+        <a href="{% url 'assessments:take_quiz' quiz_id=quiz.id %}" class="mt-2 flex items-center gap-3 p-4 rounded-xl bg-accent-500/10 border border-accent-500/30 hover:bg-accent-500/20 transition text-slate-900">
             {% ha_icon "clipboard-list" size=18 class_name="text-amber-600" %} {{ quiz.title }} (Pass: {{ quiz.pass_mark }}%)
         </a>
+        {% endif %}
         {% endfor %}
     </div>
     {% endfor %}
 
     {% for quiz in level.quizzes.all %}
-    {% if quiz.is_final %}
+    {% if quiz.is_final and quiz.is_published %}
     <a href="{% url 'assessments:take_quiz' quiz_id=quiz.id %}" class="block p-4 rounded-xl bg-primary-600 text-white text-center font-semibold hover:bg-primary-700">
         {% ha_icon "graduation-cap" size=18 class_name="inline" %} Final Assessment: {{ quiz.title }}
     </a>

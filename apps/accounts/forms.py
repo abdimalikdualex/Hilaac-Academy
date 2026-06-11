@@ -72,6 +72,7 @@ class BaseProfileForm(forms.ModelForm):
         fields = (
             "first_name",
             "last_name",
+            "email",
             "phone",
             "country",
             "city",
@@ -82,6 +83,7 @@ class BaseProfileForm(forms.ModelForm):
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "profile-input"}),
             "last_name": forms.TextInput(attrs={"class": "profile-input"}),
+            "email": forms.EmailInput(attrs={"class": "profile-input"}),
             "phone": forms.TextInput(attrs={"class": "profile-input"}),
             "country": forms.TextInput(attrs={"class": "profile-input"}),
             "city": forms.TextInput(attrs={"class": "profile-input"}),

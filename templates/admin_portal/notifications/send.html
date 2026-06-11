@@ -1,0 +1,18 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Send Notification{% endblock %}
+{% block content %}
+<a href="{% url 'admin_portal:notification_list' %}" class="text-primary-600 text-sm hover:underline">← Notifications</a>
+<h1 class="text-2xl font-bold mt-2 mb-6 text-slate-900">{{ title }}</h1>
+<form method="post" class="bg-white p-6 rounded-xl border max-w-lg space-y-4">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+        <label class="block text-sm font-medium mb-1 text-slate-900">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="portal-save-btn">Send Notification</button>
+</form>
+{% include "partials/profile/portal_form_styles.html" %}
+{% endblock %}

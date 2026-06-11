@@ -2,32 +2,26 @@
 {% block title %}Grade Submission{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto px-4 py-8">
-    <a href="{% url 'instructor:assignments' %}" class="text-primary-600 text-sm hover:underline">&larr; Pending submissions</a>
-    <h1 class="text-2xl font-bold mt-2 mb-4">Grade: {{ submission.assignment.title }}</h1>
-    <p class="text-sm text-slate-500 mb-6">
-        Student: {{ submission.student.get_full_name|default:submission.student.username }} ·
-        Course: {{ submission.assignment.module.level.name }}
-        {% if submission.file %} · <a href="{{ submission.file.url }}" class="text-primary-600 hover:underline" download>Download file</a>{% endif %}
+    <a href="{% url 'instructor:assignments' %}" class="text-primary-600 text-sm hover:underline">← Submissions</a>
+    <h1 class="text-2xl font-bold mt-2 mb-4 text-slate-900">Grade: {{ submission.assignment.title }}</h1>
+    <p class="text-sm text-slate-600 mb-6">
+        Student: <strong class="text-slate-900">{{ submission.student.get_full_name|default:submission.student.username }}</strong> ·
+        Course: {{ submission.assignment.module.level.name }} ·
+        Max marks: {{ max_score }}
+        {% if submission.file %} · <a href="{{ submission.file_url }}" class="text-primary-600 hover:underline" download>Download submission</a>{% endif %}
     </p>
-    <form method="post" class="space-y-4 p-6 rounded-2xl bg-white dark:bg-slate-800 border shadow">
+    {% if submission.notes %}<p class="text-sm text-slate-700 mb-4 p-3 bg-slate-50 rounded-lg border"><strong>Student notes:</strong> {{ submission.notes }}</p>{% endif %}
+    <form method="post" class="portal-form-card p-6 space-y-4 shadow-sm">
         {% csrf_token %}
+        {% for field in form %}
         <div>
-            <label class="block text-sm font-medium mb-1">Grade</label>
-            <input type="number" name="grade" value="{{ submission.grade|default:'' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900" step="0.01" min="0" max="100">
+            <label class="portal-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
         </div>
-        <div>
-            <label class="block text-sm font-medium mb-1">Feedback</label>
-            <textarea name="feedback" rows="4" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">{{ submission.feedback }}</textarea>
-        </div>
-        <div>
-            <label class="block text-sm font-medium mb-1">Status</label>
-            <select name="status" class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">
-                <option value="graded">Graded</option>
-                <option value="approved">Approved</option>
-                <option value="resubmit">Request Resubmission</option>
-            </select>
-        </div>
-        <button type="submit" class="w-full py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Save Grade</button>
+        {% endfor %}
+        <button type="submit" class="portal-save-btn w-full">Save Grade</button>
     </form>
 </div>
+{% include "partials/profile/portal_form_styles.html" %}
 {% endblock %}

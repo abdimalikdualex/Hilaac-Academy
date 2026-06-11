@@ -1,9 +1,37 @@
 {% extends "admin_portal/base.html" %}
 {% block title %}Notifications{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Notifications</h1>
-<div class="bg-white rounded-xl border overflow-x-auto">
-<table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-3 text-left">User</th><th class="p-3 text-left">Message</th><th class="p-3 text-left">Type</th><th class="p-3 text-left">Date</th></tr></thead>
-<tbody>{% for n in notifications %}<tr class="border-t"><td class="p-3">{{ n.user.username }}</td><td class="p-3">{{ n.message|truncatewords:12 }}</td><td class="p-3">{{ n.get_notification_type_display }}</td><td class="p-3">{{ n.created_at|timesince }} ago</td></tr>{% endfor %}</tbody></table>
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <h1 class="text-2xl font-bold">Notifications</h1>
+    <a href="{% url 'admin_portal:notification_send' %}" class="inline-flex items-center px-4 py-2 rounded-lg bg-[#1E4D8F] text-white font-medium hover:bg-[#163a6d] transition">Send Notification</a>
 </div>
+<div class="bg-white rounded-xl border overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-slate-50">
+            <tr>
+                <th class="p-3 text-left">User</th>
+                <th class="p-3 text-left">Title</th>
+                <th class="p-3 text-left">Message</th>
+                <th class="p-3 text-left">Type</th>
+                <th class="p-3 text-left">Severity</th>
+                <th class="p-3 text-left">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in notifications %}
+            <tr class="border-t">
+                <td class="p-3">{{ n.user.username }}</td>
+                <td class="p-3 font-medium">{{ n.title|default:"—" }}</td>
+                <td class="p-3">{{ n.message|truncatewords:12 }}</td>
+                <td class="p-3">{{ n.get_notification_type_display }}</td>
+                <td class="p-3">{{ n.get_severity_display }}</td>
+                <td class="p-3">{{ n.created_at|timesince }} ago</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="p-6 text-center text-slate-500">No notifications yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "partials/pagination.html" %}
 {% endblock %}

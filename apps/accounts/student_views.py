@@ -18,10 +18,6 @@ from apps.payments.models import Payment
 
 from apps.core.utils import log_audit
 
-from .forms import AccountSettingsForm, HilaacPasswordChangeForm, NotificationPreferencesForm
-from .profile_helpers import profile_stats_for_user
-from .profile_views import handle_profile_update
-
 
 @student_required
 def dashboard(request):
@@ -88,10 +84,7 @@ def assignments(request):
         student=request.user, status=Enrollment.Status.ACTIVE
     ).values_list("level_id", flat=True)
     assignments_qs = (
-        Assignment.objects.filter(
-            module__level_id__in=enrolled_level_ids,
-            is_published=True,
-        )
+        Assignment.objects.filter(module__level_id__in=enrolled_level_ids, is_published=True)
         .select_related("module", "module__level", "module__level__language")
         .order_by("due_date")
     )
@@ -150,10 +143,7 @@ def notifications(request):
 
 @student_required
 def profile(request):
-    result = handle_profile_update(request, "student:profile")
-    if isinstance(result, (HttpResponseRedirect, HttpResponsePermanentRedirect)):
-        return result
-    return render(request, "student/profile.html", result)
+    return redirect("student:settings")
 
 
 class StudentPortalPasswordChangeView(PasswordChangeView):
@@ -174,6 +164,9 @@ class StudentPortalPasswordChangeView(PasswordChangeView):
 
     def form_valid(self, form):
         log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
+        from apps.notifications.services import notify_password_changed
+
+        notify_password_changed(self.request.user)
         messages.success(self.request, "Password changed successfully.")
         return super().form_valid(form)
 
@@ -186,38 +179,10 @@ def wishlist(request):
 
 @student_required
 def settings(request):
-    user = request.user
-    account_form = AccountSettingsForm(instance=user)
-    notification_form = NotificationPreferencesForm(instance=user)
+    from .settings_handlers import handle_unified_settings_post, unified_settings_context
 
     if request.method == "POST":
-        form_type = request.POST.get("form_type")
-        if form_type == "notifications":
-            notification_form = NotificationPreferencesForm(request.POST, instance=user)
-            if notification_form.is_valid():
-                notification_form.save()
-                log_audit(request, "profile_notifications_update", "User", user.pk)
-                messages.success(request, "Notification preferences saved.")
-                return redirect("student:settings")
-        elif form_type == "account":
-            account_form = AccountSettingsForm(request.POST, instance=user)
-            if account_form.is_valid():
-                old_email = user.email
-                account_form.save()
-                if old_email != user.email:
-                    log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
-                else:
-                    log_audit(request, "profile_account_update", "User", user.pk)
-                messages.success(request, "Account settings saved.")
-                return redirect("student:settings")
-
-    return render(
-        request,
-        "student/settings.html",
-        {
-            "account_form": account_form,
-            "notification_form": notification_form,
-            "password_form": HilaacPasswordChangeForm(user=user),
-            "profile_stats": profile_stats_for_user(user),
-        },
-    )
+        result = handle_unified_settings_post(request, "student:settings")
+        if result:
+            return result
+    return render(request, "student/settings.html", unified_settings_context(request))

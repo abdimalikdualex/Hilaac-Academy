@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from decimal import Decimal
 
 from apps.accounts.forms import HilaacPasswordChangeForm
+from apps.assessments.forms import AssignmentGradeForm
 from apps.assessments.models import AssignmentSubmission, Quiz
 from apps.core.dashboard_helpers import instructor_dashboard_context
 from apps.core.utils import log_audit
@@ -96,62 +97,27 @@ def instructor_students_all(request):
 
 @instructor_required
 def instructor_notifications(request):
-    notes = Notification.objects.filter(user=request.user)
-    return render(request, "instructor/notifications.html", {"notifications": notes})
+    from apps.core.pagination import NOTIFICATION_PAGE_SIZE, paginate_queryset
+
+    notes = Notification.objects.filter(user=request.user).order_by("-created_at")
+    page = paginate_queryset(request, notes, per_page=NOTIFICATION_PAGE_SIZE)
+    return render(request, "instructor/notifications.html", {"notifications": page, "page": page})
 
 
 @instructor_required
 def instructor_profile(request):
-    from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
-
-    from apps.accounts.profile_views import handle_profile_update
-
-    result = handle_profile_update(request, "instructor:profile")
-    if isinstance(result, (HttpResponseRedirect, HttpResponsePermanentRedirect)):
-        return result
-    return render(request, "instructor/profile.html", result)
+    return redirect("instructor:settings")
 
 
 @instructor_required
 def instructor_settings(request):
-    from apps.accounts.forms import AccountSettingsForm, NotificationPreferencesForm
-    from apps.accounts.profile_helpers import profile_stats_for_user
-
-    user = request.user
-    account_form = AccountSettingsForm(instance=user)
-    notification_form = NotificationPreferencesForm(instance=user)
+    from apps.accounts.settings_handlers import handle_unified_settings_post, unified_settings_context
 
     if request.method == "POST":
-        form_type = request.POST.get("form_type")
-        if form_type == "notifications":
-            notification_form = NotificationPreferencesForm(request.POST, instance=user)
-            if notification_form.is_valid():
-                notification_form.save()
-                log_audit(request, "profile_notifications_update", "User", user.pk)
-                messages.success(request, "Notification preferences saved.")
-                return redirect("instructor:settings")
-        elif form_type == "account":
-            account_form = AccountSettingsForm(request.POST, instance=user)
-            if account_form.is_valid():
-                old_email = user.email
-                account_form.save()
-                if old_email != user.email:
-                    log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
-                else:
-                    log_audit(request, "profile_account_update", "User", user.pk)
-                messages.success(request, "Account settings saved.")
-                return redirect("instructor:settings")
-
-    return render(
-        request,
-        "instructor/settings.html",
-        {
-            "account_form": account_form,
-            "notification_form": notification_form,
-            "password_form": HilaacPasswordChangeForm(user=user),
-            "profile_stats": profile_stats_for_user(user),
-        },
-    )
+        result = handle_unified_settings_post(request, "instructor:settings")
+        if result:
+            return result
+    return render(request, "instructor/settings.html", unified_settings_context(request))
 
 
 class InstructorPasswordChangeView(PasswordChangeView):
@@ -169,6 +135,9 @@ class InstructorPasswordChangeView(PasswordChangeView):
         from apps.core.utils import log_audit
 
         log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
+        from apps.notifications.services import notify_password_changed
+
+        notify_password_changed(self.request.user)
         messages.success(self.request, "Password changed successfully.")
         return super().form_valid(form)
 
@@ -230,7 +199,9 @@ def instructor_course_archive(request, level_id):
 @instructor_required
 def instructor_level(request, level_id):
     level = get_object_or_404(
-        Level.objects.select_related("language").prefetch_related("modules__lessons"),
+        Level.objects.select_related("language").prefetch_related(
+            "modules__lessons", "modules__assignments", "modules__quizzes", "quizzes"
+        ),
         pk=level_id,
         instructor=request.user,
     )
@@ -386,29 +357,82 @@ def instructor_students(request, level_id):
 # --- Assignments (own courses only) ---
 @instructor_required
 def instructor_assignments(request):
-    submissions = AssignmentSubmission.objects.filter(
-        assignment__module__level__instructor=request.user,
-        status=AssignmentSubmission.Status.PENDING,
-    ).select_related("student", "assignment", "assignment__module__level")
-    return render(request, "instructor/assignments.html", {"submissions": submissions})
+    from apps.assessments.models import Assignment
+
+    submissions = (
+        AssignmentSubmission.objects.filter(assignment__module__level__instructor=request.user)
+        .select_related("student", "assignment", "assignment__module__level")
+        .order_by("-submitted_at")[:50]
+    )
+    to_grade = submissions.filter(
+        status__in=[
+            AssignmentSubmission.Status.SUBMITTED,
+            AssignmentSubmission.Status.PENDING,
+            AssignmentSubmission.Status.UNDER_REVIEW,
+            AssignmentSubmission.Status.LATE,
+        ]
+    )
+    assignments = Assignment.objects.filter(module__level__instructor=request.user).select_related(
+        "module__level"
+    )
+    return render(
+        request,
+        "instructor/assignments.html",
+        {"submissions": submissions, "to_grade": to_grade, "assignments": assignments},
+    )
 
 
 @instructor_required
 def instructor_submission_grade(request, pk):
+    from django.utils import timezone
+
     sub = get_object_or_404(
         AssignmentSubmission.objects.select_related("assignment__module__level", "student"),
         pk=pk,
     )
     if not instructor_owns_submission(request.user, sub):
         from django.http import Http404
+
         raise Http404
 
     if request.method == "POST":
-        sub.grade = Decimal(request.POST.get("grade", 0))
-        sub.feedback = request.POST.get("feedback", "")
-        sub.status = request.POST.get("status", AssignmentSubmission.Status.GRADED)
-        sub.save()
-        log_audit(request, "assignment_grade", "AssignmentSubmission", sub.pk, sub.assignment.title)
-        messages.success(request, "Submission graded.")
-        return redirect("instructor:assignments")
-    return render(request, "instructor/grade_submission.html", {"submission": sub})
+        form = AssignmentGradeForm(request.POST, max_score=sub.assignment.max_score)
+        if form.is_valid():
+            sub.grade = form.cleaned_data["grade"]
+            sub.feedback = form.cleaned_data["feedback"]
+            sub.status = form.cleaned_data["status"]
+            sub.graded_at = timezone.now()
+            sub.save()
+            log_audit(request, "assignment_grade", "AssignmentSubmission", sub.pk, sub.assignment.title)
+            from apps.notifications.services import notify_assignment_graded
+
+            notify_assignment_graded(sub.student, sub)
+            messages.success(request, "Submission graded.")
+            return redirect("instructor:assignments")
+    else:
+        form = AssignmentGradeForm(
+            max_score=sub.assignment.max_score,
+            initial={
+                "grade": sub.grade,
+                "feedback": sub.feedback,
+                "status": sub.status if sub.status != AssignmentSubmission.Status.LATE else AssignmentSubmission.Status.GRADED,
+            },
+        )
+    return render(
+        request,
+        "instructor/grade_submission.html",
+        {"submission": sub, "form": form, "max_score": sub.assignment.max_score},
+    )
+
+
+from apps.assessments.manage_views import (
+    instructor_assignment_add,
+    instructor_assignment_delete,
+    instructor_assignment_edit,
+    instructor_assignment_extend_due,
+    instructor_assignment_toggle_publish,
+    instructor_quiz_add,
+    instructor_quiz_delete,
+    instructor_quiz_edit,
+    instructor_quiz_toggle_publish,
+)

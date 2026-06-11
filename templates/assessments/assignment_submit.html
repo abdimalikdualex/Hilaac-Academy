@@ -1,0 +1,21 @@
+{% extends "student/base.html" %}
+{% block title %}Submit — {{ assignment.title }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <a href="{% url 'assessments:assignment_detail' assignment_id=assignment.id %}" class="text-[#1E4D8F] text-sm hover:underline">← Back to assignment</a>
+    <h1 class="text-2xl font-bold mt-2 mb-6 text-slate-900">Submit Assignment</h1>
+    <form method="post" enctype="multipart/form-data" class="portal-form-card p-6 space-y-4 shadow-sm">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label class="portal-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <p class="text-xs text-slate-500">Allowed: PDF, DOCX, PPTX, ZIP, images · Max 15 MB</p>
+        <button type="submit" class="portal-save-btn w-full sm:w-auto">Submit Assignment</button>
+    </form>
+</div>
+{% include "partials/profile/portal_form_styles.html" %}
+{% endblock %}

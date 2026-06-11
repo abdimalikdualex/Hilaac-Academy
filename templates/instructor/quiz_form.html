@@ -1,0 +1,21 @@
+{% extends "instructor/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <a href="{% url 'instructor:level' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">← {{ level.name }}</a>
+    <h1 class="text-2xl font-bold mt-2 mb-6 text-slate-900">{{ title }}</h1>
+    <form method="post" class="portal-form-card p-6 space-y-4 shadow-sm">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label class="portal-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <p class="text-xs text-slate-500">Add quiz questions via Django admin until the question builder is added.</p>
+        <button type="submit" class="portal-save-btn">Save Quiz</button>
+    </form>
+</div>
+{% include "partials/profile/portal_form_styles.html" %}
+{% endblock %}

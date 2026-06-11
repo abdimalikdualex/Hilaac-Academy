@@ -40,7 +40,9 @@ def course_view(request, level_id):
 
     level = get_object_or_404(
 
-        Level.objects.select_related("language").prefetch_related("modules__lessons", "modules__quizzes", "quizzes"),
+        Level.objects.select_related("language").prefetch_related(
+            "modules__lessons", "modules__quizzes", "modules__assignments", "quizzes"
+        ),
 
         pk=level_id,
 

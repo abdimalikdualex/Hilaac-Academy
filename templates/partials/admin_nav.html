@@ -1,6 +1,7 @@
 {% load ha_icons %}
 <a href="{% url 'admin_portal:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">{% ha_icon "bar-chart" size=18 class_name="opacity-80" %} Dashboard</a>
-<a href="{% url 'admin_portal:student_list' %}" class="sidebar-link">{% ha_icon "users" size=18 class_name="opacity-80" %} Students</a>
+<a href="{% url 'admin_portal:user_management' %}" class="sidebar-link {% if request.resolver_match.url_name == 'user_management' %}active{% endif %}">{% ha_icon "users" size=18 class_name="opacity-80" %} User Management</a>
+<a href="{% url 'admin_portal:student_list' %}" class="sidebar-link">{% ha_icon "user" size=18 class_name="opacity-80" %} Students</a>
 <a href="{% url 'admin_portal:instructor_list' %}" class="sidebar-link">{% ha_icon "user-check" size=18 class_name="opacity-80" %} Instructors</a>
 <a href="{% url 'admin_portal:course_list' %}" class="sidebar-link">{% ha_icon "book-open" size=18 class_name="opacity-80" %} Courses</a>
 <a href="{% url 'courses_manage:list' %}" class="sidebar-link">{% ha_icon "video" size=18 class_name="opacity-80" %} Videos &amp; Lessons</a>
@@ -17,6 +18,6 @@
 <a href="{% url 'admin_portal:announcement_list' %}" class="sidebar-link">{% ha_icon "megaphone" size=18 class_name="opacity-80" %} Announcements</a>
 <a href="{% url 'admin_portal:partner_school_list' %}" class="sidebar-link">{% ha_icon "landmark" size=18 class_name="opacity-80" %} Partner Schools</a>
 <a href="{% url 'admin_portal:exchange_rates' %}" class="sidebar-link">{% ha_icon "dollar-sign" size=18 class_name="opacity-80" %} Exchange Rates</a>
-<a href="{% url 'admin_portal:profile' %}" class="sidebar-link">{% ha_icon "users" size=18 class_name="opacity-80" %} My Profile</a>
+<a href="{% url 'admin_portal:profile_settings' %}" class="sidebar-link">{% ha_icon "settings" size=18 class_name="opacity-80" %} Settings</a>
 <a href="{% url 'admin_portal:settings' %}" class="sidebar-link">{% ha_icon "settings" size=18 class_name="opacity-80" %} Academy Settings</a>
 <a href="{% url 'admin_portal:recycle_bin' %}" class="sidebar-link">{% ha_icon "trash-2" size=18 class_name="opacity-80" %} Recycle Bin</a>

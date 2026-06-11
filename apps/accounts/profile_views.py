@@ -39,10 +39,7 @@ def handle_profile_update(request, redirect_url):
         if form.is_valid():
             form.save()
             log_audit(request, "profile_update", "User", user.pk, "personal information")
-            if request.FILES.get("profile_photo"):
-                messages.success(request, "Profile photo updated successfully.")
-            else:
-                messages.success(request, "Profile updated successfully.")
+            messages.success(request, "Your settings have been updated successfully.")
             return redirect(redirect_url)
         for field, errs in form.errors.items():
             label = form.fields.get(field).label if field in form.fields else field

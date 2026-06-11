@@ -63,6 +63,34 @@ def student_dashboard_context(user):
     quiz_attempts = QuizAttempt.objects.filter(student=user).select_related("quiz").order_by("-completed_at")[:10]
     certificates = Certificate.objects.filter(student=user)
 
+    enrolled_level_ids = enrollments.exclude(status=Enrollment.Status.CANCELLED).values_list("level_id", flat=True)
+    upcoming_assignments = (
+        Assignment.objects.filter(module__level_id__in=enrolled_level_ids, is_published=True)
+        .select_related("module__level")
+        .order_by("due_date")[:8]
+    )
+    pending_assignments = Assignment.objects.filter(
+        module__level_id__in=enrolled_level_ids,
+        is_published=True,
+    ).exclude(
+        submissions__student=user,
+        submissions__status__in=[
+            AssignmentSubmission.Status.SUBMITTED,
+            AssignmentSubmission.Status.GRADED,
+            AssignmentSubmission.Status.APPROVED,
+            AssignmentSubmission.Status.UNDER_REVIEW,
+            AssignmentSubmission.Status.LATE,
+        ],
+    ).select_related("module__level")[:8]
+    recent_grades = (
+        AssignmentSubmission.objects.filter(
+            student=user,
+            status__in=[AssignmentSubmission.Status.GRADED, AssignmentSubmission.Status.APPROVED],
+        )
+        .select_related("assignment", "assignment__module__level")
+        .order_by("-graded_at", "-submitted_at")[:5]
+    )
+
     activities = []
     for e in enrollments.order_by("-enrolled_at")[:5]:
         activities.append({"type": "enrollment", "text": f"Enrolled in {e.level.name}", "date": e.enrolled_at})
@@ -87,6 +115,9 @@ def student_dashboard_context(user):
         "certificates": certificates[:3],
         "quiz_attempts": quiz_attempts,
         "recent_activity": activities[:10],
+        "upcoming_assignments": upcoming_assignments,
+        "pending_assignments": pending_assignments,
+        "recent_grades": recent_grades,
     }
 
 
@@ -117,6 +148,15 @@ def instructor_dashboard_context(instructor):
         .order_by("-enrolled_at")[:8]
     )
 
+    quiz_stats = {
+        "total_attempts": QuizAttempt.objects.filter(quiz__module__level__instructor=instructor).count(),
+        "pass_rate": 0,
+    }
+    attempts = QuizAttempt.objects.filter(quiz__module__level__instructor=instructor)
+    if attempts.exists():
+        passed = attempts.filter(passed=True).count()
+        quiz_stats["pass_rate"] = round((passed / attempts.count()) * 100)
+
     return {
         "levels": levels,
         "total_courses": levels.count(),
@@ -124,8 +164,15 @@ def instructor_dashboard_context(instructor):
         "pending_submissions": pending_submissions,
         "pending_submission_count": AssignmentSubmission.objects.filter(
             assignment__module__level__instructor=instructor,
-            status=AssignmentSubmission.Status.PENDING,
+            status__in=[
+                AssignmentSubmission.Status.SUBMITTED,
+                AssignmentSubmission.Status.PENDING,
+                AssignmentSubmission.Status.UNDER_REVIEW,
+                AssignmentSubmission.Status.LATE,
+            ],
         ).count(),
+        "quiz_stats": quiz_stats,
+        "total_assignments": Assignment.objects.filter(module__level__instructor=instructor).count(),
         "lesson_views": lesson_views,
         "completion_rate": completion_rate,
         "recent_enrollments": recent_enrollments,

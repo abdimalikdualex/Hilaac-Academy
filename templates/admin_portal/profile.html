@@ -22,7 +22,7 @@
                 </div>
                 {% endif %}
                 {% endfor %}
-                <button type="submit" class="px-6 py-2 bg-[#1E4D8F] text-white rounded-lg">Save Profile</button>
+                <div class="portal-save-sticky"><button type="submit" class="portal-save-btn">Save Changes</button></div>
             </div>
             {% include "partials/profile/account_readonly.html" %}
             {% if security_logs %}
@@ -36,5 +36,5 @@
         </div>
     </div>
 </form>
-<style>.profile-input{width:100%;padding:.5rem 1rem;border:1px solid #cbd5e1;border-radius:.5rem}</style>
+{% include "partials/profile/portal_form_styles.html" %}
 {% endblock %}

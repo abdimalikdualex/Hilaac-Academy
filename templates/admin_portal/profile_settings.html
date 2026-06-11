@@ -1,38 +1,13 @@
 {% extends "admin_portal/base.html" %}
-{% block title %}Account Settings{% endblock %}
+{% block title %}Settings{% endblock %}
 {% block content %}
-{% include "partials/profile/header.html" with title="Account Settings" subtitle="Email, phone, and notification preferences." %}
-
-<div class="grid lg:grid-cols-3 gap-6">
-    <div>{% include "partials/profile/stats_panel.html" %}</div>
-    <div class="lg:col-span-2 space-y-6">
-        <form method="post" class="bg-white rounded-2xl border p-6 space-y-4">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="account">
-            {% for field in account_form %}
-            <div><label class="block text-sm font-medium mb-1">{{ field.label }}</label>{{ field }}</div>
-            {% endfor %}
-            <button type="submit" class="px-6 py-2 bg-[#1E4D8F] text-white rounded-lg">Save Account</button>
-        </form>
-        <form method="post" class="bg-white rounded-2xl border p-6 space-y-3">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="notifications">
-            {% for field in notification_form %}
-            <label class="flex gap-3 items-center"><span>{{ field }}</span><span class="text-sm">{{ field.label }}</span></label>
-            {% endfor %}
-            <button type="submit" class="px-6 py-2 bg-[#0FAE9D] text-white rounded-lg">Save Notifications</button>
-        </form>
-        {% url 'admin_portal:profile_security' as password_action %}
-        {% include "partials/profile/password_change_form.html" with form=password_form password_action=password_action %}
-        {% if security_logs %}
-        <div class="bg-white rounded-2xl border p-6">
-            <h2 class="font-bold mb-3">Security Logs</h2>
-            {% for log in security_logs %}
-            <div class="text-sm py-2 border-b">{{ log.action }} · {{ log.ip_address|default:"—" }} · {{ log.created_at|date:"M j, H:i" }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
+{% include "partials/settings/unified_page.html" with password_change_url_name="admin_portal:profile_security" %}
+{% if security_logs %}
+<div class="mt-6 portal-form-card p-6 shadow-sm max-w-3xl lg:ml-[calc(25%+1.5rem)]">
+    <h2 class="font-bold mb-3 text-[#1E4D8F]">Security Logs</h2>
+    {% for log in security_logs %}
+    <div class="text-sm py-2 border-b text-slate-700">{{ log.action }} · {{ log.ip_address|default:"—" }} · {{ log.created_at|date:"M j, H:i" }}</div>
+    {% endfor %}
 </div>
-<style>.profile-input{width:100%;padding:.5rem 1rem;border:1px solid #cbd5e1;border-radius:.5rem}</style>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,48 @@
+{% load ha_icons %}
+<div class="relative" x-data="notificationBell()" x-init="load()">
+    <button type="button" @click="open = !open" class="relative p-2 rounded-lg hover:bg-slate-100 transition" aria-label="Notifications">
+        {% ha_icon "bell" size=22 class_name="text-slate-600" %}
+        <span x-show="unread > 0" x-text="unread" x-cloak class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center"></span>
+    </button>
+    <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg z-50 text-sm">
+        <div class="px-4 py-3 border-b font-semibold text-slate-900">Notifications</div>
+        <template x-if="items.length === 0">
+            <p class="p-4 text-slate-500 text-center">No notifications yet.</p>
+        </template>
+        <template x-for="item in items" :key="item.id">
+            <div class="px-4 py-3 border-b hover:bg-slate-50" :class="item.is_read ? '' : 'bg-blue-50/50'">
+                <a :href="item.link || viewAll" class="block" @click="markRead(item.id)">
+                    <p class="font-medium text-slate-900" x-text="item.title"></p>
+                    <p class="text-xs text-slate-600 mt-0.5 line-clamp-2" x-text="item.message"></p>
+                    <p class="text-[10px] text-slate-400 mt-1" x-text="item.created_at"></p>
+                </a>
+            </div>
+        </template>
+        <a href="{{ notifications_url }}" class="block text-center py-3 text-[#1E4D8F] font-medium hover:bg-slate-50">View all notifications</a>
+    </div>
+</div>
+<script>
+function notificationBell() {
+    return {
+        open: false,
+        unread: {{ unread_notification_count|default:0 }},
+        items: [],
+        viewAll: "{{ notifications_url }}",
+        load() {
+            fetch("{% url 'notifications:recent' %}", {headers: {"X-Requested-With": "XMLHttpRequest"}})
+                .then(r => r.json())
+                .then(data => {
+                    this.unread = data.unread_count;
+                    this.items = data.notifications;
+                    this.viewAll = data.view_all_url;
+                }).catch(() => {});
+        },
+        markRead(id) {
+            fetch("/notifications/" + id + "/read-api/", {
+                method: "POST",
+                headers: {"X-CSRFToken": "{{ csrf_token }}", "X-Requested-With": "XMLHttpRequest"}
+            }).catch(() => {});
+        }
+    };
+}
+</script>

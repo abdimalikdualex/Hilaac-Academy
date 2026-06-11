@@ -40,9 +40,35 @@
             </div>
         </section>
 
+        {% if pending_assignments %}
+        <section class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-900">Pending Assignments</h2>
+                <a href="{% url 'student:assignments' %}" class="text-sm text-primary-600 hover:underline">View all →</a>
+            </div>
+            {% for a in pending_assignments|slice:":5" %}
+            <a href="{% url 'assessments:assignment_detail' assignment_id=a.id %}" class="block p-3 rounded-lg bg-amber-50 border border-amber-100 mb-2 text-sm text-slate-900 hover:border-primary-400">
+                <strong>{{ a.title }}</strong> <span class="text-slate-500">· {{ a.module.level.name }}</span>
+            </a>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        {% if recent_grades %}
+        <section class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <h2 class="text-lg font-bold mb-4 text-slate-900">Latest Grades</h2>
+            {% for g in recent_grades %}
+            <div class="p-3 rounded-lg bg-slate-50 flex justify-between text-sm mb-2">
+                <span class="text-slate-900">{{ g.assignment.title }}</span>
+                <span class="font-semibold text-green-600">{{ g.score_display }}</span>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
         {% if quiz_attempts %}
         <section class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <h2 class="text-lg font-bold mb-4">Recent Quiz Results</h2>
+            <h2 class="text-lg font-bold mb-4 text-slate-900">Recent Quiz Results</h2>
             <div class="space-y-2">
                 {% for attempt in quiz_attempts|slice:":5" %}
                 <div class="p-3 rounded-lg bg-slate-50 flex justify-between text-sm">

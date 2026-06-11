@@ -1,33 +1,33 @@
 {% extends "instructor/base.html" %}
-{% block title %}Pending Assignments{% endblock %}
+{% block title %}Assignments{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">Pending Assignment Submissions</h1>
-    <div class="bg-white dark:bg-slate-800 rounded-xl border overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-50 dark:bg-slate-900/50 text-left">
-                <tr>
-                    <th class="px-4 py-3">Student</th>
-                    <th class="px-4 py-3">Assignment</th>
-                    <th class="px-4 py-3">Course</th>
-                    <th class="px-4 py-3">Submitted</th>
-                    <th class="px-4 py-3"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                {% for s in submissions %}
-                <tr>
-                    <td class="px-4 py-3">{{ s.student.get_full_name|default:s.student.username }}</td>
-                    <td class="px-4 py-3">{{ s.assignment.title }}</td>
-                    <td class="px-4 py-3">{{ s.assignment.module.level.name }}</td>
-                    <td class="px-4 py-3 text-slate-500">{{ s.submitted_at|date:"M j, Y" }}</td>
-                    <td class="px-4 py-3"><a href="{% url 'instructor:submission_grade' pk=s.id %}" class="text-primary-600 hover:underline">Grade →</a></td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No pending submissions.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<h1 class="text-2xl font-bold mb-2 text-slate-900">Assignments & Grading</h1>
+<p class="text-sm text-slate-600 mb-6">{{ to_grade.count }} submission(s) awaiting review</p>
+
+{% if to_grade %}
+<section class="portal-form-card p-5 mb-6 shadow-sm">
+    <h2 class="font-bold text-[#1E4D8F] mb-3">To Grade</h2>
+    <div class="space-y-2">
+        {% for sub in to_grade %}
+        <a href="{% url 'instructor:submission_grade' pk=sub.pk %}" class="flex justify-between items-center p-3 rounded-lg border hover:border-[#1E4D8F] text-sm">
+            <span class="text-slate-900"><strong>{{ sub.student.get_full_name|default:sub.student.username }}</strong> — {{ sub.assignment.title }}</span>
+            <span class="text-xs text-slate-500">{{ sub.get_status_display }}</span>
+        </a>
+        {% endfor %}
     </div>
-</div>
+</section>
+{% endif %}
+
+<section class="portal-form-card p-5 mb-6 shadow-sm">
+    <h2 class="font-bold text-[#1E4D8F] mb-3">Recent Submissions</h2>
+    <div class="space-y-2">
+        {% for sub in submissions %}
+        <a href="{% url 'instructor:submission_grade' pk=sub.pk %}" class="flex justify-between items-center p-3 rounded-lg bg-slate-50 border text-sm">
+            <span class="text-slate-900">{{ sub.student.username }} · {{ sub.assignment.title }}</span>
+            <span class="text-xs font-semibold text-slate-600">{{ sub.get_status_display }}</span>
+        </a>
+        {% empty %}<p class="text-slate-500 text-sm">No submissions yet.</p>{% endfor %}
+    </div>
+</section>
+{% include "partials/profile/portal_form_styles.html" %}
 {% endblock %}

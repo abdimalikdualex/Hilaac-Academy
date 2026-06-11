@@ -90,6 +90,9 @@ def register(request):
                 messages.success(request, "Account created! Check your email to verify your account.")
                 return redirect("accounts:verify_notice")
             log_audit(request, "user_register", "User", user.pk, user.email)
+            from apps.notifications.services import notify_admin_new_user
+
+            notify_admin_new_user(user)
             messages.success(request, "Account created! You can log in now.")
             return redirect("accounts:login")
     else:

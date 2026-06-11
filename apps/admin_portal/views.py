@@ -463,15 +463,29 @@ def assignment_list(request):
 @super_admin_required
 def submission_grade(request, pk):
     sub = get_object_or_404(AssignmentSubmission, pk=pk)
+    from apps.assessments.forms import AssignmentGradeForm
+
     if request.method == "POST":
-        sub.grade = Decimal(request.POST.get("grade", 0))
-        sub.feedback = request.POST.get("feedback", "")
-        sub.status = request.POST.get("status", AssignmentSubmission.Status.GRADED)
-        sub.save()
-        log_audit(request, "assignment_grade", "AssignmentSubmission", sub.pk, sub.assignment.title)
-        messages.success(request, "Submission graded.")
-        return redirect("admin_portal:assignment_list")
-    return render(request, "admin_portal/assignments/grade.html", {"submission": sub})
+        form = AssignmentGradeForm(request.POST, max_score=sub.assignment.max_score)
+        if form.is_valid():
+            sub.grade = form.cleaned_data["grade"]
+            sub.feedback = form.cleaned_data["feedback"]
+            sub.status = form.cleaned_data["status"]
+            sub.graded_at = timezone.now()
+            sub.save()
+            log_audit(request, "assignment_grade", "AssignmentSubmission", sub.pk, sub.assignment.title)
+            messages.success(request, "Submission graded.")
+            return redirect("admin_portal:assignment_list")
+    else:
+        form = AssignmentGradeForm(
+            max_score=sub.assignment.max_score,
+            initial={"grade": sub.grade, "feedback": sub.feedback, "status": sub.status},
+        )
+    return render(
+        request,
+        "admin_portal/assignments/grade.html",
+        {"submission": sub, "form": form, "max_score": sub.assignment.max_score},
+    )
 
 
 # --- Library ---
@@ -806,57 +820,21 @@ def exchange_rates(request):
 
 @super_admin_required
 def admin_profile(request):
-    from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
-
-    from apps.accounts.profile_views import handle_profile_update
-
-    result = handle_profile_update(request, "admin_portal:profile")
-    if isinstance(result, (HttpResponseRedirect, HttpResponsePermanentRedirect)):
-        return result
-    return render(request, "admin_portal/profile.html", result)
+    return redirect("admin_portal:profile_settings")
 
 
 @super_admin_required
 def admin_profile_settings(request):
-    from apps.accounts.forms import AccountSettingsForm, NotificationPreferencesForm
-    from apps.accounts.profile_helpers import profile_stats_for_user, security_logs_for_user
-
-    user = request.user
-    account_form = AccountSettingsForm(instance=user)
-    notification_form = NotificationPreferencesForm(instance=user)
+    from apps.accounts.settings_handlers import handle_unified_settings_post, unified_settings_context
+    from apps.accounts.profile_helpers import security_logs_for_user
 
     if request.method == "POST":
-        form_type = request.POST.get("form_type")
-        if form_type == "notifications":
-            notification_form = NotificationPreferencesForm(request.POST, instance=user)
-            if notification_form.is_valid():
-                notification_form.save()
-                log_audit(request, "profile_notifications_update", "User", user.pk)
-                messages.success(request, "Notification preferences saved.")
-                return redirect("admin_portal:profile_settings")
-        elif form_type == "account":
-            account_form = AccountSettingsForm(request.POST, instance=user)
-            if account_form.is_valid():
-                old_email = user.email
-                account_form.save()
-                if old_email != user.email:
-                    log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
-                else:
-                    log_audit(request, "profile_account_update", "User", user.pk)
-                messages.success(request, "Account settings saved.")
-                return redirect("admin_portal:profile_settings")
-
-    return render(
-        request,
-        "admin_portal/profile_settings.html",
-        {
-            "account_form": account_form,
-            "notification_form": notification_form,
-            "password_form": HilaacPasswordChangeForm(user=user),
-            "profile_stats": profile_stats_for_user(user),
-            "security_logs": security_logs_for_user(user),
-        },
-    )
+        result = handle_unified_settings_post(request, "admin_portal:profile_settings")
+        if result:
+            return result
+    ctx = unified_settings_context(request)
+    ctx["security_logs"] = security_logs_for_user(request.user)
+    return render(request, "admin_portal/profile_settings.html", ctx)
 
 
 class AdminPasswordChangeView(PasswordChangeView):
@@ -873,6 +851,9 @@ class AdminPasswordChangeView(PasswordChangeView):
 
     def form_valid(self, form):
         log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
+        from apps.notifications.services import notify_password_changed
+
+        notify_password_changed(self.request.user)
         messages.success(self.request, "Password changed successfully.")
         return super().form_valid(form)
 
@@ -896,12 +877,99 @@ def settings_view(request):
 
 
 @super_admin_required
+def user_management(request):
+    from apps.core.pagination import ADMIN_PAGE_SIZE, paginate_queryset
+
+    q = request.GET.get("q", "").strip()
+    role = request.GET.get("role", "")
+    status = request.GET.get("status", "")
+
+    users = User.objects.all().order_by("-date_joined")
+    if q:
+        users = users.filter(
+            Q(username__icontains=q)
+            | Q(email__icontains=q)
+            | Q(first_name__icontains=q)
+            | Q(last_name__icontains=q)
+        )
+    if role == "student":
+        users = users.filter(role=User.Role.STUDENT)
+    elif role == "instructor":
+        users = users.filter(role=User.Role.INSTRUCTOR)
+    elif role == "admin":
+        users = users.filter(role=User.Role.SUPER_ADMIN)
+    if status == "active":
+        users = users.filter(is_active=True)
+    elif status == "inactive":
+        users = users.filter(is_active=False)
+
+    page = paginate_queryset(request, users, per_page=ADMIN_PAGE_SIZE)
+    stats = {
+        "total": User.objects.count(),
+        "students": User.objects.filter(role=User.Role.STUDENT).count(),
+        "instructors": User.objects.filter(role=User.Role.INSTRUCTOR).count(),
+        "admins": User.objects.filter(role=User.Role.SUPER_ADMIN).count(),
+    }
+    return render(
+        request,
+        "admin_portal/users/list.html",
+        {"users": page, "page": page, "q": q, "role": role, "status": status, "stats": stats},
+    )
+
+
+@super_admin_required
+def user_toggle_active(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    user.is_active = not user.is_active
+    user.save(update_fields=["is_active"])
+    state = "activated" if user.is_active else "deactivated"
+    log_audit(request, "user_toggle_active", "User", user.pk, state)
+    messages.success(request, f"User {state}.")
+    return redirect("admin_portal:user_management")
+
+
+@super_admin_required
 def notification_list(request):
     from apps.core.pagination import NOTIFICATION_PAGE_SIZE, paginate_queryset
 
-    notifications = Notification.objects.select_related("user").order_by("-created_at")
+    notifications = Notification.objects.select_related("user", "created_by").order_by("-created_at")
     page = paginate_queryset(request, notifications, per_page=NOTIFICATION_PAGE_SIZE)
     return render(request, "admin_portal/notifications/list.html", {"notifications": page, "page": page})
+
+
+@super_admin_required
+def notification_send(request):
+    from apps.notifications.forms import AdminSendNotificationForm
+    from apps.notifications.services import send_bulk_notification
+
+    if request.method == "POST":
+        form = AdminSendNotificationForm(request.POST)
+        if form.is_valid():
+            audience = form.cleaned_data["audience"]
+            if audience == AdminSendNotificationForm.AUDIENCE_ALL:
+                recipients = User.objects.filter(is_active=True)
+            elif audience == AdminSendNotificationForm.AUDIENCE_STUDENTS:
+                recipients = User.objects.filter(role=User.Role.STUDENT, is_active=True)
+            elif audience == AdminSendNotificationForm.AUDIENCE_INSTRUCTORS:
+                recipients = User.objects.filter(role=User.Role.INSTRUCTOR, is_active=True)
+            else:
+                recipients = form.cleaned_data["users"]
+            count = len(
+                send_bulk_notification(
+                    recipients,
+                    form.cleaned_data["title"],
+                    form.cleaned_data["message"],
+                    severity=form.cleaned_data["severity"],
+                    link=form.cleaned_data.get("link") or "",
+                    created_by=request.user,
+                )
+            )
+            log_audit(request, "notification_send", "Notification", 0, f"{count} recipients")
+            messages.success(request, f"Notification sent to {count} user(s).")
+            return redirect("admin_portal:notification_list")
+    else:
+        form = AdminSendNotificationForm()
+    return render(request, "admin_portal/notifications/send.html", {"form": form, "title": "Send Notification"})
 
 
 # --- Delete (super admin can remove anything) ---

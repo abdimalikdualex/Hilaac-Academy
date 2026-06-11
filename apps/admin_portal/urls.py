@@ -11,6 +11,8 @@ urlpatterns = [
     path("profile/settings/", views.admin_profile_settings, name="profile_settings"),
     path("profile/security/", views.admin_profile_security, name="profile_security"),
     # Students
+    path("users/", views.user_management, name="user_management"),
+    path("users/<int:pk>/toggle/", views.user_toggle_active, name="user_toggle"),
     path("students/", views.student_list, name="student_list"),
     path("students/add/", views.student_create, name="student_create"),
     path("students/<int:pk>/", views.student_detail, name="student_detail"),
@@ -77,6 +79,7 @@ urlpatterns = [
     path("partner-schools/<int:pk>/toggle/", views.partner_school_toggle, name="partner_school_toggle"),
     path("partner-schools/<int:pk>/delete/", views.partner_school_delete, name="partner_school_delete"),
     path("notifications/", views.notification_list, name="notification_list"),
+    path("notifications/send/", views.notification_send, name="notification_send"),
     path("settings/", views.settings_view, name="settings"),
     path("recycle-bin/", recycle_bin.recycle_bin_list, name="recycle_bin"),
     path("recycle-bin/<str:model_type>/<int:pk>/restore/", recycle_bin.recycle_bin_restore, name="recycle_bin_restore"),

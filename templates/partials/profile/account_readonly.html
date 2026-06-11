@@ -1,11 +1,13 @@
-<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+<div class="portal-form-card p-6 shadow-sm">
     <h2 class="font-bold text-lg mb-4 text-[#1E4D8F]">Account Information</h2>
+    <p class="text-sm text-slate-600 mb-4">These details identify your account. Username and role cannot be changed here.</p>
     <dl class="grid sm:grid-cols-2 gap-4 text-sm">
-        <div><dt class="text-slate-500">Username</dt><dd class="font-medium">{{ user.username }}</dd></div>
-        <div><dt class="text-slate-500">Email</dt><dd class="font-medium">{{ user.email }}</dd></div>
-        <div><dt class="text-slate-500">Role</dt><dd class="font-medium">{{ user.get_role_display }}</dd></div>
-        <div><dt class="text-slate-500">Status</dt><dd class="font-medium">{% if user.is_active %}Active{% else %}Deactivated{% endif %}</dd></div>
-        <div><dt class="text-slate-500">Joined</dt><dd class="font-medium">{{ user.date_joined|date:"M j, Y" }}</dd></div>
-        <div><dt class="text-slate-500">Last Login</dt><dd class="font-medium">{{ user.last_login|date:"M j, Y H:i"|default:"—" }}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">Username</dt><dd class="font-semibold text-slate-900">{{ user.username }}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">User ID</dt><dd class="font-semibold text-slate-900">#{{ user.pk }}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">Email</dt><dd class="font-semibold text-slate-900">{{ user.email|default:"—" }}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">Role</dt><dd class="font-semibold text-slate-900">{{ user.get_role_display }}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">Status</dt><dd class="font-semibold {% if user.is_active %}text-green-700{% else %}text-red-600{% endif %}">{% if user.is_active %}Active{% else %}Inactive{% endif %}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">Date Joined</dt><dd class="font-semibold text-slate-900">{{ user.date_joined|date:"M j, Y" }}</dd></div>
+        <div><dt class="text-slate-500 mb-0.5">Last Login</dt><dd class="font-semibold text-slate-900">{{ user.last_login|date:"M j, Y H:i"|default:"—" }}</dd></div>
     </dl>
 </div>

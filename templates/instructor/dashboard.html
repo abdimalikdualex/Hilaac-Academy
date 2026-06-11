@@ -16,7 +16,8 @@
     <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "clipboard-list" size=18 class_name="text-amber-500" %}<div class="text-2xl font-bold text-amber-600">{{ pending_submission_count }}</div></div><div class="text-xs text-slate-500">Pending Submissions</div></div>
     <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "video" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ lesson_views }}</div></div><div class="text-xs text-slate-500">Lesson Views</div></div>
     <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "trending-up" size=18 class_name="text-green-500" %}<div class="text-2xl font-bold text-green-600">{{ completion_rate }}%</div></div><div class="text-xs text-slate-500">Completion Rate</div></div>
-    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "bar-chart" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ recent_enrollments|length }}</div></div><div class="text-xs text-slate-500">Recent Enrollments</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "bar-chart" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ quiz_stats.pass_rate }}%</div></div><div class="text-xs text-slate-500">Quiz Pass Rate</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="flex items-center justify-between mb-2">{% ha_icon "clipboard-list" size=18 class_name="text-primary-400" %}<div class="text-2xl font-bold text-primary-700">{{ total_assignments }}</div></div><div class="text-xs text-slate-500">Assignments</div></div>
 </div>
 
 <div class="grid lg:grid-cols-3 gap-6">

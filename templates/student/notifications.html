@@ -2,15 +2,6 @@
 {% block title %}Notifications{% endblock %}
 {% block content %}
 <h1 class="text-2xl font-bold mb-6">Notifications</h1>
-<div class="space-y-3">
-    {% for n in notifications %}
-    <a href="{% if n.link %}{{ n.link }}{% else %}#{% endif %}" class="block p-4 rounded-xl bg-white border {% if not n.is_read %}border-l-4 border-l-primary-500 shadow-sm{% else %}border-slate-200{% endif %} hover:border-primary-300 transition">
-        <div class="text-sm">{{ n.message }}</div>
-        <div class="text-xs text-slate-500 mt-1">{{ n.created_at|timesince }} ago</div>
-    </a>
-    {% empty %}
-    {% load ha_icons %}{% empty_state "notifications" "No notifications yet" "When you receive updates about courses, payments, or assignments, they will appear here." %}
-    {% endfor %}
-</div>
+{% include "partials/notifications/list_items.html" %}
 {% include "partials/pagination.html" %}
 {% endblock %}

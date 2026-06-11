@@ -10,31 +10,11 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 
-from apps.assessments.models import Quiz, QuizAttempt
+from apps.assessments.services import course_completion_ready
 from apps.courses.models import Enrollment
-from apps.learning.models import LessonProgress
 from apps.notifications.services import notify_certificate_ready
 
 from .models import Certificate
-
-
-def _all_lessons_completed(student, level):
-    total = level.total_lessons
-    if total == 0:
-        return False
-    completed = LessonProgress.objects.filter(
-        student=student,
-        lesson__module__level=level,
-        is_completed=True,
-    ).count()
-    return completed >= total
-
-
-def _final_assessment_passed(student, level):
-    final_quiz = Quiz.objects.filter(level=level, is_final=True).first()
-    if not final_quiz:
-        return True
-    return QuizAttempt.objects.filter(student=student, quiz=final_quiz, passed=True).exists()
 
 
 def generate_certificate_id(level):
@@ -123,10 +103,7 @@ def maybe_issue_certificate(student, level):
     if Certificate.objects.filter(student=student, level=level).exists():
         return None
 
-    if not _all_lessons_completed(student, level):
-        return None
-
-    if not _final_assessment_passed(student, level):
+    if not course_completion_ready(student, level):
         return None
 
     certificate = Certificate.objects.create(

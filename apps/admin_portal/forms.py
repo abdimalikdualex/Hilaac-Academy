@@ -253,6 +253,27 @@ class PlatformIntroductionVideoForm(forms.ModelForm):
     def clean_thumbnail(self):
         return validate_image_upload(self.cleaned_data.get("thumbnail"))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not (self.instance and self.instance.pk):
+            self.fields["video_file"].required = True
+            self.fields["thumbnail"].required = True
+        else:
+            self.fields["video_file"].required = False
+            self.fields["thumbnail"].required = False
+
+    def clean_video_file(self):
+        uploaded = self.cleaned_data.get("video_file")
+        if not uploaded:
+            return uploaded
+        name = uploaded.name.lower()
+        if not name.endswith((".mp4", ".webm")):
+            raise forms.ValidationError("Only MP4 and WebM videos are allowed.")
+        max_bytes = 500 * 1024 * 1024
+        if uploaded.size > max_bytes:
+            raise forms.ValidationError("Video must be 500 MB or smaller.")
+        return uploaded
+
 
 class ExchangeRateForm(forms.ModelForm):
     class Meta:
