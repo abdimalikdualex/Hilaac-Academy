@@ -1,5 +1,3 @@
-{% include "partials/profile/header.html" with title="Settings" subtitle="Manage your personal information, account details, and password." %}
-
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="grid lg:grid-cols-3 gap-6">
@@ -8,8 +6,8 @@
             {% if profile_stats %}{% include "partials/profile/stats_panel.html" %}{% endif %}
         </div>
         <div class="lg:col-span-2 space-y-6">
-            <section class="portal-form-card p-6 shadow-sm space-y-4">
-                <h2 class="font-bold text-lg text-[#1E4D8F]">Personal Information</h2>
+            <section class="settings-card p-6 space-y-4">
+                <h2 class="font-bold text-lg text-[#0B1736]">Personal Information</h2>
                 {% for field in form %}
                 {% if field.name != "profile_photo" %}
                 <div>
@@ -28,10 +26,5 @@
         </div>
     </div>
 </form>
-
-<div class="mt-6 max-w-3xl lg:ml-[calc(25%+1.5rem)]">
-    {% url password_change_url_name as password_action %}
-    {% include "partials/profile/password_change_form.html" with form=password_form password_action=password_action %}
-</div>
 
 {% include "partials/profile/portal_form_styles.html" %}

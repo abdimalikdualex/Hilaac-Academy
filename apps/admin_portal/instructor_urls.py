@@ -40,4 +40,5 @@ urlpatterns = [
     path("profile/", v.instructor_profile, name="profile"),
     path("settings/", v.instructor_settings, name="settings"),
     path("settings/password/", v.InstructorPasswordChangeView.as_view(), name="password_change"),
+    path("settings/preferences/", v.instructor_preferences, name="preferences"),
 ]

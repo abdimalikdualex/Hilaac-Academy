@@ -1,9 +1,17 @@
 {% extends "admin_portal/base.html" %}
 {% block title %}Settings{% endblock %}
 {% block content %}
-{% include "partials/settings/unified_page.html" with password_change_url_name="admin_portal:profile_security" %}
+<div class="settings-shell -mx-4 sm:mx-0">
+    <div class="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
+        {% include "partials/settings/nav.html" with settings_url_name="admin_portal:profile_settings" password_url_name="admin_portal:password_change" notifications_url_name="admin_portal:my_notifications" preferences_url_name="admin_portal:preferences" settings_section=settings_section|default:"personal" %}
+        <div class="flex-1 min-w-0">
+            {% include "partials/settings/personal_info.html" %}
+        </div>
+    </div>
+</div>
+{% include "partials/settings/styles.html" %}
 {% if security_logs %}
-<div class="mt-6 portal-form-card p-6 shadow-sm max-w-3xl lg:ml-[calc(25%+1.5rem)]">
+<div class="mt-6 max-w-3xl mx-auto settings-card p-6 shadow-sm">
     <h2 class="font-bold mb-3 text-[#1E4D8F]">Security Logs</h2>
     {% for log in security_logs %}
     <div class="text-sm py-2 border-b text-slate-700">{{ log.action }} · {{ log.ip_address|default:"—" }} · {{ log.created_at|date:"M j, H:i" }}</div>

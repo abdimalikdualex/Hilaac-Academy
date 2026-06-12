@@ -1,0 +1,46 @@
+<style>
+.settings-shell {
+    background: #F5F7FA;
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+@media (min-width: 768px) {
+    .settings-shell { padding: 1.5rem; }
+}
+.settings-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #0B1736;
+    transition: background 0.15s, color 0.15s;
+}
+.settings-nav-link:hover {
+    background: #F5F7FA;
+    color: #1E4D8F;
+}
+.settings-nav-link.active {
+    background: #1E4D8F;
+    color: #fff;
+}
+.settings-nav-link.active svg { opacity: 1; }
+.settings-card {
+    background: #fff;
+    color: #0B1736;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(11, 23, 54, 0.06);
+}
+.settings-card h1, .settings-card h2 {
+    color: #0B1736;
+}
+.settings-card p, .settings-card label {
+    color: #0B1736;
+}
+.settings-card .text-muted {
+    color: #64748b;
+}
+</style>

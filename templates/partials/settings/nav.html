@@ -1,0 +1,22 @@
+{% load ha_icons %}
+<nav class="settings-nav w-full lg:w-56 shrink-0" aria-label="Settings">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 px-3">Settings</p>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-2 space-y-1">
+        <a href="{% url settings_url_name %}"
+           class="settings-nav-link {% if settings_section == 'personal' %}active{% endif %}">
+            {% ha_icon "user" size=18 class_name="opacity-80" %} Personal Information
+        </a>
+        <a href="{% url password_url_name %}"
+           class="settings-nav-link {% if settings_section == 'password' %}active{% endif %}">
+            {% ha_icon "lock" size=18 class_name="opacity-80" %} Change Password
+        </a>
+        <a href="{% url notifications_url_name %}"
+           class="settings-nav-link {% if settings_section == 'notifications' %}active{% endif %}">
+            {% ha_icon "bell" size=18 class_name="opacity-80" %} Notifications
+        </a>
+        <a href="{% url preferences_url_name %}"
+           class="settings-nav-link {% if settings_section == 'preferences' %}active{% endif %}">
+            {% ha_icon "clipboard-list" size=18 class_name="opacity-80" %} Preferences
+        </a>
+    </div>
+</nav>

@@ -8,19 +8,67 @@ from .models import User
 
 PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 PASSWORD_INPUT_CLASS = (
-    "w-full px-4 py-2 rounded-lg border border-slate-300 outline-none "
-    "focus:ring-2 focus:ring-[#1E4D8F] text-slate-900"
+    "password-field-input w-full px-4 py-3 pr-12 rounded-lg border border-slate-300 outline-none "
+    "focus:ring-2 focus:ring-[#1E4D8F] text-[#0B1736] bg-white text-base"
 )
 
 
 class HilaacPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
+        field_config = {
+            "old_password": {
+                "label": "Current Password",
+                "placeholder": "Enter your current password",
+            },
+            "new_password1": {
+                "label": "New Password",
+                "placeholder": "Create a new password",
+            },
+            "new_password2": {
+                "label": "Confirm New Password",
+                "placeholder": "Confirm your new password",
+            },
+        }
+        for name, config in field_config.items():
+            field = self.fields[name]
+            field.label = config["label"]
             field.widget.attrs.setdefault("class", PASSWORD_INPUT_CLASS)
-        self.fields["new_password1"].help_text = (
-            "At least 8 characters with uppercase, lowercase, a number, and a special character."
-        )
+            field.widget.attrs.setdefault("placeholder", config["placeholder"])
+            field.widget.attrs.setdefault("autocomplete", "off")
+        self.fields["new_password1"].help_text = ""
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get("old_password")
+        if old_password and not self.user.check_password(old_password):
+            raise forms.ValidationError("Current password is incorrect.")
+        return old_password
+
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get("new_password1")
+        password2 = self.cleaned_data.get("new_password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords do not match.")
+        return super().clean_new_password2()
+
+    def clean_new_password1(self):
+        password = self.cleaned_data.get("new_password1")
+        if not password:
+            return password
+        errors = []
+        if len(password) < 8:
+            errors.append("Password does not meet requirements.")
+        if not any(c.isupper() for c in password):
+            errors.append("Password does not meet requirements.")
+        if not any(c.islower() for c in password):
+            errors.append("Password does not meet requirements.")
+        if not any(c.isdigit() for c in password):
+            errors.append("Password does not meet requirements.")
+        if not any(not c.isalnum() for c in password):
+            errors.append("Password does not meet requirements.")
+        if errors:
+            raise forms.ValidationError(errors[0])
+        return super().clean_new_password1()
 
 
 class HilaacAuthenticationForm(AuthenticationForm):

@@ -18,4 +18,5 @@ urlpatterns = [
     path("profile/", v.profile, name="profile"),
     path("settings/", v.settings, name="settings"),
     path("settings/password/", v.StudentPortalPasswordChangeView.as_view(), name="password_change"),
+    path("settings/preferences/", v.preferences, name="preferences"),
 ]

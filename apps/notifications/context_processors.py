@@ -7,7 +7,7 @@ def _notifications_url(user):
     if not user.is_authenticated:
         return reverse("notifications:list")
     if user.is_super_admin:
-        return reverse("admin_portal:notification_list")
+        return reverse("admin_portal:my_notifications")
     if user.is_instructor:
         return reverse("instructor:notifications")
     return reverse("student:notifications")

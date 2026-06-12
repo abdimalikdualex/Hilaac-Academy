@@ -1,9 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+
+from apps.accounts.password_views import PortalPasswordChangeView
 
 from apps.assessments.models import Assignment, AssignmentSubmission, Quiz, QuizAttempt
 from apps.certificates.models import Certificate
@@ -146,9 +147,9 @@ def profile(request):
     return redirect("student:settings")
 
 
-class StudentPortalPasswordChangeView(PasswordChangeView):
+class StudentPortalPasswordChangeView(PortalPasswordChangeView):
     template_name = "student/password_change.html"
-    success_url = reverse_lazy("student:settings")
+    success_url = reverse_lazy("student:password_change")
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_student:
@@ -162,13 +163,16 @@ class StudentPortalPasswordChangeView(PasswordChangeView):
             return redirect("accounts:verify_notice")
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
-        from apps.notifications.services import notify_password_changed
 
-        notify_password_changed(self.request.user)
-        messages.success(self.request, "Password changed successfully.")
-        return super().form_valid(form)
+@student_required
+def preferences(request):
+    from .settings_handlers import handle_preferences_post, preferences_context
+
+    if request.method == "POST":
+        result = handle_preferences_post(request, "student:preferences")
+        if result:
+            return result
+    return render(request, "student/preferences.html", preferences_context(request))
 
 
 @student_required

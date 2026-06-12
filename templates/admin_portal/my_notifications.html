@@ -1,9 +1,9 @@
-{% extends "student/base.html" %}
+{% extends "admin_portal/base.html" %}
 {% block title %}Notifications{% endblock %}
 {% block content %}
 <div class="settings-shell -mx-4 sm:mx-0">
     <div class="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
-        {% include "partials/settings/nav.html" with settings_url_name="student:settings" password_url_name="student:password_change" notifications_url_name="student:notifications" preferences_url_name="student:preferences" settings_section="notifications" %}
+        {% include "partials/settings/nav.html" with settings_url_name="admin_portal:profile_settings" password_url_name="admin_portal:password_change" notifications_url_name="admin_portal:my_notifications" preferences_url_name="admin_portal:preferences" settings_section="notifications" %}
         <div class="flex-1 min-w-0">
             <div class="settings-card p-6 md:p-8">
                 <h1 class="text-xl md:text-2xl font-bold text-[#0B1736] mb-6">Notifications</h1>

@@ -1,11 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from decimal import Decimal
 
-from apps.accounts.forms import HilaacPasswordChangeForm
+from apps.accounts.password_views import PortalPasswordChangeView
 from apps.assessments.forms import AssignmentGradeForm
 from apps.assessments.models import AssignmentSubmission, Quiz
 from apps.core.dashboard_helpers import instructor_dashboard_context
@@ -120,10 +119,9 @@ def instructor_settings(request):
     return render(request, "instructor/settings.html", unified_settings_context(request))
 
 
-class InstructorPasswordChangeView(PasswordChangeView):
-    form_class = HilaacPasswordChangeForm
+class InstructorPasswordChangeView(PortalPasswordChangeView):
     template_name = "instructor/password_change.html"
-    success_url = reverse_lazy("instructor:settings")
+    success_url = reverse_lazy("instructor:password_change")
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_instructor:
@@ -131,15 +129,16 @@ class InstructorPasswordChangeView(PasswordChangeView):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        from apps.core.utils import log_audit
 
-        log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
-        from apps.notifications.services import notify_password_changed
+@instructor_required
+def instructor_preferences(request):
+    from apps.accounts.settings_handlers import handle_preferences_post, preferences_context
 
-        notify_password_changed(self.request.user)
-        messages.success(self.request, "Password changed successfully.")
-        return super().form_valid(form)
+    if request.method == "POST":
+        result = handle_preferences_post(request, "instructor:preferences")
+        if result:
+            return result
+    return render(request, "instructor/preferences.html", preferences_context(request))
 
 
 # --- Course CRUD (own courses) ---

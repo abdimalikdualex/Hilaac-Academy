@@ -3,7 +3,6 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import get_object_or_404, redirect, render
@@ -22,7 +21,7 @@ from apps.cms.models import (
     SiteStatistic,
     Testimonial,
 )
-from apps.accounts.forms import HilaacPasswordChangeForm
+from apps.accounts.password_views import PortalPasswordChangeView
 from apps.core.models import AuditLog, SiteSettings
 from apps.core.utils import log_audit
 from apps.courses.models import Enrollment, Language, Lesson, Level, Module
@@ -837,10 +836,9 @@ def admin_profile_settings(request):
     return render(request, "admin_portal/profile_settings.html", ctx)
 
 
-class AdminPasswordChangeView(PasswordChangeView):
-    form_class = HilaacPasswordChangeForm
-    template_name = "admin_portal/profile_security.html"
-    success_url = reverse_lazy("admin_portal:profile_settings")
+class AdminPasswordChangeView(PortalPasswordChangeView):
+    template_name = "admin_portal/password_change.html"
+    success_url = reverse_lazy("admin_portal:password_change")
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_super_admin:
@@ -849,16 +847,40 @@ class AdminPasswordChangeView(PasswordChangeView):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        log_audit(self.request, "profile_password_change", "User", self.request.user.pk)
-        from apps.notifications.services import notify_password_changed
 
-        notify_password_changed(self.request.user)
-        messages.success(self.request, "Password changed successfully.")
-        return super().form_valid(form)
+admin_password_change = super_admin_required(AdminPasswordChangeView.as_view())
 
 
-admin_profile_security = super_admin_required(AdminPasswordChangeView.as_view())
+@super_admin_required
+def admin_preferences(request):
+    from apps.accounts.settings_handlers import handle_preferences_post, preferences_context
+
+    if request.method == "POST":
+        result = handle_preferences_post(request, "admin_portal:preferences")
+        if result:
+            return result
+    ctx = preferences_context(request)
+    return render(request, "admin_portal/preferences.html", ctx)
+
+
+@super_admin_required
+def my_notifications(request):
+    from apps.core.pagination import NOTIFICATION_PAGE_SIZE, paginate_queryset
+
+    notes = Notification.objects.filter(user=request.user).order_by("-created_at")
+    page = paginate_queryset(request, notes, per_page=NOTIFICATION_PAGE_SIZE)
+    return render(
+        request,
+        "admin_portal/my_notifications.html",
+        {"notifications": page, "page": page, "settings_section": "notifications"},
+    )
+
+
+def admin_profile_security_redirect(request):
+    return redirect("admin_portal:password_change")
+
+
+admin_profile_security = super_admin_required(admin_profile_security_redirect)
 
 
 @super_admin_required
