@@ -148,52 +148,44 @@ def profile(request):
 
 
 class StudentPortalPasswordChangeView(PortalPasswordChangeView):
-    template_name = "student/password_change.html"
-    success_url = reverse_lazy("student:password_change")
+    def get(self, request, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.is_student:
-            from django.core.exceptions import PermissionDenied
-
-            raise PermissionDenied
-        from django.conf import settings
-
-        if settings.REQUIRE_EMAIL_VERIFICATION and not request.user.is_verified:
-            messages.warning(request, "Please verify your email before changing your password.")
-            return redirect("accounts:verify_notice")
-        return super().dispatch(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse("student:settings") + "#change-password")
 
 
 @student_required
 def account_info(request):
-    from .settings_handlers import account_info_context
-
-    return render(request, "student/account_info.html", account_info_context(request))
+    return redirect("student:settings")
 
 
 @student_required
 def preferences(request):
-    from .settings_handlers import handle_preferences_post, preferences_context
-
-    if request.method == "POST":
-        result = handle_preferences_post(request, "student:preferences")
-        if result:
-            return result
-    return render(request, "student/preferences.html", preferences_context(request))
-
-
-@student_required
-def wishlist(request):
-    items = Wishlist.objects.filter(student=request.user).select_related("level", "level__language")
-    return render(request, "student/wishlist.html", {"items": items})
+    return redirect("student:settings")
 
 
 @student_required
 def settings(request):
     from .settings_handlers import handle_unified_settings_post, unified_settings_context
 
+    password_form = None
+    profile_form = None
     if request.method == "POST":
         result = handle_unified_settings_post(request, "student:settings")
-        if result:
-            return result
-    return render(request, "student/settings.html", unified_settings_context(request))
+        if result is not None:
+            if hasattr(result, "url"):
+                return result
+            if isinstance(result, dict):
+                password_form = result.get("password_form")
+                profile_form = result.get("form")
+    ctx = unified_settings_context(request, password_form=password_form)
+    if profile_form is not None:
+        ctx["form"] = profile_form
+    return render(request, "student/settings.html", ctx)
+
+
+@student_required
+def wishlist(request):
+    items = Wishlist.objects.filter(student=request.user).select_related("level", "level__language")
+    return render(request, "student/wishlist.html", {"items": items})

@@ -55,11 +55,6 @@
         <header class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-6 min-w-0">
                 <span class="text-sm font-semibold text-slate-600 shrink-0">Super Admin Portal</span>
-                <nav class="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600">
-                    <a href="{% url 'admin_portal:profile' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'profile' %}text-[#1E4D8F]{% endif %}">Profile</a>
-                    <a href="{% url 'admin_portal:profile_settings' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'profile_settings' or request.resolver_match.url_name == 'password_change' or request.resolver_match.url_name == 'profile_security' or request.resolver_match.url_name == 'preferences' or request.resolver_match.url_name == 'my_notifications' or request.resolver_match.url_name == 'account_info' %}text-[#1E4D8F]{% endif %}">Settings</a>
-                    <a href="{% url 'admin_portal:notification_list' %}" class="hover:text-[#1E4D8F] {% if request.resolver_match.url_name == 'notification_list' %}text-[#1E4D8F]{% endif %}">Notifications</a>
-                </nav>
             </div>
             <div class="flex items-center gap-2">
                 {% include "partials/notification_bell.html" %}

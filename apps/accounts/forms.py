@@ -179,6 +179,37 @@ class AdminProfileForm(BaseProfileForm):
     """Super Admin personal profile — no instructor-only fields."""
 
 
+SETTINGS_INPUT_CLASS = (
+    "w-full px-4 py-3 rounded-lg border border-slate-300 bg-white text-[#0B1736] "
+    "placeholder:text-slate-400 focus:ring-2 focus:ring-[#1E4D8F] outline-none"
+)
+
+
+class SettingsProfileForm(forms.ModelForm):
+    """Simplified settings profile — photo, name, phone only."""
+
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "phone", "profile_photo")
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": SETTINGS_INPUT_CLASS, "placeholder": "First name"}),
+            "last_name": forms.TextInput(attrs={"class": SETTINGS_INPUT_CLASS, "placeholder": "Last name"}),
+            "phone": forms.TextInput(attrs={"class": SETTINGS_INPUT_CLASS, "placeholder": "Phone number"}),
+        }
+
+    def clean_profile_photo(self):
+        return _validate_profile_photo(self.cleaned_data.get("profile_photo"))
+
+
+class InstructorSettingsProfileForm(SettingsProfileForm):
+    class Meta(SettingsProfileForm.Meta):
+        fields = SettingsProfileForm.Meta.fields + ("bio",)
+        widgets = {
+            **SettingsProfileForm.Meta.widgets,
+            "bio": forms.Textarea(attrs={"class": SETTINGS_INPUT_CLASS, "rows": 3, "placeholder": "Short bio"}),
+        }
+
+
 class AccountSettingsForm(forms.ModelForm):
     class Meta:
         model = User

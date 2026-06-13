@@ -112,40 +112,38 @@ def instructor_profile(request):
 def instructor_settings(request):
     from apps.accounts.settings_handlers import handle_unified_settings_post, unified_settings_context
 
+    password_form = None
+    profile_form = None
     if request.method == "POST":
         result = handle_unified_settings_post(request, "instructor:settings")
-        if result:
-            return result
-    return render(request, "instructor/settings.html", unified_settings_context(request))
+        if result is not None:
+            if hasattr(result, "url"):
+                return result
+            if isinstance(result, dict):
+                password_form = result.get("password_form")
+                profile_form = result.get("form")
+    ctx = unified_settings_context(request, password_form=password_form)
+    if profile_form is not None:
+        ctx["form"] = profile_form
+    return render(request, "instructor/settings.html", ctx)
 
 
 class InstructorPasswordChangeView(PortalPasswordChangeView):
-    template_name = "instructor/password_change.html"
-    success_url = reverse_lazy("instructor:password_change")
+    def get(self, request, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.is_instructor:
-            from django.core.exceptions import PermissionDenied
-            raise PermissionDenied
-        return super().dispatch(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse("instructor:settings") + "#change-password")
 
 
 @instructor_required
 def instructor_account_info(request):
-    from apps.accounts.settings_handlers import account_info_context
-
-    return render(request, "instructor/account_info.html", account_info_context(request))
+    return redirect("instructor:settings")
 
 
 @instructor_required
 def instructor_preferences(request):
-    from apps.accounts.settings_handlers import handle_preferences_post, preferences_context
-
-    if request.method == "POST":
-        result = handle_preferences_post(request, "instructor:preferences")
-        if result:
-            return result
-    return render(request, "instructor/preferences.html", preferences_context(request))
+    return redirect("instructor:settings")
 
 
 # --- Course CRUD (own courses) ---

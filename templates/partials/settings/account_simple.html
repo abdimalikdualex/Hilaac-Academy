@@ -1,0 +1,20 @@
+<div class="settings-simple-account">
+    <dl class="grid sm:grid-cols-2 gap-5 text-sm">
+        <div>
+            <dt class="text-[#64748B] mb-1">Username</dt>
+            <dd class="font-semibold text-[#0B1736]">{{ user.username }}</dd>
+        </div>
+        <div>
+            <dt class="text-[#64748B] mb-1">Email</dt>
+            <dd class="font-semibold text-[#0B1736]">{{ user.email|default:"—" }}</dd>
+        </div>
+        <div>
+            <dt class="text-[#64748B] mb-1">Account Role</dt>
+            <dd class="font-semibold text-[#0B1736]">{{ user.get_role_display }}</dd>
+        </div>
+        <div>
+            <dt class="text-[#64748B] mb-1">Date Joined</dt>
+            <dd class="font-semibold text-[#0B1736]">{{ user.date_joined|date:"M j, Y" }}</dd>
+        </div>
+    </dl>
+</div>

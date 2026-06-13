@@ -825,27 +825,29 @@ def admin_profile(request):
 @super_admin_required
 def admin_profile_settings(request):
     from apps.accounts.settings_handlers import handle_unified_settings_post, unified_settings_context
-    from apps.accounts.profile_helpers import security_logs_for_user
 
+    password_form = None
+    profile_form = None
     if request.method == "POST":
         result = handle_unified_settings_post(request, "admin_portal:profile_settings")
-        if result:
-            return result
-    ctx = unified_settings_context(request)
-    ctx["security_logs"] = security_logs_for_user(request.user)
+        if result is not None:
+            if hasattr(result, "url"):
+                return result
+            if isinstance(result, dict):
+                password_form = result.get("password_form")
+                profile_form = result.get("form")
+    ctx = unified_settings_context(request, password_form=password_form)
+    if profile_form is not None:
+        ctx["form"] = profile_form
     return render(request, "admin_portal/profile_settings.html", ctx)
 
 
 class AdminPasswordChangeView(PortalPasswordChangeView):
-    template_name = "admin_portal/password_change.html"
-    success_url = reverse_lazy("admin_portal:password_change")
+    def get(self, request, *args, **kwargs):
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.is_super_admin:
-            from django.core.exceptions import PermissionDenied
-
-            raise PermissionDenied
-        return super().dispatch(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse("admin_portal:profile_settings") + "#change-password")
 
 
 admin_password_change = super_admin_required(AdminPasswordChangeView.as_view())
@@ -853,24 +855,12 @@ admin_password_change = super_admin_required(AdminPasswordChangeView.as_view())
 
 @super_admin_required
 def admin_account_info(request):
-    from apps.accounts.settings_handlers import account_info_context
-    from apps.accounts.profile_helpers import security_logs_for_user
-
-    ctx = account_info_context(request)
-    ctx["security_logs"] = security_logs_for_user(request.user)
-    return render(request, "admin_portal/account_info.html", ctx)
+    return redirect("admin_portal:profile_settings")
 
 
 @super_admin_required
 def admin_preferences(request):
-    from apps.accounts.settings_handlers import handle_preferences_post, preferences_context
-
-    if request.method == "POST":
-        result = handle_preferences_post(request, "admin_portal:preferences")
-        if result:
-            return result
-    ctx = preferences_context(request)
-    return render(request, "admin_portal/preferences.html", ctx)
+    return redirect("admin_portal:profile_settings")
 
 
 @super_admin_required
@@ -882,12 +872,15 @@ def my_notifications(request):
     return render(
         request,
         "admin_portal/my_notifications.html",
-        {"notifications": page, "page": page, "settings_section": "notifications"},
+        {"notifications": page, "page": page},
     )
 
 
 def admin_profile_security_redirect(request):
-    return redirect("admin_portal:password_change")
+    from django.http import HttpResponseRedirect
+    from django.urls import reverse
+
+    return HttpResponseRedirect(reverse("admin_portal:profile_settings") + "#change-password")
 
 
 admin_profile_security = super_admin_required(admin_profile_security_redirect)

@@ -159,7 +159,7 @@ class StudentPasswordChangeView(PasswordChangeView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             if request.user.is_super_admin:
-                return redirect("admin_portal:password_change")
+                return redirect("admin_portal:profile_settings")
             if request.user.is_instructor:
                 return redirect("instructor:password_change")
             if request.user.is_student:

@@ -1,29 +1,38 @@
-"""Unified Settings page — personal info, account details, password."""
+"""Unified Settings page — profile, account info, and password on one page."""
 from django.contrib import messages
 from django.shortcuts import redirect
 
 from apps.core.utils import log_audit
 
-from .profile_helpers import profile_stats_for_user, security_logs_for_user
-from .profile_views import _profile_form_for_user
+from .forms import HilaacPasswordChangeForm, InstructorSettingsProfileForm, SettingsProfileForm
+from .password_sessions import logout_other_sessions
+from .password_views import PASSWORD_SUCCESS_MESSAGE
 
 SETTINGS_SUCCESS = "Changes saved successfully."
 
 
-def unified_settings_context(request):
+def _settings_form_for_user(user):
+    if user.is_instructor:
+        return InstructorSettingsProfileForm
+    return SettingsProfileForm
+
+
+def unified_settings_context(request, password_form=None):
     user = request.user
-    form_class = _profile_form_for_user(user)
+    form_class = _settings_form_for_user(user)
     return {
         "form": form_class(instance=user),
-        "profile_stats": profile_stats_for_user(user),
-        "security_logs": security_logs_for_user(user),
-        "settings_section": "personal",
+        "password_form": password_form or HilaacPasswordChangeForm(user=user),
     }
 
 
 def handle_unified_settings_post(request, redirect_name):
     user = request.user
-    form_class = _profile_form_for_user(user)
+
+    if request.POST.get("form_action") == "password":
+        return _handle_password_post(request, redirect_name)
+
+    form_class = _settings_form_for_user(user)
 
     if request.POST.get("remove_photo"):
         if user.profile_photo:
@@ -36,52 +45,30 @@ def handle_unified_settings_post(request, redirect_name):
 
     form = form_class(request.POST, request.FILES, instance=user)
     if form.is_valid():
-        old_email = user.email
         form.save()
-        user.refresh_from_db()
-        if old_email != user.email:
-            log_audit(request, "profile_email_change", "User", user.pk, f"{old_email} -> {user.email}")
-        else:
-            log_audit(request, "profile_update", "User", user.pk)
+        log_audit(request, "profile_update", "User", user.pk)
         messages.success(request, SETTINGS_SUCCESS)
         return redirect(redirect_name)
 
     for field, errs in form.errors.items():
         label = form.fields.get(field).label if field in form.fields else field
         messages.error(request, f"{label}: {errs[0]}")
-    return None
+    return {"form": form}
 
 
-def account_info_context(request):
-    return {
-        "settings_section": "account",
-        "profile_stats": profile_stats_for_user(request.user),
-    }
-
-
-PREFERENCES_SUCCESS = "Changes saved successfully."
-
-
-def preferences_context(request):
-    from .forms import NotificationPreferencesForm
-
-    return {
-        "form": NotificationPreferencesForm(instance=request.user),
-        "settings_section": "preferences",
-    }
-
-
-def handle_preferences_post(request, redirect_name):
-    from .forms import NotificationPreferencesForm
-
-    user = request.user
-    form = NotificationPreferencesForm(request.POST, instance=user)
+def _handle_password_post(request, redirect_name):
+    form = HilaacPasswordChangeForm(user=request.user, data=request.POST)
     if form.is_valid():
         form.save()
-        log_audit(request, "profile_notifications_update", "User", user.pk)
-        messages.success(request, PREFERENCES_SUCCESS)
+        logout_other_sessions(request.user, request.session.session_key)
+        log_audit(request, "profile_password_change", "User", request.user.pk)
+        from apps.notifications.services import notify_password_changed
+
+        notify_password_changed(request.user)
+        messages.success(request, PASSWORD_SUCCESS_MESSAGE)
         return redirect(redirect_name)
+
     for field, errs in form.errors.items():
         label = form.fields.get(field).label if field in form.fields else field
         messages.error(request, f"{label}: {errs[0]}")
-    return None
+    return {"password_form": form}
