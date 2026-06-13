@@ -143,10 +143,10 @@ def dashboard(request):
 @login_required
 def profile(request):
     if request.user.is_super_admin:
-        return redirect("admin_portal:profile")
+        return redirect("admin_portal:profile_settings")
     if request.user.is_instructor:
-        return redirect("instructor:profile")
-    return redirect("student:profile")
+        return redirect("instructor:settings")
+    return redirect("student:settings")
 
 
 class StudentPasswordChangeView(PasswordChangeView):
@@ -158,12 +158,15 @@ class StudentPasswordChangeView(PasswordChangeView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            from django.http import HttpResponseRedirect
+            from django.urls import reverse
+
             if request.user.is_super_admin:
-                return redirect("admin_portal:profile_settings")
+                return HttpResponseRedirect(reverse("admin_portal:profile_settings") + "#change-password")
             if request.user.is_instructor:
-                return redirect("instructor:password_change")
+                return HttpResponseRedirect(reverse("instructor:settings") + "#change-password")
             if request.user.is_student:
-                return redirect("student:password_change")
+                return HttpResponseRedirect(reverse("student:settings") + "#change-password")
         return super().dispatch(request, *args, **kwargs)
 
 

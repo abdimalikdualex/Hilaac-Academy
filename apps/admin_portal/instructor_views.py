@@ -129,11 +129,7 @@ def instructor_settings(request):
 
 
 class InstructorPasswordChangeView(PortalPasswordChangeView):
-    def get(self, request, *args, **kwargs):
-        from django.http import HttpResponseRedirect
-        from django.urls import reverse
-
-        return HttpResponseRedirect(reverse("instructor:settings") + "#change-password")
+    settings_url_name = "instructor:settings"
 
 
 @instructor_required

@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 
 from apps.core.utils import log_audit
 
-from .forms import HilaacPasswordChangeForm, InstructorSettingsProfileForm, SettingsProfileForm
+from .forms import HilaacPasswordChangeForm, SettingsProfileForm
 from .password_sessions import logout_other_sessions
 from .password_views import PASSWORD_SUCCESS_MESSAGE
 
@@ -13,8 +13,6 @@ SETTINGS_SUCCESS = "Changes saved successfully."
 
 
 def _settings_form_for_user(user):
-    if user.is_instructor:
-        return InstructorSettingsProfileForm
     return SettingsProfileForm
 
 

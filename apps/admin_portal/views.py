@@ -843,11 +843,7 @@ def admin_profile_settings(request):
 
 
 class AdminPasswordChangeView(PortalPasswordChangeView):
-    def get(self, request, *args, **kwargs):
-        from django.http import HttpResponseRedirect
-        from django.urls import reverse
-
-        return HttpResponseRedirect(reverse("admin_portal:profile_settings") + "#change-password")
+    settings_url_name = "admin_portal:profile_settings"
 
 
 admin_password_change = super_admin_required(AdminPasswordChangeView.as_view())

@@ -148,11 +148,7 @@ def profile(request):
 
 
 class StudentPortalPasswordChangeView(PortalPasswordChangeView):
-    def get(self, request, *args, **kwargs):
-        from django.http import HttpResponseRedirect
-        from django.urls import reverse
-
-        return HttpResponseRedirect(reverse("student:settings") + "#change-password")
+    settings_url_name = "student:settings"
 
 
 @student_required

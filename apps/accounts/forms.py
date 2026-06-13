@@ -188,15 +188,18 @@ SETTINGS_INPUT_CLASS = (
 
 
 class SettingsProfileForm(forms.ModelForm):
-    """Simplified settings profile — photo, name, phone only."""
+    """Simplified settings profile — photo, name, phone, and optional bio."""
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "phone", "profile_photo")
+        fields = ("first_name", "last_name", "phone", "bio", "profile_photo")
         widgets = {
             "first_name": forms.TextInput(attrs={"class": SETTINGS_INPUT_CLASS, "placeholder": "First name"}),
             "last_name": forms.TextInput(attrs={"class": SETTINGS_INPUT_CLASS, "placeholder": "Last name"}),
             "phone": forms.TextInput(attrs={"class": SETTINGS_INPUT_CLASS, "placeholder": "Phone number"}),
+            "bio": forms.Textarea(
+                attrs={"class": SETTINGS_INPUT_CLASS, "rows": 3, "placeholder": "Short bio (optional)"}
+            ),
         }
 
     def clean_profile_photo(self):
