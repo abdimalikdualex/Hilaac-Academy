@@ -1,5 +1,6 @@
 """Unified Settings page — profile, account info, and password on one page."""
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import redirect
 
 from apps.core.utils import log_audit
@@ -60,6 +61,7 @@ def _handle_password_post(request, redirect_name):
     form = HilaacPasswordChangeForm(user=request.user, data=request.POST)
     if form.is_valid():
         form.save()
+        update_session_auth_hash(request, request.user)
         logout_other_sessions(request.user, request.session.session_key)
         log_audit(request, "profile_password_change", "User", request.user.pk)
         from apps.notifications.services import notify_password_changed

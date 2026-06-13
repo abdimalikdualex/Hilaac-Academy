@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.contrib.auth import password_validation
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
 
 from apps.core.imaging import ALLOWED_IMAGE_EXTS
@@ -68,7 +69,8 @@ class HilaacPasswordChangeForm(PasswordChangeForm):
             errors.append("Password does not meet requirements.")
         if errors:
             raise forms.ValidationError(errors[0])
-        return super().clean_new_password1()
+        password_validation.validate_password(password, self.user)
+        return password
 
 
 class HilaacAuthenticationForm(AuthenticationForm):
