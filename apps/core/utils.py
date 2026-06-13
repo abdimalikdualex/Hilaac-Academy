@@ -3,9 +3,6 @@ from functools import wraps
 
 from django.core.cache import cache
 from django.http import HttpRequest, HttpResponseForbidden
-
-from .models import AuditLog
-
 audit_logger = logging.getLogger("hilaac.audit")
 security_logger = logging.getLogger("django.security")
 
@@ -17,26 +14,50 @@ def get_client_ip(request):
     return request.META.get("REMOTE_ADDR")
 
 
-def log_audit(request, action, model_name="", object_id="", details=""):
-    ip = get_client_ip(request)
-    user = request.user if request.user.is_authenticated else None
-    AuditLog.objects.create(
+def log_audit(
+    request,
+    action,
+    model_name="",
+    object_id="",
+    details="",
+    old_values=None,
+    new_values=None,
+    status=None,
+    user=None,
+    user_display_name="",
+    user_role="",
+):
+    from .audit_service import record_audit
+    from .models import AuditLog
+
+    if status is None:
+        status = AuditLog.Status.SUCCESS
+
+    entry = record_audit(
+        action,
+        request=request,
         user=user,
-        action=action,
         model_name=model_name,
-        object_id=str(object_id),
+        object_id=object_id,
         details=details,
-        ip_address=ip,
+        old_values=old_values,
+        new_values=new_values,
+        status=status,
+        user_display_name=user_display_name,
+        user_role=user_role,
     )
     audit_logger.info(
-        "action=%s user=%s model=%s object=%s ip=%s details=%s",
+        "action=%s user=%s module=%s model=%s object=%s ip=%s status=%s details=%s",
         action,
-        getattr(user, "username", "anonymous"),
+        entry.user_display_name or getattr(entry.user, "username", "anonymous"),
+        entry.module,
         model_name,
         object_id,
-        ip,
+        entry.ip_address,
+        entry.status,
         details,
     )
+    return entry
 
 
 def _extract_request(args):

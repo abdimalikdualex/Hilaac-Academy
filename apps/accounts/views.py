@@ -62,6 +62,15 @@ class StudentLoginView(LoginView):
 
     def form_invalid(self, form):
         username = self.request.POST.get("username", "").strip()
+        from apps.core.models import AuditLog
+
+        log_audit(
+            self.request,
+            "user_login_failed",
+            "User",
+            details=username or "unknown",
+            status=AuditLog.Status.FAILED,
+        )
         if username:
             try:
                 user = User.objects.get(username__iexact=username)
@@ -74,6 +83,11 @@ class StudentLoginView(LoginView):
 
 class StudentLogoutView(LogoutView):
     next_page = reverse_lazy("cms:home")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            log_audit(request, "user_logout", "User", request.user.pk)
+        return super().dispatch(request, *args, **kwargs)
 
 
 @rate_limit("register", limit=5, period=600)

@@ -89,4 +89,6 @@ urlpatterns = [
     path("recycle-bin/<str:model_type>/<int:pk>/restore/", recycle_bin.recycle_bin_restore, name="recycle_bin_restore"),
     path("recycle-bin/<str:model_type>/<int:pk>/purge/", recycle_bin.recycle_bin_purge, name="recycle_bin_purge"),
     path("exchange-rates/", views.exchange_rates, name="exchange_rates"),
+    path("audit-trail/", views.audit_trail_list, name="audit_trail"),
+    path("audit-trail/<int:pk>/", views.audit_trail_detail, name="audit_trail_detail"),
 ]

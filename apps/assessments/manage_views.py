@@ -110,6 +110,7 @@ def instructor_assignment_toggle_publish(request, pk):
     assignment.is_published = not assignment.is_published
     assignment.save(update_fields=["is_published"])
     state = "published" if assignment.is_published else "unpublished"
+    log_audit(request, "assignment_update", "Assignment", assignment.pk, f"Status: {state}")
     messages.success(request, f"Assignment {state}.")
     return redirect("instructor:level", level_id=assignment.module.level_id)
 
@@ -201,6 +202,8 @@ def instructor_quiz_toggle_publish(request, pk):
     quiz.is_published = not quiz.is_published
     quiz.save(update_fields=["is_published"])
     level = quiz.level or quiz.module.level
+    state = "published" if quiz.is_published else "unpublished"
+    log_audit(request, "quiz_update", "Quiz", quiz.pk, f"Status: {state}")
     messages.success(request, f"Quiz {'published' if quiz.is_published else 'unpublished'}.")
     return redirect("instructor:level", level_id=level.id)
 

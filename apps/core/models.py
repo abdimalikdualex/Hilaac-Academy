@@ -10,6 +10,10 @@ class TimeStampedModel(models.Model):
 
 
 class AuditLog(models.Model):
+    class Status(models.TextChoices):
+        SUCCESS = "success", "Success"
+        FAILED = "failed", "Failed"
+
     user = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -17,18 +21,75 @@ class AuditLog(models.Model):
         blank=True,
         related_name="audit_logs",
     )
-    action = models.CharField(max_length=255)
+    user_display_name = models.CharField(max_length=200, blank=True)
+    user_role = models.CharField(max_length=20, blank=True)
+    action = models.CharField(max_length=100, db_index=True)
+    module = models.CharField(max_length=50, blank=True, db_index=True)
+    description = models.TextField(blank=True)
     model_name = models.CharField(max_length=100, blank=True)
     object_id = models.CharField(max_length=100, blank=True)
     details = models.TextField(blank=True)
+    old_values = models.JSONField(default=dict, blank=True)
+    new_values = models.JSONField(default=dict, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user_agent = models.CharField(max_length=500, blank=True)
+    status = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.SUCCESS,
+        db_index=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["-created_at", "module"]),
+            models.Index(fields=["user_role", "-created_at"]),
+        ]
 
     def __str__(self):
         return f"{self.action} - {self.created_at:%Y-%m-%d %H:%M}"
+
+    @property
+    def performer_name(self):
+        if self.user_id:
+            return self.user.get_full_name() or self.user.username
+        if self.user_display_name:
+            return self.user_display_name
+        return "Deleted User"
+
+    @property
+    def performer_username(self):
+        if self.user_id:
+            return self.user.username
+        return "—"
+
+    @property
+    def performer_role_display(self):
+        if self.user_id:
+            return self.user.get_role_display()
+        if self.user_role:
+            from apps.accounts.models import User
+
+            return dict(User.Role.choices).get(self.user_role, self.user_role)
+        return "—"
+
+    @property
+    def module_display(self):
+        if self.module:
+            return self.module
+        from .audit_service import resolve_module
+
+        return resolve_module(self.action, self.model_name)
+
+    @property
+    def description_display(self):
+        if self.description:
+            return self.description
+        from .audit_service import format_description
+
+        return format_description(self.action, self.details, self.model_name, self.object_id)
 
 
 class SiteSettings(models.Model):

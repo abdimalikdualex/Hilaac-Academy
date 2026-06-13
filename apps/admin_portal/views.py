@@ -154,6 +154,7 @@ def student_create(request):
             user.role = User.Role.STUDENT
             user.set_password(request.POST.get("password", "changeme123"))
             user.save()
+            log_audit(request, "student_create", "User", user.pk, user.email)
             messages.success(request, "Student created.")
             return redirect("admin_portal:student_list")
     else:
@@ -171,6 +172,7 @@ def student_edit(request, pk):
             if request.POST.get("password"):
                 student.set_password(request.POST["password"])
                 student.save()
+            log_audit(request, "student_update", "User", student.pk, student.email)
             messages.success(request, "Student updated.")
             return redirect("admin_portal:student_detail", pk=pk)
     else:
@@ -219,6 +221,7 @@ def instructor_create(request):
             user.is_verified = True
             user.set_password(request.POST.get("password", "instructor123"))
             user.save()
+            log_audit(request, "instructor_create", "User", user.pk, user.email)
             messages.success(request, "Instructor created.")
             return redirect("admin_portal:instructor_list")
     else:
@@ -998,9 +1001,24 @@ def notification_send(request):
 def student_delete(request, pk):
     student = get_object_or_404(User, pk=pk, role=User.Role.STUDENT)
     if request.method == "POST":
-        name = student.username
+        snapshot = {
+            "username": student.username,
+            "email": student.email,
+            "full_name": student.get_full_name(),
+            "role": student.role,
+        }
+        name = student.get_full_name() or student.username
         student.delete()
-        log_audit(request, "student_delete", "User", pk, name)
+        log_audit(
+            request,
+            "student_delete",
+            "User",
+            pk,
+            f"Deleted student account — {name}",
+            old_values=snapshot,
+            user_display_name=name,
+            user_role=User.Role.STUDENT,
+        )
         messages.success(request, f"Student '{name}' deleted.")
         return redirect("admin_portal:student_list")
     return render(
@@ -1014,9 +1032,24 @@ def student_delete(request, pk):
 def instructor_delete(request, pk):
     instructor = get_object_or_404(User, pk=pk, role=User.Role.INSTRUCTOR)
     if request.method == "POST":
-        name = instructor.username
+        snapshot = {
+            "username": instructor.username,
+            "email": instructor.email,
+            "full_name": instructor.get_full_name(),
+            "role": instructor.role,
+        }
+        name = instructor.get_full_name() or instructor.username
         instructor.delete()
-        log_audit(request, "instructor_delete", "User", pk, name)
+        log_audit(
+            request,
+            "instructor_delete",
+            "User",
+            pk,
+            f"Deleted instructor account — {name}",
+            old_values=snapshot,
+            user_display_name=name,
+            user_role=User.Role.INSTRUCTOR,
+        )
         messages.success(request, f"Instructor '{name}' deleted.")
         return redirect("admin_portal:instructor_list")
     return render(
@@ -1104,3 +1137,75 @@ def certificate_delete(request, pk):
         "admin_portal/confirm_delete.html",
         {"object_name": "Certificate", "object_label": cert.certificate_id, "cancel_url": reverse("admin_portal:certificate_list")},
     )
+
+
+@super_admin_required
+def audit_trail_list(request):
+    from apps.core.audit_service import ACTION_MODULES, ACTION_LABELS
+    from apps.core.pagination import AUDIT_PAGE_SIZE, paginate_queryset
+
+    qs = AuditLog.objects.select_related("user").order_by("-created_at")
+
+    q = request.GET.get("q", "").strip()
+    role = request.GET.get("role", "")
+    module = request.GET.get("module", "")
+    status = request.GET.get("status", "")
+    action_filter = request.GET.get("action", "").strip()
+    date_from = request.GET.get("date_from", "")
+    date_to = request.GET.get("date_to", "")
+
+    if q:
+        qs = qs.filter(
+            Q(user_display_name__icontains=q)
+            | Q(user__username__icontains=q)
+            | Q(user__first_name__icontains=q)
+            | Q(user__last_name__icontains=q)
+            | Q(description__icontains=q)
+            | Q(action__icontains=q)
+            | Q(module__icontains=q)
+            | Q(details__icontains=q)
+        )
+    if role:
+        qs = qs.filter(user_role=role)
+    if module:
+        qs = qs.filter(module=module)
+    if status:
+        qs = qs.filter(status=status)
+    if action_filter:
+        qs = qs.filter(action__icontains=action_filter)
+    if date_from:
+        qs = qs.filter(created_at__date__gte=date_from)
+    if date_to:
+        qs = qs.filter(created_at__date__lte=date_to)
+
+    page = paginate_queryset(request, qs, per_page=AUDIT_PAGE_SIZE)
+
+    module_choices = sorted({m for m in AuditLog.objects.values_list("module", flat=True).distinct() if m})
+    if not module_choices:
+        module_choices = sorted(set(ACTION_MODULES.values()))
+
+    return render(
+        request,
+        "admin_portal/audit_trail/list.html",
+        {
+            "logs": page,
+            "page": page,
+            "q": q,
+            "role": role,
+            "module": module,
+            "status": status,
+            "action_filter": action_filter,
+            "date_from": date_from,
+            "date_to": date_to,
+            "module_choices": module_choices,
+            "role_choices": User.Role.choices,
+            "status_choices": AuditLog.Status.choices,
+            "action_labels": ACTION_LABELS,
+        },
+    )
+
+
+@super_admin_required
+def audit_trail_detail(request, pk):
+    log = get_object_or_404(AuditLog.objects.select_related("user"), pk=pk)
+    return render(request, "admin_portal/audit_trail/detail.html", {"log": log})

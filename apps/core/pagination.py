@@ -3,6 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 DEFAULT_PAGE_SIZE = 12
 ADMIN_PAGE_SIZE = 20
+AUDIT_PAGE_SIZE = 25
 NOTIFICATION_PAGE_SIZE = 15
 
 

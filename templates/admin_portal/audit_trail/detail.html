@@ -1,0 +1,100 @@
+{% extends "admin_portal/base.html" %}
+{% block title %}Audit Details{% endblock %}
+{% block content %}
+<div class="max-w-3xl">
+    <a href="{% url 'admin_portal:audit_trail' %}" class="text-sm text-primary-600 hover:underline mb-4 inline-block">← Back to Audit Trail</a>
+
+    <h1 class="text-2xl font-bold mb-2 text-slate-900">Activity Details</h1>
+    <p class="text-sm text-slate-500 mb-6">{{ log.created_at|date:"F j, Y" }} at {{ log.created_at|time:"g:i A" }}</p>
+
+    <div class="bg-white rounded-xl border shadow-sm divide-y">
+        <div class="p-5 grid sm:grid-cols-2 gap-4">
+            <div>
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Performed By</dt>
+                <dd class="font-semibold text-slate-900">{{ log.performer_name }}</dd>
+                <dd class="text-sm text-slate-500">{{ log.performer_username }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Role</dt>
+                <dd class="font-semibold text-slate-900">{{ log.performer_role_display }}</dd>
+            </div>
+        </div>
+
+        <div class="p-5">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Action</dt>
+            <dd class="text-slate-900 font-medium">{{ log.description_display }}</dd>
+            <dd class="text-xs text-slate-500 mt-1">Code: {{ log.action }}</dd>
+        </div>
+
+        <div class="p-5 grid sm:grid-cols-2 gap-4">
+            <div>
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Module</dt>
+                <dd class="font-semibold text-slate-900">{{ log.module_display }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Status</dt>
+                <dd>
+                    {% if log.status == 'success' %}
+                    <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">Success</span>
+                    {% else %}
+                    <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">Failed</span>
+                    {% endif %}
+                </dd>
+            </div>
+        </div>
+
+        <div class="p-5 grid sm:grid-cols-2 gap-4">
+            <div>
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Timestamp</dt>
+                <dd class="text-slate-900">{{ log.created_at|date:"F j, Y g:i A" }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">IP Address</dt>
+                <dd class="text-slate-900 font-mono text-sm">{{ log.ip_address|default:"—" }}</dd>
+            </div>
+        </div>
+
+        <div class="p-5">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Device / Browser</dt>
+            <dd class="text-sm text-slate-700 break-all">{{ log.user_agent|default:"—" }}</dd>
+        </div>
+
+        {% if log.old_values %}
+        <div class="p-5">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Previous Data</dt>
+            <dd class="bg-slate-50 rounded-lg p-4 text-sm text-slate-800 font-mono overflow-x-auto">
+                {% for key, value in log.old_values.items %}
+                <div><span class="text-slate-500">{{ key }}:</span> {{ value }}</div>
+                {% endfor %}
+            </dd>
+        </div>
+        {% endif %}
+
+        {% if log.new_values %}
+        <div class="p-5">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">New Data</dt>
+            <dd class="bg-slate-50 rounded-lg p-4 text-sm text-slate-800 font-mono overflow-x-auto">
+                {% for key, value in log.new_values.items %}
+                <div><span class="text-slate-500">{{ key }}:</span> {{ value }}</div>
+                {% endfor %}
+            </dd>
+        </div>
+        {% endif %}
+
+        {% if log.details and not log.old_values and not log.new_values %}
+        <div class="p-5">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1">Additional Details</dt>
+            <dd class="text-slate-800">{{ log.details }}</dd>
+        </div>
+        {% endif %}
+
+        {% if log.model_name %}
+        <div class="p-5 grid sm:grid-cols-2 gap-4 text-sm text-slate-600">
+            <div><span class="text-slate-500">Record type:</span> {{ log.model_name }}</div>
+            <div><span class="text-slate-500">Record ID:</span> {{ log.object_id|default:"—" }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

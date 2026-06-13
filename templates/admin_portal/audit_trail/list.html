@@ -1,0 +1,186 @@
+{% extends "admin_portal/base.html" %}
+
+{% block title %}Audit Trail{% endblock %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-2 text-slate-900">Audit Trail</h1>
+
+<p class="text-sm text-slate-500 mb-6">Track all system activities and user actions.</p>
+
+
+
+<form method="get" class="bg-white rounded-xl border p-4 mb-6 space-y-4">
+
+    <div class="flex flex-wrap gap-3">
+
+        <input type="search" name="q" value="{{ q }}" placeholder="Search username, action, module..." class="form-input flex-1 min-w-[200px]">
+
+        <select name="role" class="form-input max-w-[160px]">
+
+            <option value="">All Roles</option>
+
+            {% for value, label in role_choices %}
+
+            <option value="{{ value }}" {% if role == value %}selected{% endif %}>{{ label }}</option>
+
+            {% endfor %}
+
+        </select>
+
+        <select name="module" class="form-input max-w-[180px]">
+
+            <option value="">All Modules</option>
+
+            {% for m in module_choices %}
+
+            <option value="{{ m }}" {% if module == m %}selected{% endif %}>{{ m }}</option>
+
+            {% endfor %}
+
+        </select>
+
+        <select name="status" class="form-input max-w-[140px]">
+
+            <option value="">All Status</option>
+
+            {% for value, label in status_choices %}
+
+            <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+    <div class="flex flex-wrap gap-3 items-end">
+
+        <div>
+
+            <label class="text-xs text-slate-500 block mb-1">From</label>
+
+            <input type="date" name="date_from" value="{{ date_from }}" class="form-input">
+
+        </div>
+
+        <div>
+
+            <label class="text-xs text-slate-500 block mb-1">To</label>
+
+            <input type="date" name="date_to" value="{{ date_to }}" class="form-input">
+
+        </div>
+
+        <input type="text" name="action" value="{{ action_filter }}" placeholder="Action type" class="form-input max-w-[180px]">
+
+        <button type="submit" class="px-4 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700">Filter</button>
+
+        <a href="{% url 'admin_portal:audit_trail' %}" class="px-4 py-2.5 border rounded-lg text-sm text-slate-600 hover:bg-slate-50">Clear</a>
+
+    </div>
+
+</form>
+
+
+
+<div class="bg-white rounded-xl border overflow-hidden">
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-sm">
+
+            <thead class="bg-slate-50 text-slate-600">
+
+                <tr>
+
+                    <th class="p-3 text-left font-semibold">User</th>
+
+                    <th class="p-3 text-left font-semibold">Role</th>
+
+                    <th class="p-3 text-left font-semibold">Action</th>
+
+                    <th class="p-3 text-left font-semibold">Module</th>
+
+                    <th class="p-3 text-left font-semibold">Date</th>
+
+                    <th class="p-3 text-left font-semibold">Status</th>
+
+                    <th class="p-3 text-left font-semibold">Details</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for log in logs %}
+
+                <tr class="border-t hover:bg-slate-50/80">
+
+                    <td class="p-3">
+
+                        <div class="font-medium text-slate-900">{{ log.performer_name }}</div>
+
+                        <div class="text-xs text-slate-500">{{ log.performer_username }}</div>
+
+                    </td>
+
+                    <td class="p-3 text-slate-700">{{ log.performer_role_display }}</td>
+
+                    <td class="p-3 text-slate-800 max-w-xs">{{ log.description_display }}</td>
+
+                    <td class="p-3 text-slate-600">{{ log.module_display }}</td>
+
+                    <td class="p-3 text-slate-600 whitespace-nowrap">{{ log.created_at|date:"M j, Y" }}<br><span class="text-xs">{{ log.created_at|time:"g:i A" }}</span></td>
+
+                    <td class="p-3">
+
+                        {% if log.status == 'success' %}
+
+                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">Success</span>
+
+                        {% else %}
+
+                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">Failed</span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td class="p-3">
+
+                        <a href="{% url 'admin_portal:audit_trail_detail' pk=log.pk %}" class="text-primary-600 font-medium hover:underline">View</a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr><td colspan="7" class="p-8 text-center text-slate-500">No audit records found.</td></tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% if page.has_other_pages %}
+<nav class="flex justify-center items-center gap-2 mt-8" aria-label="Pagination">
+    {% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}&q={{ q }}&role={{ role }}&module={{ module }}&status={{ status }}&action={{ action_filter }}&date_from={{ date_from }}&date_to={{ date_to }}" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">Previous</a>
+    {% endif %}
+    <span class="text-sm text-slate-500">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+    <a href="?page={{ page.next_page_number }}&q={{ q }}&role={{ role }}&module={{ module }}&status={{ status }}&action={{ action_filter }}&date_from={{ date_from }}&date_to={{ date_to }}" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">Next</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endblock %}
+
+

@@ -44,8 +44,28 @@ def handle_unified_settings_post(request, redirect_name):
 
     form = form_class(request.POST, request.FILES, instance=user)
     if form.is_valid():
+        old_snapshot = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone": user.phone,
+            "bio": user.bio,
+        }
         form.save()
-        log_audit(request, "profile_update", "User", user.pk)
+        user.refresh_from_db()
+        new_snapshot = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone": user.phone,
+            "bio": user.bio,
+        }
+        log_audit(
+            request,
+            "profile_update",
+            "User",
+            user.pk,
+            old_values=old_snapshot,
+            new_values=new_snapshot,
+        )
         messages.success(request, SETTINGS_SUCCESS)
         return redirect(redirect_name)
 
