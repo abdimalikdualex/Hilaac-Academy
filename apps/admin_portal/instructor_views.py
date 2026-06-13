@@ -131,6 +131,13 @@ class InstructorPasswordChangeView(PortalPasswordChangeView):
 
 
 @instructor_required
+def instructor_account_info(request):
+    from apps.accounts.settings_handlers import account_info_context
+
+    return render(request, "instructor/account_info.html", account_info_context(request))
+
+
+@instructor_required
 def instructor_preferences(request):
     from apps.accounts.settings_handlers import handle_preferences_post, preferences_context
 

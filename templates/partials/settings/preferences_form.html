@@ -1,17 +1,17 @@
-<form method="post" class="settings-card p-6 md:p-8 space-y-5">
+<form method="post" class="settings-card p-6 md:p-8 space-y-5 ha-form">
     {% csrf_token %}
     <header>
         <h1 class="text-xl md:text-2xl font-bold text-[#0B1736]">Preferences</h1>
-        <p class="text-sm text-muted mt-1">Choose which email and notification updates you want to receive.</p>
+        <p class="text-sm text-[#64748B] mt-1">Manage email and notification preferences.</p>
     </header>
     {% for field in form %}
-    <div class="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0">
-        <div class="pt-0.5">{{ field }}</div>
-        <div>
-            <label class="text-sm font-medium text-[#0B1736]" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
+    <div class="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+        <div class="pt-0.5 shrink-0">{{ field }}</div>
+        <div class="min-w-0">
+            <label class="text-sm font-semibold text-[#0B1736]" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% for error in field.errors %}<p class="text-sm text-red-600 mt-1">{{ error }}</p>{% endfor %}
         </div>
     </div>
     {% endfor %}
-    <button type="submit" class="portal-save-btn">Save Preferences</button>
+    <button type="submit" class="portal-save-btn" data-loading-text="Saving...">Save Preferences</button>
 </form>

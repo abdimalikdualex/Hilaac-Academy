@@ -15,13 +15,66 @@
 
 
 @layer base {
-
-  body {
-
-    @apply antialiased;
-
+  :root {
+    --ha-text-primary: #0B1736;
+    --ha-text-secondary: #64748B;
+    --ha-bg-surface: #F5F7FA;
+    --ha-bg-card: #FFFFFF;
+    --ha-brand-blue: #1E4D8F;
+    --ha-brand-gold: #D4A017;
   }
 
+  body {
+    @apply antialiased;
+    color: var(--ha-text-primary);
+    background-color: var(--ha-bg-surface);
+  }
+
+  main {
+    color: var(--ha-text-primary);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--ha-text-primary);
+  }
+
+  label {
+    color: var(--ha-text-primary);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+  select,
+  textarea {
+    color: var(--ha-text-primary) !important;
+    background-color: #ffffff;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+  }
+
+  .bg-white input:not([type="checkbox"]):not([type="radio"]),
+  .bg-white select,
+  .bg-white textarea,
+  .settings-card input:not([type="checkbox"]):not([type="radio"]),
+  .settings-card select,
+  .settings-card textarea,
+  .portal-form-card input:not([type="checkbox"]):not([type="radio"]),
+  .portal-form-card select,
+  .portal-form-card textarea {
+    color: var(--ha-text-primary) !important;
+    background-color: #ffffff !important;
+  }
+
+  table th {
+    color: var(--ha-text-secondary);
+  }
+
+  table td {
+    color: var(--ha-text-primary);
+  }
 }
 
 
@@ -30,8 +83,87 @@
 
   .form-input {
 
-    @apply w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900;
+    @apply w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-[#0B1736] placeholder:text-slate-400;
 
+  }
+
+  .ha-label {
+    @apply block text-sm font-medium text-[#0B1736] mb-1.5;
+  }
+
+  .ha-text-primary {
+    color: var(--ha-text-primary);
+  }
+
+  .ha-text-secondary {
+    color: var(--ha-text-secondary);
+  }
+
+  .ha-card {
+    @apply bg-white border border-slate-200 rounded-2xl shadow-sm;
+    color: var(--ha-text-primary);
+  }
+
+  .ha-btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1E4D8F] disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .ha-btn-primary {
+    @apply ha-btn px-6 py-3 text-white bg-[#1E4D8F] hover:bg-[#163a6d];
+  }
+
+  .ha-btn-secondary {
+    @apply ha-btn px-6 py-3 text-[#1E4D8F] bg-white border border-slate-300 hover:bg-slate-50;
+  }
+
+  .ha-btn-danger {
+    @apply ha-btn px-4 py-2 text-red-700 bg-red-50 border border-red-200 hover:bg-red-100;
+  }
+
+  .ha-flash {
+    @apply p-3 rounded-lg text-sm font-medium;
+  }
+
+  .ha-flash-success {
+    @apply ha-flash bg-green-50 text-green-800 border border-green-200;
+  }
+
+  .ha-flash-error {
+    @apply ha-flash bg-red-50 text-red-800 border border-red-200;
+  }
+
+  .ha-flash-info {
+    @apply ha-flash bg-blue-50 text-blue-800 border border-blue-200;
+  }
+
+  .ha-form-busy {
+    pointer-events: none;
+    opacity: 0.92;
+  }
+
+  .settings-nav-item {
+    @apply block rounded-xl px-3 py-3 transition-colors border border-transparent;
+  }
+
+  .settings-nav-item:hover {
+    @apply bg-[#F5F7FA];
+  }
+
+  .settings-nav-item.active {
+    @apply bg-[#1E4D8F] border-[#1E4D8F];
+  }
+
+  .settings-nav-item.active .settings-nav-title,
+  .settings-nav-item.active .settings-nav-desc {
+    @apply text-white;
+  }
+
+  .settings-nav-title {
+    @apply flex items-center gap-2 text-sm font-semibold text-[#0B1736];
+  }
+
+  .settings-nav-desc {
+    @apply text-xs text-[#64748B] mt-0.5 leading-snug;
   }
 
 

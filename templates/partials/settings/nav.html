@@ -1,22 +1,36 @@
 {% load ha_icons %}
-<nav class="settings-nav w-full lg:w-56 shrink-0" aria-label="Settings">
-    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3 px-3">Settings</p>
+<nav class="settings-nav w-full lg:w-64 shrink-0" aria-label="Settings">
+    <div class="mb-4 px-1">
+        <h2 class="flex items-center gap-2 text-lg font-bold text-[#0B1736]">
+            {% ha_icon "settings" size=20 class_name="text-[#1E4D8F]" %}
+            Settings
+        </h2>
+    </div>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-2 space-y-1">
         <a href="{% url settings_url_name %}"
-           class="settings-nav-link {% if settings_section == 'personal' %}active{% endif %}">
-            {% ha_icon "user" size=18 class_name="opacity-80" %} Personal Information
+           class="settings-nav-item {% if settings_section == 'personal' %}active{% endif %}">
+            <span class="settings-nav-title">{% ha_icon "user" size=18 class_name="opacity-80 shrink-0" %} Update Profile</span>
+            <span class="settings-nav-desc">Update your profile information.</span>
+        </a>
+        <a href="{% url account_url_name %}"
+           class="settings-nav-item {% if settings_section == 'account' %}active{% endif %}">
+            <span class="settings-nav-title">{% ha_icon "clipboard-list" size=18 class_name="opacity-80 shrink-0" %} Personal Info</span>
+            <span class="settings-nav-desc">View your account details.</span>
         </a>
         <a href="{% url password_url_name %}"
-           class="settings-nav-link {% if settings_section == 'password' %}active{% endif %}">
-            {% ha_icon "lock" size=18 class_name="opacity-80" %} Change Password
+           class="settings-nav-item {% if settings_section == 'password' %}active{% endif %}">
+            <span class="settings-nav-title">{% ha_icon "lock" size=18 class_name="opacity-80 shrink-0" %} Change Password</span>
+            <span class="settings-nav-desc">Secure your account by updating your password.</span>
         </a>
         <a href="{% url notifications_url_name %}"
-           class="settings-nav-link {% if settings_section == 'notifications' %}active{% endif %}">
-            {% ha_icon "bell" size=18 class_name="opacity-80" %} Notifications
+           class="settings-nav-item {% if settings_section == 'notifications' %}active{% endif %}">
+            <span class="settings-nav-title">{% ha_icon "bell" size=18 class_name="opacity-80 shrink-0" %} Notifications</span>
+            <span class="settings-nav-desc">View your recent alerts and updates.</span>
         </a>
         <a href="{% url preferences_url_name %}"
-           class="settings-nav-link {% if settings_section == 'preferences' %}active{% endif %}">
-            {% ha_icon "clipboard-list" size=18 class_name="opacity-80" %} Preferences
+           class="settings-nav-item {% if settings_section == 'preferences' %}active{% endif %}">
+            <span class="settings-nav-title">{% ha_icon "settings" size=18 class_name="opacity-80 shrink-0" %} Preferences</span>
+            <span class="settings-nav-desc">Manage email and notification preferences.</span>
         </a>
     </div>
 </nav>

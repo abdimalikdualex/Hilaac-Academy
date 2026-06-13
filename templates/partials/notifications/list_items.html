@@ -20,7 +20,7 @@
                     <button type="submit" class="text-xs font-medium text-slate-600 hover:text-[#1E4D8F]">Mark read</button>
                 </form>
                 {% endif %}
-                <form method="post" action="{% url 'notifications:delete' n.pk %}" onsubmit="return confirm('Delete this notification?');">
+                <form method="post" action="{% url 'notifications:delete' n.pk %}" data-confirm="Delete this notification permanently?">
                     {% csrf_token %}
                     <button type="submit" class="text-xs font-medium text-red-600 hover:text-red-700">Delete</button>
                 </form>

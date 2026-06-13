@@ -1,28 +1,29 @@
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" class="ha-form">
     {% csrf_token %}
     <div class="grid lg:grid-cols-3 gap-6">
         <div class="space-y-4">
             {% include "partials/profile/photo_upload_panel.html" %}
             {% if profile_stats %}{% include "partials/profile/stats_panel.html" %}{% endif %}
         </div>
-        <div class="lg:col-span-2 space-y-6">
-            <section class="settings-card p-6 space-y-4">
-                <h2 class="font-bold text-lg text-[#0B1736]">Personal Information</h2>
+        <div class="lg:col-span-2">
+            <section class="settings-card p-6 md:p-8 space-y-4">
+                <header>
+                    <h1 class="text-xl font-bold text-[#0B1736]">Update Profile</h1>
+                    <p class="text-sm text-[#64748B] mt-1">Update your profile information.</p>
+                </header>
                 {% for field in form %}
                 {% if field.name != "profile_photo" %}
                 <div>
-                    <label class="portal-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <label class="ha-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
-                    {% for error in field.errors %}<p class="text-xs text-red-600">{{ error }}</p>{% endfor %}
+                    {% for error in field.errors %}<p class="text-sm text-red-600 mt-1">{{ error }}</p>{% endfor %}
                 </div>
                 {% endif %}
                 {% endfor %}
-                <div class="portal-save-sticky">
-                    <button type="submit" class="portal-save-btn">Save Changes</button>
+                <div class="portal-save-sticky pt-2">
+                    <button type="submit" class="portal-save-btn" data-loading-text="Saving...">Save Changes</button>
                 </div>
             </section>
-
-            {% include "partials/profile/account_readonly.html" %}
         </div>
     </div>
 </form>

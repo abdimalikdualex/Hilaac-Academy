@@ -165,6 +165,13 @@ class StudentPortalPasswordChangeView(PortalPasswordChangeView):
 
 
 @student_required
+def account_info(request):
+    from .settings_handlers import account_info_context
+
+    return render(request, "student/account_info.html", account_info_context(request))
+
+
+@student_required
 def preferences(request):
     from .settings_handlers import handle_preferences_post, preferences_context
 

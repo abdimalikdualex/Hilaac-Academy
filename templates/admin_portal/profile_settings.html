@@ -3,7 +3,7 @@
 {% block content %}
 <div class="settings-shell -mx-4 sm:mx-0">
     <div class="flex flex-col lg:flex-row gap-6 max-w-6xl mx-auto">
-        {% include "partials/settings/nav.html" with settings_url_name="admin_portal:profile_settings" password_url_name="admin_portal:password_change" notifications_url_name="admin_portal:my_notifications" preferences_url_name="admin_portal:preferences" settings_section=settings_section|default:"personal" %}
+        {% include "partials/settings/nav.html" with settings_url_name="admin_portal:profile_settings" account_url_name="admin_portal:account_info" password_url_name="admin_portal:password_change" notifications_url_name="admin_portal:my_notifications" preferences_url_name="admin_portal:preferences" settings_section=settings_section|default:"personal" %}
         <div class="flex-1 min-w-0">
             {% include "partials/settings/personal_info.html" %}
         </div>

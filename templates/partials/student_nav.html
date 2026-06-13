@@ -12,4 +12,4 @@
     {% ha_icon "bell" size=18 %} Notifications
     {% if unread_notification_count %}<span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{{ unread_notification_count }}</span>{% endif %}
 </a>
-<a href="{% url 'student:settings' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'settings' or request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' or request.resolver_match.url_name == 'preferences' %}active{% endif %}">{% ha_icon "settings" size=18 %} Settings</a>
+<a href="{% url 'student:settings' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'settings' or request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' or request.resolver_match.url_name == 'preferences' or request.resolver_match.url_name == 'account_info' %}active{% endif %}">{% ha_icon "settings" size=18 %} Settings</a>

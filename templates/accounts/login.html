@@ -3,36 +3,32 @@
 {% block auth_welcome %}Gal akoonkaaga si aad u sii wadato safarkaaga waxbarasho.{% endblock %}
 
 {% block auth_content %}
-<h1 class="text-2xl font-bold text-center mb-6">Welcome Back</h1>
+<h1 class="text-2xl font-bold text-center text-[#0B1736] mb-6">Welcome Back</h1>
 {% if messages %}
-<div class="space-y-2 mb-4">
-    {% for message in messages %}
-    <div class="p-3 rounded-lg text-sm {% if message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">{{ message }}</div>
-    {% endfor %}
-</div>
+{% include "partials/flash_messages.html" %}
 {% endif %}
-<form method="post" class="space-y-4">
+<form method="post" class="space-y-4 ha-form">
     {% csrf_token %}
     {% if form.errors %}
-    <div class="p-3 bg-red-100 text-red-800 rounded-lg text-sm">Invalid username or password.</div>
+    <div class="ha-flash-error">Invalid username or password.</div>
     {% endif %}
     <div>
-        <label class="block text-sm font-medium mb-1">Username</label>
-        <input type="text" name="username" required class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 outline-none">
+        <label class="ha-label" for="login-username">Username</label>
+        <input type="text" name="username" id="login-username" required placeholder="Enter your username" class="form-input" autocomplete="username">
     </div>
     <div>
-        <label class="block text-sm font-medium mb-1">Password</label>
-        <input type="password" name="password" required class="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary-500 outline-none">
+        <label class="ha-label" for="login-password">Password</label>
+        <input type="password" name="password" id="login-password" required placeholder="Enter your password" class="form-input" autocomplete="current-password">
     </div>
-    <button type="submit" class="w-full py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">Login</button>
+    <button type="submit" class="w-full ha-btn-primary" data-loading-text="Signing in...">Sign In</button>
 </form>
 {% endblock %}
 
 {% block auth_footer %}
-<div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-600 text-center text-sm sm:text-base text-slate-700 dark:text-slate-200">
-    <a href="{% url 'accounts:password_reset' %}" class="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 hover:underline">Forgot password?</a>
-    <span class="mx-2 text-slate-400 dark:text-slate-500" aria-hidden="true">·</span>
+<div class="mt-6 pt-5 border-t border-slate-200 text-center text-sm text-[#64748B]">
+    <a href="{% url 'accounts:password_reset' %}" class="font-semibold text-[#1E4D8F] hover:underline">Forgot password?</a>
+    <span class="mx-2 text-slate-400" aria-hidden="true">·</span>
     <span>Don&apos;t have an account?</span>
-    <a href="{% url 'accounts:register' %}" class="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 hover:underline">Register</a>
+    <a href="{% url 'accounts:register' %}" class="font-semibold text-[#1E4D8F] hover:underline">Create Account</a>
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@ from apps.core.utils import log_audit
 from .profile_helpers import profile_stats_for_user, security_logs_for_user
 from .profile_views import _profile_form_for_user
 
-SETTINGS_SUCCESS = "Your settings have been updated successfully."
+SETTINGS_SUCCESS = "Changes saved successfully."
 
 
 def unified_settings_context(request):
@@ -52,7 +52,14 @@ def handle_unified_settings_post(request, redirect_name):
     return None
 
 
-PREFERENCES_SUCCESS = "Your preferences have been updated successfully."
+def account_info_context(request):
+    return {
+        "settings_section": "account",
+        "profile_stats": profile_stats_for_user(request.user),
+    }
+
+
+PREFERENCES_SUCCESS = "Changes saved successfully."
 
 
 def preferences_context(request):

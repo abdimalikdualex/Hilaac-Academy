@@ -39,7 +39,7 @@ def handle_profile_update(request, redirect_url):
         if form.is_valid():
             form.save()
             log_audit(request, "profile_update", "User", user.pk, "personal information")
-            messages.success(request, "Your settings have been updated successfully.")
+            messages.success(request, "Changes saved successfully.")
             return redirect(redirect_url)
         for field, errs in form.errors.items():
             label = form.fields.get(field).label if field in form.fields else field

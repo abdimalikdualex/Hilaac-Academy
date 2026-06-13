@@ -39,6 +39,7 @@ urlpatterns = [
     path("notifications/", v.instructor_notifications, name="notifications"),
     path("profile/", v.instructor_profile, name="profile"),
     path("settings/", v.instructor_settings, name="settings"),
+    path("settings/account/", v.instructor_account_info, name="account_info"),
     path("settings/password/", v.InstructorPasswordChangeView.as_view(), name="password_change"),
     path("settings/preferences/", v.instructor_preferences, name="preferences"),
 ]

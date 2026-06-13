@@ -1,0 +1,7 @@
+{% if messages %}
+<div class="mb-4 space-y-2" role="status" aria-live="polite">
+    {% for message in messages %}
+    <div class="{% if message.tags == 'error' %}ha-flash-error{% elif message.tags == 'success' %}ha-flash-success{% else %}ha-flash-info{% endif %}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}

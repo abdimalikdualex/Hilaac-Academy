@@ -852,6 +852,16 @@ admin_password_change = super_admin_required(AdminPasswordChangeView.as_view())
 
 
 @super_admin_required
+def admin_account_info(request):
+    from apps.accounts.settings_handlers import account_info_context
+    from apps.accounts.profile_helpers import security_logs_for_user
+
+    ctx = account_info_context(request)
+    ctx["security_logs"] = security_logs_for_user(request.user)
+    return render(request, "admin_portal/account_info.html", ctx)
+
+
+@super_admin_required
 def admin_preferences(request):
     from apps.accounts.settings_handlers import handle_preferences_post, preferences_context
 
