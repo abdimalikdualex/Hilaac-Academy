@@ -7,6 +7,7 @@ from apps.cms.models import (
     ANNOUNCEMENT_THEME_LABELS,
     Announcement,
     FAQ,
+    LegalPage,
     PartnerSchool,
     PlatformIntroductionVideo,
     Testimonial,
@@ -127,6 +128,25 @@ class FAQForm(forms.ModelForm):
         model = FAQ
         fields = ("question", "answer", "order", "is_active")
         widgets = {"answer": forms.Textarea(attrs={"rows": 4, "class": "form-input"})}
+
+
+class LegalPageForm(forms.ModelForm):
+    class Meta:
+        model = LegalPage
+        fields = ("title", "body")
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-input"}),
+            "body": forms.Textarea(
+                attrs={
+                    "class": "form-input font-mono text-sm",
+                    "rows": 18,
+                    "placeholder": "Optional HTML. Leave blank to use built-in default legal text.",
+                }
+            ),
+        }
+        help_texts = {
+            "body": "Supports HTML. Clear this field to restore the default page content.",
+        }
 
 
 class TestimonialForm(forms.ModelForm):

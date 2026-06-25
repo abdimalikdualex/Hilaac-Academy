@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 from apps.core.cache_sync import home_cache_key
 from apps.courses.models import Level
 
-from .models import FAQ, PlatformIntroductionVideo, SiteStatistic, Testimonial
+from .models import FAQ, LegalPage, PlatformIntroductionVideo, SiteStatistic, Testimonial
 
 User = get_user_model()
 HOME_CACHE_TTL = 300
@@ -97,3 +97,21 @@ def home(request):
         cache.set(cache_key, context, HOME_CACHE_TTL)
 
     return render(request, "cms/home.html", context)
+
+
+def legal_page(request, page_type):
+    page = LegalPage.get_page(page_type)
+    template_map = {
+        LegalPage.PageType.PRIVACY: "cms/privacy_policy.html",
+        LegalPage.PageType.TERMS: "cms/terms_conditions.html",
+    }
+    template_name = template_map.get(page_type, "cms/privacy_policy.html")
+    return render(
+        request,
+        template_name,
+        {
+            "legal_page": page,
+            "page_title": page.title,
+            "last_updated": page.last_updated,
+        },
+    )

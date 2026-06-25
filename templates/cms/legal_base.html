@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - {{ SITE_NAME }}{% endblock %}
+
+
+
+{% block content %}
+
+<section class="relative py-10 md:py-14 px-4 overflow-hidden bg-[#F5F7FA]">
+
+    {% include "partials/watermark.html" with position="center" %}
+
+    <div class="relative z-10 max-w-[900px] mx-auto">
+
+        <div class="text-center mb-8">
+
+            {% include "partials/logo.html" with show_name=True img_class="h-16 w-16 mx-auto" wrapper_class="justify-center mb-4" %}
+
+            <h1 class="text-3xl md:text-4xl font-bold text-[#0B1736]">{{ page_title }}</h1>
+
+            <p class="text-sm text-[#64748B] mt-3">Last updated: {{ last_updated|date:"F j, Y" }}</p>
+
+        </div>
+
+
+
+        <article class="legal-document-card bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-10 text-[#0B1736]">
+
+            {% block legal_content %}{% endblock %}
+
+        </article>
+
+
+
+        <div class="mt-8 text-center text-sm text-[#64748B]">
+
+            <p>Questions? Contact us at
+
+                <a href="mailto:{{ site_contact_email|default:'info@hilaacacademy.com' }}" class="text-[#1E4D8F] font-medium hover:underline">{{ site_contact_email|default:"info@hilaacacademy.com" }}</a>
+
+                or <a href="{{ WHATSAPP_LINK }}" target="_blank" rel="noopener" class="text-[#1E4D8F] font-medium hover:underline">WhatsApp support</a>.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<style>
+
+.legal-document-card h2 {
+
+    font-size: 1.25rem;
+
+    font-weight: 700;
+
+    color: #0B1736;
+
+    margin-top: 2rem;
+
+    margin-bottom: 0.75rem;
+
+}
+
+.legal-document-card h2:first-child { margin-top: 0; }
+
+.legal-document-card p,
+
+.legal-document-card li {
+
+    color: #334155;
+
+    line-height: 1.75;
+
+    font-size: 0.975rem;
+
+}
+
+.legal-document-card p { margin-bottom: 0.875rem; }
+
+.legal-document-card ul {
+
+    margin: 0.5rem 0 1rem 1.25rem;
+
+    list-style: disc;
+
+}
+
+.legal-document-card li { margin-bottom: 0.35rem; }
+
+.legal-custom-body h2 { font-size: 1.25rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+
+.legal-custom-body p { margin-bottom: 0.75rem; line-height: 1.75; }
+
+</style>
+
+{% endblock %}
+
+

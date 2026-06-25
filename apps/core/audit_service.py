@@ -102,6 +102,8 @@ ACTION_MODULES: dict[str, str] = {
 
     "site_settings_update": "Settings",
 
+    "legal_page_update": "CMS",
+
     "partner_school_save": "CMS",
 
     "partner_school_toggle": "CMS",
@@ -241,6 +243,8 @@ ACTION_LABELS: dict[str, str] = {
     "platform_video_delete": "Platform video deleted",
 
     "site_settings_update": "System settings updated",
+
+    "legal_page_update": "Legal page updated",
 
     "partner_school_save": "Partner school saved",
 

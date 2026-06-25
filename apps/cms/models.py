@@ -291,3 +291,39 @@ class PlatformIntroductionVideo(TimeStampedModel):
         PlatformIntroductionVideo.objects.filter(pk=self.pk).update(
             completion_count=models.F("completion_count") + 1
         )
+
+
+class LegalPage(TimeStampedModel):
+    """Editable legal content for public Privacy Policy and Terms pages."""
+
+    class PageType(models.TextChoices):
+        PRIVACY = "privacy", "Privacy Policy"
+        TERMS = "terms", "Terms & Conditions"
+
+    page_type = models.CharField(max_length=20, choices=PageType.choices, unique=True)
+    title = models.CharField(max_length=200)
+    body = models.TextField(
+        blank=True,
+        help_text="Optional HTML. Leave blank to show the built-in default legal text.",
+    )
+    last_updated = models.DateField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Legal Page"
+        verbose_name_plural = "Legal Pages"
+        ordering = ["page_type"]
+
+    def __str__(self):
+        return self.title
+
+    @classmethod
+    def get_page(cls, page_type: str):
+        defaults = {
+            cls.PageType.PRIVACY: "Privacy Policy",
+            cls.PageType.TERMS: "Terms & Conditions",
+        }
+        page, _ = cls.objects.get_or_create(
+            page_type=page_type,
+            defaults={"title": defaults.get(page_type, page_type)},
+        )
+        return page

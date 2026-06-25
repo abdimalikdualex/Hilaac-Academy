@@ -16,6 +16,7 @@ from apps.certificates.services import maybe_issue_certificate
 from apps.cms.models import (
     Announcement,
     FAQ,
+    LegalPage,
     PartnerSchool,
     PlatformIntroductionVideo,
     SiteStatistic,
@@ -36,6 +37,7 @@ from .forms import (
     ExchangeRateForm,
     FAQForm,
     InstructorForm,
+    LegalPageForm,
     LevelForm,
     LibraryResourceForm,
     AnnouncementForm,
@@ -769,6 +771,34 @@ def cms_home(request):
             "statistics": SiteStatistic.objects.all(),
             "testimonials": Testimonial.objects.all(),
             "faqs": FAQ.objects.all(),
+            "privacy_page": LegalPage.get_page(LegalPage.PageType.PRIVACY),
+            "terms_page": LegalPage.get_page(LegalPage.PageType.TERMS),
+        },
+    )
+
+
+@super_admin_required
+def cms_legal_edit(request, page_type):
+    page = LegalPage.get_page(page_type)
+    preview_url_name = (
+        "cms:privacy_policy" if page_type == LegalPage.PageType.PRIVACY else "cms:terms_conditions"
+    )
+    if request.method == "POST":
+        form = LegalPageForm(request.POST, instance=page)
+        if form.is_valid():
+            form.save()
+            log_audit(request, "legal_page_update", "LegalPage", page.pk, page.title)
+            messages.success(request, f"{page.title} updated.")
+            return redirect("admin_portal:cms_home")
+    else:
+        form = LegalPageForm(instance=page)
+    return render(
+        request,
+        "admin_portal/cms/legal_form.html",
+        {
+            "form": form,
+            "page": page,
+            "preview_url_name": preview_url_name,
         },
     )
 

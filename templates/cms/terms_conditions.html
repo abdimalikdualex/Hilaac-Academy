@@ -1,0 +1,19 @@
+{% extends "cms/legal_base.html" %}
+
+
+
+{% block legal_content %}
+
+{% if legal_page.body %}
+
+<div class="legal-custom-body">{{ legal_page.body|safe }}</div>
+
+{% else %}
+
+{% include "cms/legal/terms_content.html" %}
+
+{% endif %}
+
+{% endblock %}
+
+

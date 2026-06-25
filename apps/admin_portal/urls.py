@@ -65,6 +65,8 @@ urlpatterns = [
     path("cms/", views.cms_home, name="cms_home"),
     path("cms/faq/add/", views.cms_faq_edit, {"pk": None}, name="cms_faq_add"),
     path("cms/faq/<int:pk>/edit/", views.cms_faq_edit, name="cms_faq_edit"),
+    path("cms/legal/privacy/", views.cms_legal_edit, {"page_type": "privacy"}, name="cms_legal_privacy"),
+    path("cms/legal/terms/", views.cms_legal_edit, {"page_type": "terms"}, name="cms_legal_terms"),
     path("cms/faq/<int:pk>/delete/", views.faq_delete, name="faq_delete"),
   # Partner Schools
     path("platform-video/", views.platform_video_list, name="platform_video_list"),

@@ -6,5 +6,27 @@
 <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Statistics</h2>{% for s in statistics %}<div class="text-sm py-1">{{ s.label }}: {{ s.value }}</div>{% endfor %}<a href="/admin/cms/sitestatistic/" class="text-primary-600 text-sm mt-2 inline-block">Edit in Admin →</a></div>
 <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">Testimonials</h2>{% for t in testimonials|slice:":5" %}<div class="text-sm py-1 border-b">{{ t.student_name }}</div>{% endfor %}<a href="/admin/cms/testimonial/" class="text-primary-600 text-sm mt-2 inline-block">Manage →</a></div>
 <div class="bg-white p-5 rounded-xl border"><h2 class="font-bold mb-3">FAQ</h2>{% for f in faqs|slice:":5" %}<div class="text-sm py-1 border-b flex justify-between gap-2"><span>{{ f.question|truncatewords:8 }}</span><span class="space-x-2 flex-shrink-0"><a href="{% url 'admin_portal:cms_faq_edit' pk=f.pk %}" class="text-primary-600">Edit</a><a href="{% url 'admin_portal:faq_delete' pk=f.pk %}" class="text-red-600">Delete</a></span></div>{% endfor %}<a href="{% url 'admin_portal:cms_faq_add' %}" class="text-primary-600 text-sm mt-2 inline-block">+ Add FAQ</a></div>
+<div class="bg-white p-5 rounded-xl border lg:col-span-3">
+    <h2 class="font-bold mb-3">Legal Pages</h2>
+    <p class="text-sm text-slate-500 mb-4">Edit Privacy Policy and Terms & Conditions shown in the site footer.</p>
+    <div class="grid sm:grid-cols-2 gap-4">
+        <div class="border rounded-lg p-4">
+            <h3 class="font-semibold text-slate-900">Privacy Policy</h3>
+            <p class="text-xs text-slate-500 mt-1">Updated {{ privacy_page.last_updated|date:"M j, Y" }}</p>
+            <div class="flex flex-wrap gap-3 mt-3 text-sm">
+                <a href="{% url 'admin_portal:cms_legal_privacy' %}" class="text-primary-600 font-medium">Edit</a>
+                <a href="{% url 'cms:privacy_policy' %}" target="_blank" rel="noopener" class="text-slate-600">Preview</a>
+            </div>
+        </div>
+        <div class="border rounded-lg p-4">
+            <h3 class="font-semibold text-slate-900">Terms & Conditions</h3>
+            <p class="text-xs text-slate-500 mt-1">Updated {{ terms_page.last_updated|date:"M j, Y" }}</p>
+            <div class="flex flex-wrap gap-3 mt-3 text-sm">
+                <a href="{% url 'admin_portal:cms_legal_terms' %}" class="text-primary-600 font-medium">Edit</a>
+                <a href="{% url 'cms:terms_conditions' %}" target="_blank" rel="noopener" class="text-slate-600">Preview</a>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 {% endblock %}
