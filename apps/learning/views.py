@@ -56,7 +56,7 @@ def course_view(request, level_id):
 
         else:
 
-            messages.error(request, "Purchase and payment approval are required to access this course.")
+            messages.error(request, "Purchase this course to access learning materials.")
 
         return redirect("courses:detail", language_slug=level.language.slug, level_slug=level.slug)
 
@@ -118,7 +118,7 @@ def lesson_player(request, lesson_id):
 
         from apps.courses.preview import get_enroll_or_checkout_url
 
-        messages.error(request, "This lesson is locked. Enroll to unlock full access.")
+        messages.error(request, "Purchase this course to access learning materials.")
 
         return redirect(get_enroll_or_checkout_url(level, request.user))
 

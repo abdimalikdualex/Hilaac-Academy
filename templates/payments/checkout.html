@@ -28,6 +28,9 @@
                 <div class="p-5">
                     <span class="text-xs font-semibold uppercase text-primary-600">{{ level.language.name }}</span>
                     <h2 class="font-bold text-xl mt-1">{{ level.name }}</h2>
+                    {% if level.description %}
+                    <p class="text-sm text-slate-600 mt-2 line-clamp-4">{{ level.description }}</p>
+                    {% endif %}
                     {% if level.instructor %}
                     <p class="text-sm text-slate-500 mt-1">Instructor: {{ level.instructor.get_full_name|default:level.instructor.username }}</p>
                     {% endif %}

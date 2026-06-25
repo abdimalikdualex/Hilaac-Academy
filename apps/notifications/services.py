@@ -266,7 +266,7 @@ def notify_payment_confirmed(payment):
 
         payment.student,
 
-        f"Payment successful! You now have full access to {payment.level.name}.",
+        f"Payment successful. You can now access {payment.level.name}.",
 
         Notification.NotificationType.PAYMENT,
 

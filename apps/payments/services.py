@@ -10,7 +10,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 
-from .constants import PAYMENT_METHOD_META, PUSH_PAYMENT_METHODS
+from .constants import PAYMENT_METHOD_META, PAYMENT_SUCCESS_MESSAGE, PUSH_PAYMENT_METHODS
 from .models import Payment
 
 logger = logging.getLogger(__name__)
@@ -283,11 +283,13 @@ def verify_payment_status(payment):
     """
     from django.urls import reverse
 
+    course_url = reverse("learning:course_view", kwargs={"level_id": payment.level_id})
+
     if payment.status == Payment.Status.COMPLETED:
         return {
             "status": "completed",
-            "message": "Payment successful. Welcome to your course!",
-            "redirect_url": reverse("student:courses") + "?payment=success",
+            "message": PAYMENT_SUCCESS_MESSAGE,
+            "redirect_url": course_url,
         }
     if payment.status in (Payment.Status.FAILED, Payment.Status.CANCELLED, Payment.Status.REJECTED):
         return {
@@ -304,8 +306,8 @@ def verify_payment_status(payment):
                 payment.approve()
                 return {
                     "status": "completed",
-                    "message": "Payment successful. Welcome to your course!",
-                    "redirect_url": reverse("student:courses") + "?payment=success",
+                    "message": PAYMENT_SUCCESS_MESSAGE,
+                    "redirect_url": course_url,
                 }
         else:
             code, desc, receipt = query_mpesa_stk_status(payment.checkout_request_id)
@@ -316,8 +318,8 @@ def verify_payment_status(payment):
                 payment.approve()
                 return {
                     "status": "completed",
-                    "message": "Payment successful. Welcome to your course!",
-                    "redirect_url": reverse("student:courses") + "?payment=success",
+                    "message": PAYMENT_SUCCESS_MESSAGE,
+                    "redirect_url": course_url,
                 }
             if code is not None and code != 0:
                 payment.mark_failed(desc or "Payment was not completed.")
@@ -334,8 +336,8 @@ def verify_payment_status(payment):
             payment.approve()
             return {
                 "status": "completed",
-                "message": "Payment successful. Welcome to your course!",
-                "redirect_url": reverse("student:courses") + "?payment=success",
+                "message": PAYMENT_SUCCESS_MESSAGE,
+                "redirect_url": course_url,
             }
 
     # Timeout after 3 minutes

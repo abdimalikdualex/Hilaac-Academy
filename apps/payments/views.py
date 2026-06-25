@@ -15,7 +15,7 @@ from apps.notifications.services import notify_admin_payment_submitted
 
 from apps.core.brand_assets import BrandAssetManager
 
-from .constants import PAYMENT_METHOD_META
+from .constants import PAYMENT_METHOD_META, PAYMENT_SUCCESS_MESSAGE
 from .currency import build_payment_amounts, get_checkout_methods_pricing, get_pricing
 from .forms import InstantPaymentForm
 from .models import Payment
@@ -95,8 +95,8 @@ def payment_pending(request, payment_id):
         student=request.user,
     )
     if payment.status == Payment.Status.COMPLETED:
-        messages.success(request, "Payment Successful. Welcome to your course!")
-        return redirect("student:courses")
+        messages.success(request, PAYMENT_SUCCESS_MESSAGE)
+        return redirect("learning:course_view", level_id=payment.level_id)
 
     pin_message = payment.provider_message or PAYMENT_METHOD_META.get(payment.method, {}).get("pin_message", "")
     return render(

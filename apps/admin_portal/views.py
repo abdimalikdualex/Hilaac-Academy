@@ -371,7 +371,25 @@ def payment_list(request):
     payments = Payment.objects.select_related("student", "level").order_by("-created_at")
     if status:
         payments = payments.filter(status=status)
-    return render(request, "admin_portal/payments/list.html", {"payments": payments, "status": status})
+
+    completed_q = Q(status=Payment.Status.COMPLETED)
+    failed_q = Q(status__in=[Payment.Status.FAILED, Payment.Status.CANCELLED, Payment.Status.REJECTED])
+    payment_stats = Payment.objects.aggregate(
+        total_revenue_usd=Sum("amount_usd", filter=completed_q),
+        successful_count=Count("id", filter=completed_q),
+        pending_count=Count("id", filter=Q(status=Payment.Status.PENDING)),
+        failed_count=Count("id", filter=failed_q),
+    )
+
+    return render(
+        request,
+        "admin_portal/payments/list.html",
+        {
+            "payments": payments,
+            "status": status,
+            "payment_stats": payment_stats,
+        },
+    )
 
 
 @super_admin_required

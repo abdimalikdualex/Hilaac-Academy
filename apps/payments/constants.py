@@ -1,5 +1,7 @@
 PUSH_PAYMENT_METHODS = ("mpesa", "evc_plus", "zaad", "sahal")
 
+PAYMENT_SUCCESS_MESSAGE = "Payment successful. You can now access this course."
+
 PAYMENT_METHOD_META = {
     "mpesa": {
         "label": "M-Pesa",

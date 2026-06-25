@@ -76,6 +76,13 @@ class Payment(TimeStampedModel):
 
         return protected_url(self.screenshot)
 
+    @property
+    def mpesa_receipt_number(self):
+        """M-Pesa receipt from STK callback (stored in transaction_id)."""
+        if self.method == self.Method.MPESA and self.transaction_id:
+            return self.transaction_id
+        return ""
+
     def save(self, *args, **kwargs):
         if not self.receipt_number:
             self.receipt_number = f"HA-RCP-{timezone.now().strftime('%Y%m%d%H%M%S')}-{self.student_id or 0}"
