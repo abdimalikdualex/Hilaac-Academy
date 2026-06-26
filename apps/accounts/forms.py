@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.imaging import ALLOWED_IMAGE_EXTS
 
@@ -19,16 +20,16 @@ class HilaacPasswordChangeForm(PasswordChangeForm):
         super().__init__(*args, **kwargs)
         field_config = {
             "old_password": {
-                "label": "Current Password",
-                "placeholder": "Enter your current password",
+                "label": _("Current Password"),
+                "placeholder": _("Enter your current password"),
             },
             "new_password1": {
-                "label": "New Password",
-                "placeholder": "Create a new password",
+                "label": _("New Password"),
+                "placeholder": _("Create a new password"),
             },
             "new_password2": {
-                "label": "Confirm New Password",
-                "placeholder": "Confirm your new password",
+                "label": _("Confirm New Password"),
+                "placeholder": _("Confirm your new password"),
             },
         }
         for name, config in field_config.items():
@@ -42,14 +43,14 @@ class HilaacPasswordChangeForm(PasswordChangeForm):
     def clean_old_password(self):
         old_password = self.cleaned_data.get("old_password")
         if old_password and not self.user.check_password(old_password):
-            raise forms.ValidationError("Current password is incorrect.")
+            raise forms.ValidationError(_("Current password is incorrect."))
         return old_password
 
     def clean_new_password2(self):
         password1 = self.cleaned_data.get("new_password1")
         password2 = self.cleaned_data.get("new_password2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords do not match.")
+            raise forms.ValidationError(_("Passwords do not match."))
         return super().clean_new_password2()
 
     def clean_new_password1(self):
@@ -58,15 +59,15 @@ class HilaacPasswordChangeForm(PasswordChangeForm):
             return password
         errors = []
         if len(password) < 8:
-            errors.append("Password does not meet requirements.")
+            errors.append(_("Password does not meet requirements."))
         if not any(c.isupper() for c in password):
-            errors.append("Password does not meet requirements.")
+            errors.append(_("Password does not meet requirements."))
         if not any(c.islower() for c in password):
-            errors.append("Password does not meet requirements.")
+            errors.append(_("Password does not meet requirements."))
         if not any(c.isdigit() for c in password):
-            errors.append("Password does not meet requirements.")
+            errors.append(_("Password does not meet requirements."))
         if not any(not c.isalnum() for c in password):
-            errors.append("Password does not meet requirements.")
+            errors.append(_("Password does not meet requirements."))
         if errors:
             raise forms.ValidationError(errors[0])
         password_validation.validate_password(password, self.user)
@@ -76,6 +77,11 @@ class HilaacPasswordChangeForm(PasswordChangeForm):
 class HilaacAuthenticationForm(AuthenticationForm):
     """Strip accidental whitespace; email can be typed in the username field."""
 
+    error_messages = {
+        "invalid_login": _("Invalid username or password."),
+        "inactive": _("This account is deactivated. Contact support."),
+    }
+
     def clean_username(self):
         return (self.cleaned_data.get("username") or "").strip()
 
@@ -84,15 +90,20 @@ class HilaacAuthenticationForm(AuthenticationForm):
 
 
 class StudentRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=150, required=True)
-    last_name = forms.CharField(max_length=150, required=True)
-    phone = forms.CharField(max_length=20, required=False)
-    country = forms.CharField(max_length=100, required=False)
+    email = forms.EmailField(required=True, label=_("Email"))
+    first_name = forms.CharField(max_length=150, required=True, label=_("First Name"))
+    last_name = forms.CharField(max_length=150, required=True, label=_("Last Name"))
+    phone = forms.CharField(max_length=20, required=False, label=_("Phone"))
+    country = forms.CharField(max_length=100, required=False, label=_("Country"))
 
     class Meta:
         model = User
         fields = ("username", "email", "first_name", "last_name", "phone", "country", "password1", "password2")
+        labels = {
+            "username": _("Username"),
+            "password1": _("Password"),
+            "password2": _("Confirm Password"),
+        }
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -110,9 +121,9 @@ def _validate_profile_photo(uploaded):
         return uploaded
     ext = "." + uploaded.name.rsplit(".", 1)[-1].lower() if "." in uploaded.name else ""
     if ext not in ALLOWED_IMAGE_EXTS:
-        raise forms.ValidationError("Use JPG, PNG, or WebP images only.")
+        raise forms.ValidationError(_("Use JPG, PNG, or WebP images only."))
     if uploaded.size > PROFILE_PHOTO_MAX_BYTES:
-        raise forms.ValidationError("Profile photo must be 5 MB or smaller.")
+        raise forms.ValidationError(_("Profile photo must be 5 MB or smaller."))
     return uploaded
 
 
@@ -240,11 +251,11 @@ class NotificationPreferencesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         labels = {
-            "notify_course_updates": "Course updates",
-            "notify_assignments": "Assignment notifications",
-            "notify_certificates": "Certificate notifications",
-            "notify_marketing": "Marketing emails",
-            "notify_system": "System announcements",
+            "notify_course_updates": _("Course updates"),
+            "notify_assignments": _("Assignment notifications"),
+            "notify_certificates": _("Certificate notifications"),
+            "notify_marketing": _("Marketing emails"),
+            "notify_system": _("System announcements"),
         }
         for field in self.fields:
             self.fields[field].widget.attrs["class"] = "rounded"

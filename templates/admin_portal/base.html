@@ -31,7 +31,7 @@
 
             {% include "partials/logo.html" with show_name=False img_class="h-11 w-11" %}
 
-            <div class="text-xs text-slate-400 mt-2 pl-1">Super Admin Portal</div>
+            <div class="text-xs text-slate-400 mt-2 pl-1">{% trans "Super Admin Portal" %}</div>
 
         </div>
 
@@ -43,9 +43,9 @@
 
             <div class="text-slate-400 mb-2">{{ request.user.username }}</div>
 
-            <a href="{% url 'cms:home' %}" class="text-primary-400 hover:underline block mb-1">View Site</a>
+            <a href="{% url 'cms:home' %}" class="text-primary-400 hover:underline block mb-1">{% trans "View Site" %}</a>
 
-            <a href="{% url 'accounts:logout' %}" class="text-red-400 hover:underline">Logout</a>
+            <a href="{% url 'accounts:logout' %}" class="text-red-400 hover:underline">{% trans "Logout" %}</a>
 
         </div>
 
@@ -55,7 +55,7 @@
 
         <header class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-6 min-w-0">
-                <span class="text-sm font-semibold text-slate-600 shrink-0">Super Admin Portal</span>
+                <span class="text-sm font-semibold text-slate-600 shrink-0">{% trans "Super Admin Portal" %}</span>
             </div>
             <div class="flex items-center gap-2">
                 {% include "partials/language_switcher.html" %}

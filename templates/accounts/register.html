@@ -1,9 +1,10 @@
 {% extends "partials/auth_shell.html" %}
-{% block title %}Register - Hilaac Academy{% endblock %}
-{% block auth_welcome %}Samee akoon cusub si aad u bilowdo safarkaaga waxbarasho.{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Register" %} - Hilaac Academy{% endblock %}
+{% block auth_welcome %}{% trans "Create a new account to start your learning journey." %}{% endblock %}
 
 {% block auth_content %}
-<h1 class="text-2xl font-bold text-center text-[#0B1736] mb-6">Create Your Account</h1>
+<h1 class="text-2xl font-bold text-center text-[#0B1736] mb-6">{% trans "Create Your Account" %}</h1>
 <form method="post" class="space-y-4 ha-form">
     {% csrf_token %}
     {% for field in form %}
@@ -11,20 +12,20 @@
         <label class="ha-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
         {% if field.errors %}<p class="text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
         {% if 'password' in field.name %}
-        <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}" required placeholder="Enter {{ field.label|lower }}" class="form-input" autocomplete="new-password">
+        <input type="password" name="{{ field.name }}" id="{{ field.id_for_label }}" required placeholder="{{ field.label }}" class="form-input" autocomplete="new-password">
         {% else %}
         <input type="{% if field.name == 'email' %}email{% else %}text{% endif %}" name="{{ field.name }}" id="{{ field.id_for_label }}"
-            value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %} placeholder="Enter {{ field.label|lower }}" class="form-input" {% if field.name == 'email' %}autocomplete="email"{% endif %}>
+            value="{{ field.value|default:'' }}" {% if field.field.required %}required{% endif %} placeholder="{{ field.label }}" class="form-input" {% if field.name == 'email' %}autocomplete="email"{% endif %}>
         {% endif %}
     </div>
     {% endfor %}
-    <button type="submit" class="w-full ha-btn-primary" data-loading-text="Creating account...">Create Account</button>
+    <button type="submit" class="w-full ha-btn-primary" data-loading-text="{% trans 'Creating account...' %}">{% trans "Create Account" %}</button>
 </form>
 {% endblock %}
 
 {% block auth_footer %}
 <div class="mt-6 pt-5 border-t border-slate-200 text-center text-sm text-[#64748B]">
-    Already have an account?
-    <a href="{% url 'accounts:login' %}" class="font-semibold text-[#1E4D8F] hover:underline">Sign In</a>
+    {% trans "Already have an account?" %}
+    <a href="{% url 'accounts:login' %}" class="font-semibold text-[#1E4D8F] hover:underline">{% trans "Sign In" %}</a>
 </div>
 {% endblock %}

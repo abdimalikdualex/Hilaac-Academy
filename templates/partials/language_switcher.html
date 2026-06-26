@@ -1,15 +1,39 @@
 {% load i18n %}
-<form method="post" action="{% url 'set_language' %}" class="inline-flex items-center gap-1 text-sm">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-    <span class="text-slate-500 hidden sm:inline" aria-hidden="true">🌐</span>
-    <button type="submit" name="language" value="en"
-            class="px-2 py-1 rounded {% if LANGUAGE_CODE == 'en' %}font-bold text-primary-600 bg-primary-50{% else %}text-slate-600 hover:text-primary-600{% endif %}">
-        English
-    </button>
-    <span class="text-slate-300">|</span>
-    <button type="submit" name="language" value="so"
-            class="px-2 py-1 rounded {% if LANGUAGE_CODE == 'so' %}font-bold text-primary-600 bg-primary-50{% else %}text-slate-600 hover:text-primary-600{% endif %}">
-        Soomaali
-    </button>
-</form>
+<details class="relative group">
+    <summary class="list-none cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 transition [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true">{% if LANGUAGE_CODE == 'so' %}🇸🇴{% else %}🇬🇧{% endif %}</span>
+        <span class="font-medium text-slate-700 dark:text-slate-200">
+            {% if LANGUAGE_CODE == 'so' %}{% trans "Soomaali" %}{% else %}{% trans "English" %}{% endif %}
+        </span>
+        <span class="text-slate-400 text-xs" aria-hidden="true">▼</span>
+    </summary>
+    <form method="post" action="{% url 'set_language' %}" class="absolute right-0 mt-1 min-w-[10rem] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1 z-50">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" name="language" value="en"
+                class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 dark:hover:bg-slate-700 flex items-center gap-2 {% if LANGUAGE_CODE == 'en' %}font-bold text-primary-600 bg-primary-50/50{% else %}text-slate-700 dark:text-slate-200{% endif %}">
+            <span aria-hidden="true">🇬🇧</span> {% trans "English" %}
+        </button>
+        <button type="submit" name="language" value="so"
+                class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 dark:hover:bg-slate-700 flex items-center gap-2 {% if LANGUAGE_CODE == 'so' %}font-bold text-primary-600 bg-primary-50/50{% else %}text-slate-700 dark:text-slate-200{% endif %}">
+            <span aria-hidden="true">🇸🇴</span> {% trans "Soomaali" %}
+        </button>
+    </form>
+</details>
+<script>
+(function () {
+    var key = "hilaac_language";
+    var match = document.cookie.match(/(?:^|; )django_language=([^;]*)/);
+    if (match) {
+        try { localStorage.setItem(key, decodeURIComponent(match[1])); } catch (e) {}
+    }
+    document.querySelectorAll("form[action*='set-language']").forEach(function (form) {
+        form.addEventListener("submit", function () {
+            var lang = (new FormData(form)).get("language");
+            if (lang) {
+                try { localStorage.setItem(key, lang); } catch (e) {}
+            }
+        });
+    });
+})();
+</script>

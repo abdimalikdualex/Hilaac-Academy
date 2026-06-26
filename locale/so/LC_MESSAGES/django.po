@@ -62,7 +62,7 @@ msgid "Contact"
 msgstr "Nala soo xiriir"
 
 msgid "Dashboard"
-msgstr "Dashboard-ka"
+msgstr "Bogga maamulka"
 
 msgid "Profile"
 msgstr "Xogtaada"
@@ -396,3 +396,303 @@ msgstr "Lacag bixintaada waa la helay. Maamulku wuu oggolaan doonaa gelitaankaag
 
 msgid "Complete the transaction on your phone to unlock this course."
 msgstr "Dhammee macaamilka taleefankaaga si aad u furto koorsadan."
+
+msgid "Videos & Lessons"
+msgstr "Muuqaallada iyo Casharrada"
+
+msgid "Quizzes & Exams"
+msgstr "Imtixaannada iyo Imtixaannada Weyn"
+
+msgid "Digital Library"
+msgstr "Maktabadda Dijitaalka"
+
+msgid "Website CMS"
+msgstr "Maamulka Bogga"
+
+msgid "Platform Video"
+msgstr "Muuqaalka Platform-ka"
+
+msgid "Announcements"
+msgstr "Ogeysiisyada"
+
+msgid "Partner Schools"
+msgstr "Dugsiyada Wada-shaqaynta"
+
+msgid "Exchange Rates"
+msgstr "Qiimaha Sarifka"
+
+msgid "Audit Trail"
+msgstr "Raadraaca Hawlaha"
+
+msgid "Academy Settings"
+msgstr "Dejinta Akadeemiyada"
+
+msgid "Recycle Bin"
+msgstr "Sanduuqa Dib-u-soo-celinta"
+
+msgid "Instructor Portal"
+msgstr "Portal-ka Macallinka"
+
+msgid "Create Course"
+msgstr "Abuur Koorsada"
+
+msgid "Curriculum Builder"
+msgstr "Dhisaha Qorshaha Koorsada"
+
+msgid "Analytics"
+msgstr "Falanqaynta"
+
+msgid "Open menu"
+msgstr "Fur liiska"
+
+msgid "Learn modern skills, build your future."
+msgstr "Baro xirfado casri ah, dhis mustaqbalkaaga."
+
+msgid "About"
+msgstr "Nagu saabsan"
+
+msgid "Mission"
+msgstr "Ujeeddada"
+
+msgid "Vision"
+msgstr "Aragtida"
+
+msgid "Quick Links"
+msgstr "Xiriiriyeyaasha Degdegga"
+
+msgid "Legal"
+msgstr "Sharci"
+
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+msgid "All rights reserved."
+msgstr "Dhammaan xuquuqaha way dhowran yihiin."
+
+msgid "Current Password"
+msgstr "Erayga sirta ah ee hadda"
+
+msgid "Enter your current password"
+msgstr "Geli erayga sirta ah ee hadda"
+
+msgid "New Password"
+msgstr "Erayga sirta ah ee cusub"
+
+msgid "Create a new password"
+msgstr "Samee eray sir ah oo cusub"
+
+msgid "Confirm New Password"
+msgstr "Xaqiiji erayga sirta ah ee cusub"
+
+msgid "Confirm your new password"
+msgstr "Xaqiiji erayga sirta ah ee cusub"
+
+msgid "Current password is incorrect."
+msgstr "Erayga sirta ah ee hadda waa khalad."
+
+msgid "Passwords do not match."
+msgstr "Erayada sirta ah isma waafaqaan."
+
+msgid "Password does not meet requirements."
+msgstr "Erayga sirta ah ma buuxin shuruudaha."
+
+msgid "This account is deactivated. Contact support."
+msgstr "Akoonkan waa la damiyay. La xiriir taageerada."
+
+msgid "Country"
+msgstr "Dalka"
+
+msgid "Confirm Password"
+msgstr "Xaqiiji erayga sirta ah"
+
+msgid "Use JPG, PNG, or WebP images only."
+msgstr "Isticmaal sawirro JPG, PNG, ama WebP kaliya."
+
+msgid "Profile photo must be 5 MB or smaller."
+msgstr "Sawirka profile-ka waa inuu ka yar yahay 5 MB."
+
+msgid "Course updates"
+msgstr "Cusbooneysiinta koorsooyinka"
+
+msgid "Assignment notifications"
+msgstr "Ogeysiisyada shaqooyinka"
+
+msgid "Certificate notifications"
+msgstr "Ogeysiisyada shahaadooyinka"
+
+msgid "Marketing emails"
+msgstr "Iimaylada suuqgeynta"
+
+msgid "System announcements"
+msgstr "Ogeysiisyada nidaamka"
+
+msgid "Welcome to Hilaac Academy"
+msgstr "Kusoo dhawoow Hilaac Academy"
+
+msgid "Learn English and Kiswahili from home."
+msgstr "Baro English iyo Kiswahili adigoo jooga gurigaaga."
+
+msgid "Get video lessons, digital books, quizzes, and professional certificates."
+msgstr "Hel casharro muuqaal ah, buugaag dijitaal ah, imtixaano, iyo shahaadooyin xirfadeed."
+
+msgid "Search courses, books or lessons..."
+msgstr "Raadi koorsooyin, buugaag ama casharro..."
+
+msgid "Search courses, books or lessons"
+msgstr "Raadi koorsooyin, buugaag ama casharro"
+
+msgid "Get Started"
+msgstr "Bilow Hadda"
+
+msgid "Featured Courses"
+msgstr "Koorsooyinka La Doortay"
+
+msgid "Choose a course that fits your level"
+msgstr "Dooro koorso ku habboon heerkaaga"
+
+msgid "Enroll Now"
+msgstr "Isdiiwaangeli Hadda"
+
+msgid "Courses are coming soon."
+msgstr "Koorsooyin dhawaan way imanayaan."
+
+msgid "View All Courses"
+msgstr "Eeg Dhammaan Koorsooyinka"
+
+msgid "Why Choose Hilaac Academy?"
+msgstr "Maxaad Doorataa Hilaac Academy?"
+
+msgid "What you get:"
+msgstr "Waxaad heshay:"
+
+msgid "How It Works"
+msgstr "Sida Ay U Shaqeyso"
+
+msgid "Choose a Course"
+msgstr "Dooro Koorsada"
+
+msgid "Watch Lessons"
+msgstr "Daawo Casharrada"
+
+msgid "Take Quizzes"
+msgstr "Qaado Imtixaannada"
+
+msgid "Get Certificate"
+msgstr "Hel Shahaadada"
+
+msgid "What Our Students Say"
+msgstr "Waxa Ardaydeenu Yiraahdeen"
+
+msgid "Create a new account to start your learning journey."
+msgstr "Samee akoon cusub si aad u bilowdo safarkaaga waxbarasho."
+
+msgid "Create Your Account"
+msgstr "Samee Akoonkaaga"
+
+msgid "Creating account..."
+msgstr "Akoonka waa la sameynayaa..."
+
+msgid "Already have an account?"
+msgstr "Horey ma u haysatay akoon?"
+
+msgid "Reset Password"
+msgstr "Dib u deji erayga sirta ah"
+
+msgid "We'll help you get back into your account."
+msgstr "Waan kaa caawin doonnaa inaad dib u gasho akoonkaaga."
+
+msgid "Enter your email and we'll send you a reset link."
+msgstr "Geli iimaylkaaga waxaanu kuu soo diri doonnaa xiriiriye dib-u-dejinta."
+
+msgid "Your email address"
+msgstr "Cinwaanka iimaylkaaga"
+
+msgid "Send Reset Link"
+msgstr "Dir Xiriiriyaha Dib-u-dejinta"
+
+msgid "Back to Login"
+msgstr "Ku noqo Galitaanka"
+
+msgid "Page Not Found"
+msgstr "Bogga lama helin"
+
+msgid "The page you're looking for doesn't exist or may have been moved."
+msgstr "Bogga aad raadinayso ma jiro ama waa la raray."
+
+msgid "Return Home"
+msgstr "Ku noqo Bogga Hore"
+
+msgid "Server Error"
+msgstr "Cilad Server"
+
+msgid "Something Went Wrong"
+msgstr "Waxbaa khaldamay"
+
+msgid "We're experiencing a temporary issue. Please try again shortly."
+msgstr "Waxaan la kulannay dhibaato ku meel gaar ah. Fadlan mar kale isku day dhawaan."
+
+msgid "Need help? Contact us at info@hilaacacademy.com or WhatsApp support."
+msgstr "Caawimaad u baahan tahay? Nala soo xiriir info@hilaacacademy.com ama taageerada WhatsApp."
+
+msgid "Welcome, %(name)s!"
+msgstr "Ku soo dhawoow, %(name)s!"
+
+msgid "Track your courses, progress, and new lessons here."
+msgstr "Halkaan waxaad kala socon kartaa koorsooyinkaaga, horumarkaaga, iyo casharrada cusub."
+
+msgid "View all"
+msgstr "Eeg dhammaan"
+
+msgid "Continue"
+msgstr "Sii wad"
+
+msgid "No active courses."
+msgstr "Ma jiraan koorsooyin firfircoon."
+
+msgid "Browse courses"
+msgstr "Baadh koorsooyinka"
+
+msgid "Super Admin Dashboard"
+msgstr "Bogga Maamulka Super Admin"
+
+msgid "Manage all areas of Hilaac Academy from here."
+msgstr "Halkaan waxaad ka maamuli kartaa dhammaan qaybaha Hilaac Academy."
+
+msgid "Active Enrollments"
+msgstr "Isdiiwaangelinta Firfircoon"
+
+msgid "Total Revenue (USD)"
+msgstr "Wadarta Dakhliga (USD)"
+
+msgid "Monthly Revenue (USD)"
+msgstr "Dakhliga Bishii (USD)"
+
+msgid "Quizzes Done"
+msgstr "Imtixaannada La Qabtay"
+
+msgid "Changes saved successfully."
+msgstr "Isbeddellada si guul leh waa loo kaydiyay."
+
+msgid "Please verify your email to access this feature."
+msgstr "Fadlan xaqiiji iimaylkaaga si aad u hesho astaantan."
+
+msgid "Sign in to continue your learning journey."
+msgstr "Gal akoonkaaga si aad u sii wadato safarkaaga waxbarasho."
+
+msgid "Video Lessons"
+msgstr "Casharro muuqaal ah"
+
+msgid "Online Quizzes & Exams"
+msgstr "Imtixaanno online ah"
+
+msgid "Verifiable Certificates"
+msgstr "Shahaadooyin la xaqiijin karo"
+
+msgid "Mobile-Friendly Learning"
+msgstr "Barasho ku habboon mobile-ka"
+
+msgid "Expert Instructors"
+msgstr "Macallimiin khibrad leh"
+
+msgid "Continuous Support"
+msgstr "Taageero joogto ah"

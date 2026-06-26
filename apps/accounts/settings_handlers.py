@@ -9,7 +9,9 @@ from .forms import HilaacPasswordChangeForm, SettingsProfileForm
 from .password_sessions import logout_other_sessions
 from .password_views import PASSWORD_SUCCESS_MESSAGE
 
-SETTINGS_SUCCESS = "Changes saved successfully."
+from django.utils.translation import gettext_lazy as _
+
+SETTINGS_SUCCESS = _("Changes saved successfully.")
 
 
 def _settings_form_for_user(user):

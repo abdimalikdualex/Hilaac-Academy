@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import translation
+from django.utils.translation import gettext_lazy as _
+
 
 class UserLocaleMiddleware:
     """Activate English or Somali from user preference, session, or browser."""
@@ -44,7 +46,7 @@ class EmailVerificationMiddleware:
             if any(path.startswith(p) for p in self.VERIFICATION_REQUIRED_PREFIXES):
                 messages.warning(
                     request,
-                    "Please verify your email to access this feature.",
+                    _("Please verify your email to access this feature."),
                 )
                 return redirect("accounts:verify_notice")
         return self.get_response(request)

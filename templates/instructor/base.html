@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ sidebarOpen: false }">
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" x-data="{ sidebarOpen: false }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Instructor Portal{% endblock %} | Hilaac Academy</title>
+    <title>{% block title %}{% trans "Instructor Portal" %}{% endblock %} | Hilaac Academy</title>
     <link rel="icon" type="image/png" href="/static/images/favicon.png">
     <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
     <link rel="stylesheet" href="/static/css/tailwind.css">
@@ -17,25 +18,26 @@
            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
         <div class="p-4 border-b border-slate-700">
             {% include "partials/logo.html" with show_name=False img_class="h-11 w-11" %}
-            <div class="text-xs text-amber-400 mt-2 pl-1 font-semibold uppercase tracking-wide">Instructor Portal</div>
+            <div class="text-xs text-amber-400 mt-2 pl-1 font-semibold uppercase tracking-wide">{% trans "Instructor Portal" %}</div>
         </div>
         <nav class="flex-1 p-3 space-y-0.5 text-sm">
             {% include "partials/instructor_nav.html" %}
         </nav>
         <div class="p-4 border-t border-slate-700 text-sm">
             <div class="text-slate-400 mb-2 truncate">{{ request.user.get_full_name|default:request.user.username }}</div>
-            <a href="{% url 'cms:home' %}" class="text-primary-400 hover:underline block mb-1 text-xs">View Site</a>
-            <a href="{% url 'accounts:logout' %}" class="text-red-400 hover:underline text-xs">Logout</a>
+            <a href="{% url 'cms:home' %}" class="text-primary-400 hover:underline block mb-1 text-xs">{% trans "View Site" %}</a>
+            <a href="{% url 'accounts:logout' %}" class="text-red-400 hover:underline text-xs">{% trans "Logout" %}</a>
         </div>
     </aside>
     <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-black/40 z-30 lg:hidden" x-cloak></div>
     <div class="flex-1 lg:ml-64 min-w-0 flex flex-col">
         <header class="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
-                <button @click="sidebarOpen=true" class="p-2 rounded-lg hover:bg-slate-100 lg:hidden shrink-0" aria-label="Open menu">{% load ha_icons %}{% ha_icon "menu" size=22 %}</button>
-                <span class="text-sm font-semibold text-amber-600 hidden lg:block">Instructor Portal</span>
+                <button @click="sidebarOpen=true" class="p-2 rounded-lg hover:bg-slate-100 lg:hidden shrink-0" aria-label="{% trans 'Open menu' %}">{% load ha_icons %}{% ha_icon "menu" size=22 %}</button>
+                <span class="text-sm font-semibold text-amber-600 hidden lg:block">{% trans "Instructor Portal" %}</span>
             </div>
             <div class="flex items-center gap-2">
+                {% include "partials/language_switcher.html" %}
                 {% include "partials/notification_bell.html" %}
                 {% include "partials/user_profile_menu.html" %}
             </div>

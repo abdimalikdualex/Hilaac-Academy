@@ -92,33 +92,33 @@
         <div class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-4 gap-8">
             <div>
                 <div class="mb-3">{% include "partials/logo.html" with show_name=False img_class="h-16 w-16" wrapper_class="inline-flex" %}</div>
-                <p class="text-sm">Baro Xirfado Casri ah, Dhis Mustaqbalkaaga</p>
+                <p class="text-sm">{% trans "Learn modern skills, build your future." %}</p>
                 <ul class="space-y-2 text-sm mt-3">
-                    <li><a href="{% url 'cms:home' %}#about" class="hover:text-primary-400">About</a></li>
-                    <li><a href="{% url 'cms:home' %}#about" class="hover:text-primary-400">Mission</a></li>
-                    <li><a href="{% url 'cms:home' %}#about" class="hover:text-primary-400">Vision</a></li>
+                    <li><a href="{% url 'cms:home' %}#about" class="hover:text-primary-400">{% trans "About" %}</a></li>
+                    <li><a href="{% url 'cms:home' %}#about" class="hover:text-primary-400">{% trans "Mission" %}</a></li>
+                    <li><a href="{% url 'cms:home' %}#about" class="hover:text-primary-400">{% trans "Vision" %}</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-semibold mb-3">Quick Links</h4>
+                <h4 class="text-white font-semibold mb-3">{% trans "Quick Links" %}</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{% url 'courses:catalog' %}" class="hover:text-primary-400">Courses</a></li>
-                    <li><a href="{% url 'library:home' %}" class="hover:text-primary-400">Library</a></li>
-                    <li><a href="{% url 'accounts:register' %}" class="hover:text-primary-400">Register</a></li>
+                    <li><a href="{% url 'courses:catalog' %}" class="hover:text-primary-400">{% trans "Courses" %}</a></li>
+                    <li><a href="{% url 'library:home' %}" class="hover:text-primary-400">{% trans "Library" %}</a></li>
+                    <li><a href="{% url 'accounts:register' %}" class="hover:text-primary-400">{% trans "Register" %}</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-semibold mb-3">Legal</h4>
+                <h4 class="text-white font-semibold mb-3">{% trans "Legal" %}</h4>
                 <ul class="space-y-2 text-sm">
                     <li><a href="{% url 'cms:privacy_policy' %}" class="hover:text-primary-400">{% trans "Privacy Policy" %}</a></li>
                     <li><a href="{% url 'cms:terms_conditions' %}" class="hover:text-primary-400">{% trans "Terms & Conditions" %}</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-semibold mb-3">Contact</h4>
+                <h4 class="text-white font-semibold mb-3">{% trans "Contact" %}</h4>
                 <a href="{{ WHATSAPP_LINK }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm mb-3">
                     <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24z"/></svg>
-                    WhatsApp
+                    {% trans "WhatsApp" %}
                 </a>
                 <ul class="space-y-2 text-sm">
                     <li class="inline-flex items-center gap-2">{% ha_icon "mail" size=16 %} {{ site_contact_email|default:"info@hilaacacademy.com" }}</li>
@@ -128,7 +128,7 @@
         </div>
         {% include "partials/partner_schools_carousel.html" %}
         <div class="border-t border-slate-800 text-center py-4 text-sm">
-            &copy; {% now "Y" %} {{ SITE_NAME }}. {{ site_footer_text|default:"Dhammaan xuquuqaha way dhowran yihiin." }}
+            &copy; {% now "Y" %} {{ SITE_NAME }}. {% trans "All rights reserved." %}
         </div>
     </footer>
 
