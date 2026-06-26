@@ -2,27 +2,23 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
-
-
 from django.utils import translation
 
-
 class UserLocaleMiddleware:
-    """Activate UI language from user preference, session, or browser."""
+    """Activate English or Somali from user preference, session, or browser."""
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        from apps.core.i18n import resolve_request_language
+        from apps.core.i18n import LANGUAGE_SESSION_KEY, resolve_request_language
 
         lang = resolve_request_language(request)
+        if request.session.get(LANGUAGE_SESSION_KEY) != lang:
+            request.session[LANGUAGE_SESSION_KEY] = lang
         translation.activate(lang)
         request.LANGUAGE_CODE = lang
-        request.session[translation.LANGUAGE_SESSION_KEY] = lang
-        response = self.get_response(request)
-        translation.deactivate()
-        return response
+        return self.get_response(request)
 
 
 class EmailVerificationMiddleware:

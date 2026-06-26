@@ -2,10 +2,12 @@
 from contextlib import contextmanager
 from typing import Optional
 
+from django.conf import settings
 from django.utils import translation
 
 SUPPORTED_UI_LANGUAGES = ("en", "so")
-
+# Django 4.2+ removed translation.LANGUAGE_SESSION_KEY; cookie name is the standard key.
+LANGUAGE_SESSION_KEY = settings.LANGUAGE_COOKIE_NAME
 
 def normalize_language(code: Optional[str]) -> str:
     if not code:
@@ -19,13 +21,14 @@ def normalize_language(code: Optional[str]) -> str:
 def resolve_request_language(request) -> str:
     if getattr(request, "user", None) and request.user.is_authenticated:
         pref = getattr(request.user, "language_preference", None)
-        if pref == "so":
-            return "so"
-        if pref == "en":
-            return "en"
-    session_lang = request.session.get(translation.LANGUAGE_SESSION_KEY)
+        if pref in ("so", "en"):
+            return pref
+    session_lang = request.session.get(LANGUAGE_SESSION_KEY)
     if session_lang in SUPPORTED_UI_LANGUAGES:
         return session_lang
+    cookie_lang = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    if cookie_lang in SUPPORTED_UI_LANGUAGES:
+        return cookie_lang
     accept = request.META.get("HTTP_ACCEPT_LANGUAGE", "").lower()
     if "so" in accept:
         return "so"

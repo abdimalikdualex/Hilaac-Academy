@@ -304,9 +304,6 @@ msgstr "Mar kale isku day lacag bixinta"
 msgid "Back to Course"
 msgstr "Ku noqo koorsada"
 
-msgid "My Courses"
-msgstr "Koorsadayda"
-
 msgid "Browse Courses"
 msgstr "Baadh koorsooyinka"
 
@@ -324,9 +321,6 @@ msgstr "Dhammee lacag bixinta"
 
 msgid "Payment Processing"
 msgstr "Lacag bixinta waa la socda"
-
-msgid "Payment Received"
-msgstr "Lacag bixinta waa la helay"
 
 msgid "Course Access Activated!"
 msgstr "Koorsada waa la furay!"

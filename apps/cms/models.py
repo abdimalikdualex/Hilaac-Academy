@@ -248,6 +248,24 @@ class PlatformIntroductionVideo(TimeStampedModel):
         return cls.objects.filter(is_active=True).first()
 
     @property
+    def video_url(self):
+        if not self.video_file:
+            return ""
+        try:
+            return self.video_file.url
+        except ValueError:
+            return ""
+
+    @property
+    def thumbnail_url(self):
+        if not self.thumbnail:
+            return ""
+        try:
+            return self.thumbnail.url
+        except ValueError:
+            return ""
+
+    @property
     def video_mime_type(self):
         if not self.video_file:
             return "video/mp4"

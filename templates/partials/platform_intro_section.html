@@ -1,5 +1,5 @@
 {% load ha_icons static %}
-{% if platform_video %}
+{% if platform_video and platform_video.video_url %}
 <section
     id="platform-intro"
     class="relative py-14 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-900 overflow-hidden"
@@ -26,16 +26,18 @@
                 class="platform-intro-player rounded-2xl overflow-hidden shadow-2xl ring-1 ring-[#1E4D8F]/15 bg-[#0B1736] aspect-video relative"
                 data-track-url="{% url 'cms:platform_video_track' %}"
                 data-video-id="{{ platform_video.pk }}"
-                data-video-src="{{ platform_video.video_file.url }}"
+                data-video-src="{{ platform_video.video_url }}"
                 data-video-type="{{ platform_video.video_mime_type }}"
             >
+                {% if platform_video.thumbnail_url %}
                 <img
-                    src="{{ platform_video.thumbnail.url }}"
+                    src="{{ platform_video.thumbnail_url }}"
                     alt="{{ platform_video.title }}"
                     class="platform-intro-poster absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                     decoding="async"
                 >
+                {% endif %}
                 <button
                     type="button"
                     class="platform-intro-play absolute inset-0 z-10 flex items-center justify-center bg-black/25 hover:bg-black/35 transition-colors group cursor-pointer"
@@ -50,7 +52,7 @@
                     controls
                     playsinline
                     preload="none"
-                    poster="{{ platform_video.thumbnail.url }}"
+                    {% if platform_video.thumbnail_url %}poster="{{ platform_video.thumbnail_url }}"{% endif %}
                 ></video>
             </div>
 
