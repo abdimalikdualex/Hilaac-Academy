@@ -1,39 +1,96 @@
-{% load i18n %}
-<details class="relative group">
-    <summary class="list-none cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 transition [&::-webkit-details-marker]:hidden">
-        <span aria-hidden="true">{% if LANGUAGE_CODE == 'so' %}🇸🇴{% else %}🇬🇧{% endif %}</span>
-        <span class="font-medium text-slate-700 dark:text-slate-200">
+{% load i18n static %}
+<div class="ha-lang-switcher relative" data-ha-lang="{{ LANGUAGE_CODE|default:'en' }}">
+    <button type="button" class="ha-lang-switcher__toggle inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 transition" aria-haspopup="listbox" aria-expanded="false">
+        <span class="ha-lang-switcher__flag" aria-hidden="true">{% if LANGUAGE_CODE == 'so' %}🇸🇴{% else %}🇬🇧{% endif %}</span>
+        <span class="ha-lang-switcher__label font-medium text-slate-700 dark:text-slate-200">
             {% if LANGUAGE_CODE == 'so' %}{% trans "Soomaali" %}{% else %}{% trans "English" %}{% endif %}
         </span>
         <span class="text-slate-400 text-xs" aria-hidden="true">▼</span>
-    </summary>
-    <form method="post" action="{% url 'set_language' %}" class="absolute right-0 mt-1 min-w-[10rem] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1 z-50">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button type="submit" name="language" value="en"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 dark:hover:bg-slate-700 flex items-center gap-2 {% if LANGUAGE_CODE == 'en' %}font-bold text-primary-600 bg-primary-50/50{% else %}text-slate-700 dark:text-slate-200{% endif %}">
+    </button>
+    <div class="ha-lang-switcher__menu hidden absolute right-0 mt-1 min-w-[10rem] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1 z-[100]">
+        <button type="button" data-ha-set-lang="en" class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 dark:hover:bg-slate-700 flex items-center gap-2 {% if LANGUAGE_CODE == 'en' %}font-bold text-primary-600 bg-primary-50/50{% else %}text-slate-700 dark:text-slate-200{% endif %}">
             <span aria-hidden="true">🇬🇧</span> {% trans "English" %}
         </button>
-        <button type="submit" name="language" value="so"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 dark:hover:bg-slate-700 flex items-center gap-2 {% if LANGUAGE_CODE == 'so' %}font-bold text-primary-600 bg-primary-50/50{% else %}text-slate-700 dark:text-slate-200{% endif %}">
+        <button type="button" data-ha-set-lang="so" class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 dark:hover:bg-slate-700 flex items-center gap-2 {% if LANGUAGE_CODE == 'so' %}font-bold text-primary-600 bg-primary-50/50{% else %}text-slate-700 dark:text-slate-200{% endif %}">
             <span aria-hidden="true">🇸🇴</span> {% trans "Soomaali" %}
         </button>
-    </form>
-</details>
+    </div>
+</div>
 <script>
 (function () {
-    var key = "hilaac_language";
-    var match = document.cookie.match(/(?:^|; )django_language=([^;]*)/);
-    if (match) {
-        try { localStorage.setItem(key, decodeURIComponent(match[1])); } catch (e) {}
+    var STORAGE_KEY = "hilaac_language";
+    var SET_URL = "{% url 'set_language' %}";
+    var CSRF_COOKIE = "csrftoken";
+
+    function getCookie(name) {
+        var match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+        return match ? decodeURIComponent(match[1]) : "";
     }
-    document.querySelectorAll("form[action*='set-language']").forEach(function (form) {
-        form.addEventListener("submit", function () {
-            var lang = (new FormData(form)).get("language");
-            if (lang) {
-                try { localStorage.setItem(key, lang); } catch (e) {}
+
+    function persistLang(lang) {
+        try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) {}
+    }
+
+    function switchLanguage(lang) {
+        if (lang !== "en" && lang !== "so") return;
+        persistLang(lang);
+        var body = new URLSearchParams();
+        body.set("language", lang);
+        body.set("next", window.location.pathname + window.location.search);
+        body.set("csrfmiddlewaretoken", getCookie(CSRF_COOKIE));
+        fetch(SET_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: body.toString(),
+            credentials: "same-origin",
+            redirect: "follow",
+        }).then(function () {
+            window.location.reload();
+        }).catch(function () {
+            window.location.reload();
+        });
+    }
+
+    document.querySelectorAll(".ha-lang-switcher").forEach(function (root) {
+        var toggle = root.querySelector(".ha-lang-switcher__toggle");
+        var menu = root.querySelector(".ha-lang-switcher__menu");
+        if (!toggle || !menu) return;
+
+        toggle.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var open = !menu.classList.contains("hidden");
+            document.querySelectorAll(".ha-lang-switcher__menu").forEach(function (m) { m.classList.add("hidden"); });
+            document.querySelectorAll(".ha-lang-switcher__toggle").forEach(function (t) { t.setAttribute("aria-expanded", "false"); });
+            if (!open) {
+                menu.classList.remove("hidden");
+                toggle.setAttribute("aria-expanded", "true");
             }
         });
+
+        menu.querySelectorAll("[data-ha-set-lang]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                switchLanguage(btn.getAttribute("data-ha-set-lang"));
+            });
+        });
     });
+
+    document.addEventListener("click", function () {
+        document.querySelectorAll(".ha-lang-switcher__menu").forEach(function (m) { m.classList.add("hidden"); });
+        document.querySelectorAll(".ha-lang-switcher__toggle").forEach(function (t) { t.setAttribute("aria-expanded", "false"); });
+    });
+
+    var cookieLang = getCookie("django_language");
+    if (cookieLang) persistLang(cookieLang);
+
+    var stored = null;
+    try { stored = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+    var activeEl = document.querySelector(".ha-lang-switcher[data-ha-lang]");
+    var active = activeEl ? activeEl.getAttribute("data-ha-lang") : "";
+    if (stored && stored !== active && (stored === "so" || stored === "en") && !sessionStorage.getItem("ha_lang_sync")) {
+        sessionStorage.setItem("ha_lang_sync", "1");
+        switchLanguage(stored);
+    } else if (stored === active) {
+        try { sessionStorage.removeItem("ha_lang_sync"); } catch (e) {}
+    }
 })();
 </script>

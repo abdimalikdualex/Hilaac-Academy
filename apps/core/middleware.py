@@ -16,8 +16,9 @@ class UserLocaleMiddleware:
         from apps.core.i18n import LANGUAGE_SESSION_KEY, resolve_request_language
 
         lang = resolve_request_language(request)
-        if request.session.get(LANGUAGE_SESSION_KEY) != lang:
+        if not request.session.get(LANGUAGE_SESSION_KEY):
             request.session[LANGUAGE_SESSION_KEY] = lang
+            request.session.modified = True
         translation.activate(lang)
         request.LANGUAGE_CODE = lang
         return self.get_response(request)

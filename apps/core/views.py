@@ -2,6 +2,7 @@ from django.conf import settings
 from django.shortcuts import redirect, render
 from django.utils import translation
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 
 from apps.core.i18n import LANGUAGE_SESSION_KEY, normalize_language, SUPPORTED_UI_LANGUAGES
@@ -15,6 +16,7 @@ def server_error(request):
     return render(request, "500.html", status=500)
 
 
+@csrf_protect
 @require_POST
 def set_language(request):
     lang = normalize_language(request.POST.get("language"))
@@ -23,6 +25,10 @@ def set_language(request):
 
     request.session[LANGUAGE_SESSION_KEY] = lang
     request.session.modified = True
+    try:
+        request.session.save()
+    except AttributeError:
+        pass
 
     if request.user.is_authenticated:
         request.user.language_preference = lang
@@ -39,5 +45,12 @@ def set_language(request):
     translation.activate(lang)
     request.LANGUAGE_CODE = lang
     response = redirect(next_url)
-    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME,
+        lang,
+        max_age=365 * 24 * 60 * 60,
+        path="/",
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        secure=settings.SESSION_COOKIE_SECURE if hasattr(settings, "SESSION_COOKIE_SECURE") else False,
+    )
     return response

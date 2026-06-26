@@ -19,16 +19,17 @@ def normalize_language(code: Optional[str]) -> str:
 
 
 def resolve_request_language(request) -> str:
-    if getattr(request, "user", None) and request.user.is_authenticated:
-        pref = getattr(request.user, "language_preference", None)
-        if pref in ("so", "en"):
-            return pref
+    """Session/cookie (explicit user choice) beat profile default."""
     session_lang = request.session.get(LANGUAGE_SESSION_KEY)
     if session_lang in SUPPORTED_UI_LANGUAGES:
         return session_lang
     cookie_lang = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     if cookie_lang in SUPPORTED_UI_LANGUAGES:
         return cookie_lang
+    if getattr(request, "user", None) and request.user.is_authenticated:
+        pref = getattr(request.user, "language_preference", None)
+        if pref in SUPPORTED_UI_LANGUAGES:
+            return pref
     accept = request.META.get("HTTP_ACCEPT_LANGUAGE", "").lower()
     if "so" in accept:
         return "so"
