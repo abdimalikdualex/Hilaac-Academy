@@ -1,0 +1,15 @@
+{% load i18n %}
+<form method="post" action="{% url 'set_language' %}" class="inline-flex items-center gap-1 text-sm">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <span class="text-slate-500 hidden sm:inline" aria-hidden="true">🌐</span>
+    <button type="submit" name="language" value="en"
+            class="px-2 py-1 rounded {% if LANGUAGE_CODE == 'en' %}font-bold text-primary-600 bg-primary-50{% else %}text-slate-600 hover:text-primary-600{% endif %}">
+        English
+    </button>
+    <span class="text-slate-300">|</span>
+    <button type="submit" name="language" value="so"
+            class="px-2 py-1 rounded {% if LANGUAGE_CODE == 'so' %}font-bold text-primary-600 bg-primary-50{% else %}text-slate-600 hover:text-primary-600{% endif %}">
+        Soomaali
+    </button>
+</form>

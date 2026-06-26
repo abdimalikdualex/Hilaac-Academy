@@ -1,34 +1,35 @@
 {% extends "partials/auth_shell.html" %}
-{% block title %}Login - Hilaac Academy{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Login" %} - Hilaac Academy{% endblock %}
 {% block auth_welcome %}Gal akoonkaaga si aad u sii wadato safarkaaga waxbarasho.{% endblock %}
 
 {% block auth_content %}
-<h1 class="text-2xl font-bold text-center text-[#0B1736] mb-6">Welcome Back</h1>
+<h1 class="text-2xl font-bold text-center text-[#0B1736] mb-6">{% trans "Welcome Back" %}</h1>
 {% if messages %}
 {% include "partials/flash_messages.html" %}
 {% endif %}
 <form method="post" class="space-y-4 ha-form">
     {% csrf_token %}
     {% if form.errors %}
-    <div class="ha-flash-error">Invalid username or password.</div>
+    <div class="ha-flash-error">{% trans "Invalid username or password." %}</div>
     {% endif %}
     <div>
-        <label class="ha-label" for="login-username">Username</label>
-        <input type="text" name="username" id="login-username" required placeholder="Enter your username" class="form-input" autocomplete="username">
+        <label class="ha-label" for="login-username">{% trans "Username" %}</label>
+        <input type="text" name="username" id="login-username" required placeholder="{% trans 'Username' %}" class="form-input" autocomplete="username">
     </div>
     <div>
-        <label class="ha-label" for="login-password">Password</label>
-        <input type="password" name="password" id="login-password" required placeholder="Enter your password" class="form-input" autocomplete="current-password">
+        <label class="ha-label" for="login-password">{% trans "Password" %}</label>
+        <input type="password" name="password" id="login-password" required placeholder="{% trans 'Password' %}" class="form-input" autocomplete="current-password">
     </div>
-    <button type="submit" class="w-full ha-btn-primary" data-loading-text="Signing in...">Sign In</button>
+    <button type="submit" class="w-full ha-btn-primary" data-loading-text="{% trans 'Sign In' %}...">{% trans "Sign In" %}</button>
 </form>
 {% endblock %}
 
 {% block auth_footer %}
 <div class="mt-6 pt-5 border-t border-slate-200 text-center text-sm text-[#64748B]">
-    <a href="{% url 'accounts:password_reset' %}" class="font-semibold text-[#1E4D8F] hover:underline">Forgot password?</a>
+    <a href="{% url 'accounts:password_reset' %}" class="font-semibold text-[#1E4D8F] hover:underline">{% trans "Forgot password?" %}</a>
     <span class="mx-2 text-slate-400" aria-hidden="true">·</span>
-    <span>Don&apos;t have an account?</span>
-    <a href="{% url 'accounts:register' %}" class="font-semibold text-[#1E4D8F] hover:underline">Create Account</a>
+    <span>{% trans "Don't have an account?" %}</span>
+    <a href="{% url 'accounts:register' %}" class="font-semibold text-[#1E4D8F] hover:underline">{% trans "Create Account" %}</a>
 </div>
 {% endblock %}

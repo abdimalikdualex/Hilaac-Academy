@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load ha_icons currency_tags performance_tags %}
+{% load ha_icons currency_tags performance_tags i18n %}
 {% block title %}{{ level.name }} - Hilaac Academy{% endblock %}
 
 {% block content %}
@@ -350,7 +350,7 @@
                 {% endif %}
                 {% elif user.is_authenticated and user.is_student %}
                 <div x-data="purchaseModal({{ level.id }}, '{{ user.phone|default:""|escapejs }}')">
-                    <button type="button" @click="open = true" class="block w-full text-center px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 mb-3">Purchase Course</button>
+                    <button type="button" @click="open = true" class="block w-full text-center px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 mb-3">{% trans "Purchase Course" %}</button>
                     {% include "partials/purchase_modal.html" with level=level %}
                 </div>
                 {% if access.can_wishlist %}

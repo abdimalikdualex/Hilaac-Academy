@@ -1,6 +1,7 @@
 <!DOCTYPE html>
+{% load i18n %}
 
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
 
 <head>
 
@@ -57,6 +58,7 @@
                 <span class="text-sm font-semibold text-slate-600 shrink-0">Super Admin Portal</span>
             </div>
             <div class="flex items-center gap-2">
+                {% include "partials/language_switcher.html" %}
                 {% include "partials/notification_bell.html" %}
                 {% include "partials/user_profile_menu.html" %}
             </div>

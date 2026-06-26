@@ -4,7 +4,9 @@
 
 {% block legal_content %}
 
-{% if legal_page.body %}
+{% if legal_body %}
+<div class="legal-custom-body">{{ legal_body|safe }}</div>
+{% elif legal_page.body %}
 
 <div class="legal-custom-body">{{ legal_page.body|safe }}</div>
 

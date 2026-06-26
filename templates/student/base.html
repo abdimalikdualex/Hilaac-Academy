@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ sidebarOpen: false }">
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" x-data="{ sidebarOpen: false }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,15 +19,15 @@
            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
         <div class="p-4 border-b border-slate-100">
             {% include "partials/logo.html" with show_name=False img_class="h-11 w-11" %}
-            <div class="text-xs font-semibold text-primary-700 mt-2 pl-1 uppercase tracking-wide">Student Portal</div>
+            <div class="text-xs font-semibold text-primary-700 mt-2 pl-1 uppercase tracking-wide">{% trans "Student Portal" %}</div>
         </div>
         <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto">
             {% include "partials/student_nav.html" %}
         </nav>
         <div class="p-4 border-t border-slate-100 text-sm">
             <div class="font-medium truncate">{{ request.user.get_full_name|default:request.user.username }}</div>
-            <a href="{% url 'cms:home' %}" class="text-primary-600 hover:underline text-xs mt-1 inline-block">View Site</a>
-            <a href="{% url 'accounts:logout' %}" class="text-red-500 hover:underline text-xs block mt-1">Logout</a>
+            <a href="{% url 'cms:home' %}" class="text-primary-600 hover:underline text-xs mt-1 inline-block">{% trans "View Site" %}</a>
+            <a href="{% url 'accounts:logout' %}" class="text-red-500 hover:underline text-xs block mt-1">{% trans "Logout" %}</a>
         </div>
     </aside>
     <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-black/40 z-30 lg:hidden" x-cloak></div>
@@ -34,9 +35,10 @@
         <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
                 <button @click="sidebarOpen=true" class="p-2 rounded-lg hover:bg-slate-100 lg:hidden shrink-0" aria-label="Open menu">{% load ha_icons %}{% ha_icon "menu" size=22 %}</button>
-                <span class="text-sm font-semibold text-primary-700 hidden lg:block">Student Portal</span>
+                <span class="text-sm font-semibold text-primary-700 hidden lg:block">{% trans "Student Portal" %}</span>
             </div>
             <div class="flex items-center gap-2">
+                {% include "partials/language_switcher.html" %}
                 {% include "partials/notification_bell.html" %}
                 {% include "partials/user_profile_menu.html" %}
             </div>

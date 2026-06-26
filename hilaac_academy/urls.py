@@ -4,8 +4,11 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from apps.core.views import set_language
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("i18n/set-language/", set_language, name="set_language"),
     path("", include("apps.cms.urls")),
     path("accounts/", include("apps.accounts.urls")),
     path("student/", include("apps.accounts.student_urls")),

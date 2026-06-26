@@ -1,4 +1,4 @@
-{% load ha_icons %}
+{% load ha_icons i18n %}
 
 <div class="settings-simple-page max-w-[800px] mx-auto space-y-8 py-4 md:py-6">
 
@@ -8,13 +8,13 @@
 
             {% ha_icon "settings" size=26 class_name="text-[#1E4D8F]" %}
 
-            Settings
+            {% trans "Settings" %}
 
         </h1>
 
         <p class="text-[#64748B] mt-2 text-sm md:text-base leading-relaxed">
 
-            Manage your account information and security.
+            {% trans "Manage your account information and security." %}
 
         </p>
 
@@ -32,11 +32,11 @@
 
                 {% ha_icon "user" size=20 class_name="text-[#1E4D8F]" %}
 
-                Update Profile
+                {% trans "Update Profile" %}
 
             </h2>
 
-            <p class="text-sm text-[#64748B] mt-1.5 leading-relaxed">Update your personal profile details.</p>
+            <p class="text-sm text-[#64748B] mt-1.5 leading-relaxed">{% trans "Update your personal profile details." %}</p>
 
         </div>
 
@@ -98,7 +98,7 @@
 
             </div>
 
-            <button type="submit" class="w-full sm:w-auto ha-btn-primary min-h-[44px] px-8" data-loading-text="Saving...">Save Changes</button>
+            <button type="submit" class="w-full sm:w-auto ha-btn-primary min-h-[44px] px-8" data-loading-text="{% trans 'Save' %}...">{% trans "Save" %}</button>
 
         </form>
 
@@ -140,7 +140,7 @@
 
                 {% ha_icon "lock" size=20 class_name="text-[#1E4D8F]" %}
 
-                Change Password
+                {% trans "Change Password" %}
 
             </h2>
 

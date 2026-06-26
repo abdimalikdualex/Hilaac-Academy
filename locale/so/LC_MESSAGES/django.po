@@ -1,0 +1,404 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Hilaac Academy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-26 12:00+0000\n"
+"PO-Revision-Date: 2026-06-26 12:00+0000\n"
+"Last-Translator: Hilaac Academy\n"
+"Language-Team: Af-Soomaali\n"
+"Language: so\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Login"
+msgstr "Gal"
+
+msgid "Register"
+msgstr "Isdiiwaangeli"
+
+msgid "Forgot password?"
+msgstr "Ma illowday erayga sirta ah?"
+
+msgid "Forgot Password?"
+msgstr "Ma illowday erayga sirta ah?"
+
+msgid "Invalid username or password."
+msgstr "Magaca isticmaalaha ama erayga sirta ah waa khalad."
+
+msgid "Sign In"
+msgstr "Gal"
+
+msgid "Create Account"
+msgstr "Isdiiwaangeli"
+
+msgid "Welcome Back"
+msgstr "Ku soo dhawoow"
+
+msgid "Don't have an account?"
+msgstr "Ma haysatid akoon?"
+
+msgid "Username"
+msgstr "Magaca isticmaalaha"
+
+msgid "Password"
+msgstr "Erayga sirta ah"
+
+msgid "Courses"
+msgstr "Koorsooyinka"
+
+msgid "Library"
+msgstr "Maktabadda"
+
+msgid "About Us"
+msgstr "Nagu saabsan"
+
+msgid "Contact"
+msgstr "Nala soo xiriir"
+
+msgid "Dashboard"
+msgstr "Dashboard-ka"
+
+msgid "Profile"
+msgstr "Xogtaada"
+
+msgid "Notifications"
+msgstr "Ogeysiisyada"
+
+msgid "Logout"
+msgstr "Ka bax"
+
+msgid "View Site"
+msgstr "Eeg bogga"
+
+msgid "Student Portal"
+msgstr "Portal-ka Ardayga"
+
+msgid "My Courses"
+msgstr "Koorsadayda"
+
+msgid "Continue Learning"
+msgstr "Sii wad waxbarashada"
+
+msgid "Assignments"
+msgstr "Shaqooyinka"
+
+msgid "Quizzes"
+msgstr "Imtixaannada"
+
+msgid "Certificates"
+msgstr "Shahaadooyinka"
+
+msgid "Payments"
+msgstr "Lacagaha"
+
+msgid "My Wishlist"
+msgstr "Liiskayga rabitaanka"
+
+msgid "Settings"
+msgstr "Dejinta"
+
+msgid "Progress"
+msgstr "Horumarkaaga"
+
+msgid "Purchase Course"
+msgstr "Iibso Koorsada"
+
+msgid "Pay Now"
+msgstr "Bixi Hadda"
+
+msgid "Complete payment to access this course."
+msgstr "Dhamee lacag bixinta si aad u hesho koorsadan."
+
+msgid "Purchase this course to access learning materials."
+msgstr "Iibso koorsadan si aad u hesho agabka waxbarasho."
+
+msgid "You are purchasing this course. A payment prompt will be sent to your phone."
+msgstr "Waxaad iibsanaysaa koorsadan. Lacag bixinta ayaa laguugu soo diri doonaa taleefankaaga."
+
+msgid "Enter your M-Pesa number to receive payment prompt"
+msgstr "Geli lambarka M-Pesa si aad u hesho codsiga lacag bixinta"
+
+msgid "Payment processing. Please wait."
+msgstr "Lacag bixinta waa la socda. Fadlan sug."
+
+msgid "Payment received successfully. Waiting for approval."
+msgstr "Lacag bixinta waa la xaqiijiyay. Sug oggolaanshaha maamulka."
+
+msgid "Payment successful. You can now access this course."
+msgstr "Lacag bixinta waa guulaysatay. Hadda waxaad heli kartaa koorsadan."
+
+msgid "Congratulations! You can now access the course."
+msgstr "Hambalyo! Waxaad hadda heli kartaa koorsada."
+
+msgid "Payment unsuccessful. Please try again."
+msgstr "Lacag bixinta ma guulaysan. Fadlan mar kale isku day."
+
+msgid "Your payment request has been sent."
+msgstr "Codsiga lacag bixinta waa la diray."
+
+msgid "Your payment was received."
+msgstr "Lacag bixintaada waa la helay."
+
+msgid "Your course access has been activated."
+msgstr "Koorsadaada waa la furay. Waxaad bilaabi kartaa waxbarashada."
+
+msgid "New course payment requires approval"
+msgstr "Lacag bixinta koorsada waxay u baahan tahay oggolaansho"
+
+msgid "Payment Started"
+msgstr "Lacag bixinta waa bilaabatay"
+
+msgid "Payment Received"
+msgstr "Lacag bixinta waa la helay"
+
+msgid "Course Access Activated"
+msgstr "Koorsada waa la furay"
+
+msgid "Payment Requires Approval"
+msgstr "Lacag bixinta waxay u baahan tahay oggolaansho"
+
+msgid "Course Locked"
+msgstr "Koorsada waa xiran"
+
+msgid "Payment pending approval"
+msgstr "Lacag bixinta waxay sugaysaa oggolaansho"
+
+msgid "Course Active"
+msgstr "Koorsada waa firfircoon"
+
+msgid "Students"
+msgstr "Ardayda"
+
+msgid "Instructors"
+msgstr "Macallimiinta"
+
+msgid "Approve"
+msgstr "Oggolow"
+
+msgid "Approve Access"
+msgstr "Oggolow gelitaanka"
+
+msgid "Reject"
+msgstr "Diid"
+
+msgid "View"
+msgstr "Eeg"
+
+msgid "Update Profile"
+msgstr "Wax ka beddel xogta"
+
+msgid "Change Password"
+msgstr "Beddel erayga sirta ah"
+
+msgid "Save"
+msgstr "Kaydi"
+
+msgid "Manage your account information and security."
+msgstr "Maamul xogta akoonkaaga iyo amniga."
+
+msgid "Update your personal profile details."
+msgstr "Cusbooneysii xogtaada shakhsiyeed."
+
+msgid "Privacy Policy"
+msgstr "Siyaasadda Asturnaanta"
+
+msgid "Terms & Conditions"
+msgstr "Shuruudaha iyo Xeerarka"
+
+msgid "Payment History"
+msgstr "Taariikhda lacag bixinta"
+
+msgid "Payment Management"
+msgstr "Maamulka lacag bixinta"
+
+msgid "Total Revenue"
+msgstr "Wadarta dakhliga"
+
+msgid "Awaiting Approval"
+msgstr "Sugaya oggolaansho"
+
+msgid "Approved"
+msgstr "La oggolaaday"
+
+msgid "Failed"
+msgstr "Guuldaraystay"
+
+msgid "Processing"
+msgstr "Waa la socda"
+
+msgid "Completed"
+msgstr "La dhammeeyay"
+
+msgid "Locked Content"
+msgstr "Waxyaabaha xiran"
+
+msgid "Free preview lessons are available below."
+msgstr "Casharrada muuqaalka bilaashka ah waxaa hoos ku yaal."
+
+msgid "Enter your M-Pesa PIN to complete payment."
+msgstr "Geli PIN-ka M-Pesa si aad u dhammaystirto lacag bixinta."
+
+msgid "Sending payment request..."
+msgstr "Codsiga lacag bixinta waa la dirayaa..."
+
+msgid "You will enter your M-Pesa PIN on your phone. Access is granted after admin approval."
+msgstr "Waxaad PIN-ka M-Pesa ku geli doontaa taleefankaaga. Gelitaanka waxaa siiya maamulka marka la oggolaado."
+
+msgid "New assignment from your instructor."
+msgstr "Macallinka ayaa kuu soo diray shaqo cusub."
+
+msgid "Please complete payment to access the course."
+msgstr "Fadlan dhammee lacag bixinta si aad u hesho koorsada."
+
+msgid "Payment reminder"
+msgstr "Xusuusin lacag bixinta"
+
+msgid "English"
+msgstr "English"
+
+msgid "Soomaali"
+msgstr "Soomaali"
+
+msgid "Full Name"
+msgstr "Magaca oo buuxa"
+
+msgid "First Name"
+msgstr "Magaca hore"
+
+msgid "Last Name"
+msgstr "Magaca dambe"
+
+msgid "Email"
+msgstr "Iimaylka"
+
+msgid "Phone"
+msgstr "Taleefanka"
+
+msgid "Amount"
+msgstr "Qadarka"
+
+msgid "Method"
+msgstr "Habka"
+
+msgid "Course"
+msgstr "Koorsada"
+
+msgid "Transaction"
+msgstr "Macaamilka"
+
+msgid "Status"
+msgstr "Xaaladda"
+
+msgid "Date"
+msgstr "Taariikhda"
+
+msgid "Retry Payment"
+msgstr "Mar kale isku day lacag bixinta"
+
+msgid "Back to Course"
+msgstr "Ku noqo koorsada"
+
+msgid "My Courses"
+msgstr "Koorsadayda"
+
+msgid "Browse Courses"
+msgstr "Baadh koorsooyinka"
+
+msgid "No courses yet"
+msgstr "Weli ma jiraan koorsooyin"
+
+msgid "You haven't enrolled in any courses. Browse the catalog to start learning."
+msgstr "Weli ma isdiiwaangelisid koorso. Baadh liiska koorsooyinka si aad u bilowdo."
+
+msgid "View Payment"
+msgstr "Eeg lacag bixinta"
+
+msgid "Complete Payment"
+msgstr "Dhammee lacag bixinta"
+
+msgid "Payment Processing"
+msgstr "Lacag bixinta waa la socda"
+
+msgid "Payment Received"
+msgstr "Lacag bixinta waa la helay"
+
+msgid "Course Access Activated!"
+msgstr "Koorsada waa la furay!"
+
+msgid "Payment Unsuccessful"
+msgstr "Lacag bixinta ma guulaysan"
+
+msgid "View payment status"
+msgstr "Eeg xaaladda lacag bixinta"
+
+msgid "Watch Preview"
+msgstr "Daawo muuqaalka"
+
+msgid "Enroll Now — Free"
+msgstr "Isdiiwaangeli — Bilaash"
+
+msgid "Enroll Now — Login Required"
+msgstr "Isdiiwaangeli — Galitaanka waa lagama maarmaan"
+
+msgid "Add to Wishlist"
+msgstr "Ku dar liiska rabitaanka"
+
+msgid "In Wishlist"
+msgstr "Liiska rabitaanka"
+
+msgid "Lessons"
+msgstr "Casharrada"
+
+msgid "Duration"
+msgstr "Muddada"
+
+msgid "Certificate"
+msgstr "Shahaadada"
+
+msgid "Included"
+msgstr "Waa ku jira"
+
+msgid "About this course"
+msgstr "Ku saabsan koorsadan"
+
+msgid "What you'll learn"
+msgstr "Waxaad baran doontaa"
+
+msgid "Curriculum"
+msgstr "Qorshaha koorsada"
+
+msgid "Reviews"
+msgstr "Faallooyinka"
+
+msgid "Instructor"
+msgstr "Macallinka"
+
+msgid "Overview"
+msgstr "Dulmar"
+
+msgid "User Management"
+msgstr "Maamulka isticmaalayaasha"
+
+msgid "Enrollments"
+msgstr "Isdiiwaangelinta"
+
+msgid "Reports"
+msgstr "Warbixinnada"
+
+msgid "Super Admin Portal"
+msgstr "Portal-ka Maamulka"
+
+msgid "Payment History →"
+msgstr "Taariikhda lacag bixinta →"
+
+msgid "Your payment was received. An admin will approve your access shortly."
+msgstr "Lacag bixintaada waa la helay. Maamulku wuu oggolaan doonaa gelitaankaaga dhawaan."
+
+msgid "Complete the transaction on your phone to unlock this course."
+msgstr "Dhammee macaamilka taleefankaaga si aad u furto koorsadan."

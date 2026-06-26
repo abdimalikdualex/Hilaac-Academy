@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-{% load ha_icons static %}
-<html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" :class="{ 'dark': darkMode }">
+{% load ha_icons static i18n %}
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,33 +26,34 @@
             <div class="flex justify-between h-16 items-center">
                 {% include "partials/logo.html" with show_name=False img_class="h-11 w-11" %}
                 <div class="hidden md:flex items-center gap-6" x-data>
-                    <a href="{% url 'courses:catalog' %}" class="hover:text-primary-600 transition">Courses</a>
-                    <a href="{% url 'library:home' %}" class="hover:text-primary-600 transition">Library</a>
-                    <a href="{% url 'cms:home' %}#about" class="hover:text-primary-600 transition">About Us</a>
-                    <a href="{% url 'cms:home' %}#contact" class="hover:text-primary-600 transition">Contact</a>
+                    <a href="{% url 'courses:catalog' %}" class="hover:text-primary-600 transition">{% trans "Courses" %}</a>
+                    <a href="{% url 'library:home' %}" class="hover:text-primary-600 transition">{% trans "Library" %}</a>
+                    <a href="{% url 'cms:home' %}#about" class="hover:text-primary-600 transition">{% trans "About Us" %}</a>
+                    <a href="{% url 'cms:home' %}#contact" class="hover:text-primary-600 transition">{% trans "Contact" %}</a>
                     {% if user.is_authenticated and DASHBOARD_URL_NAME %}
-                        <a href="{% url DASHBOARD_URL_NAME %}" class="hover:text-primary-600 transition">Dashboard</a>
-                        <a href="{% url 'accounts:profile' %}" class="hover:text-primary-600 transition">Profile</a>
+                        <a href="{% url DASHBOARD_URL_NAME %}" class="hover:text-primary-600 transition">{% trans "Dashboard" %}</a>
+                        <a href="{% url 'accounts:profile' %}" class="hover:text-primary-600 transition">{% trans "Profile" %}</a>
                         {% if user.is_student %}
                         <a href="{% url 'notifications:list' %}" class="relative hover:text-primary-600 transition">
-                            Notifications
+                            {% trans "Notifications" %}
                             {% if unread_notification_count %}
                             <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{{ unread_notification_count }}</span>
                             {% endif %}
                         </a>
                         {% elif user.is_instructor %}
                         <a href="{% url 'instructor:notifications' %}" class="relative hover:text-primary-600 transition">
-                            Notifications
+                            {% trans "Notifications" %}
                             {% if unread_notification_count %}
                             <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{{ unread_notification_count }}</span>
                             {% endif %}
                         </a>
                         {% elif user.is_super_admin %}
-                        <a href="{% url 'admin_portal:notification_list' %}" class="hover:text-primary-600 transition">Notifications</a>
+                        <a href="{% url 'admin_portal:notification_list' %}" class="hover:text-primary-600 transition">{% trans "Notifications" %}</a>
                         {% endif %}
                     {% endif %}
                 </div>
                 <div class="flex items-center gap-3">
+                    {% include "partials/language_switcher.html" %}
                     <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Toggle dark mode">
                         <span x-show="!darkMode">{% ha_icon "moon" size=20 %}</span>
                         <span x-show="darkMode" x-cloak>{% ha_icon "sun" size=20 class_name="text-amber-400" %}</span>
@@ -60,8 +61,8 @@
                     {% if user.is_authenticated %}
                         {% include "partials/user_profile_menu.html" %}
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Login</a>
-                        <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-sm rounded-lg bg-primary-600 text-white hover:bg-primary-700">Register</a>
+                        <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-sm rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">{% trans "Login" %}</a>
+                        <a href="{% url 'accounts:register' %}" class="px-4 py-2 text-sm rounded-lg bg-primary-600 text-white hover:bg-primary-700">{% trans "Register" %}</a>
                     {% endif %}
                 </div>
             </div>
@@ -109,8 +110,8 @@
             <div>
                 <h4 class="text-white font-semibold mb-3">Legal</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{% url 'cms:privacy_policy' %}" class="hover:text-primary-400">Privacy Policy</a></li>
-                    <li><a href="{% url 'cms:terms_conditions' %}" class="hover:text-primary-400">Terms & Conditions</a></li>
+                    <li><a href="{% url 'cms:privacy_policy' %}" class="hover:text-primary-400">{% trans "Privacy Policy" %}</a></li>
+                    <li><a href="{% url 'cms:terms_conditions' %}" class="hover:text-primary-400">{% trans "Terms & Conditions" %}</a></li>
                 </ul>
             </div>
             <div>

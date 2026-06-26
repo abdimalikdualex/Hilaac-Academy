@@ -1,10 +1,10 @@
 from django.conf import settings
-
 from django.contrib.auth.tokens import default_token_generator
-
 from django.utils.encoding import force_bytes
-
 from django.utils.http import urlsafe_base64_encode
+from django.utils.translation import gettext as _
+
+from apps.core.i18n import user_language
 
 
 
@@ -287,23 +287,17 @@ def notify_payment_confirmed(payment):
 
 
 def notify_payment_started(payment):
-
+    with user_language(payment.student):
+        message = _("Your payment request has been sent.")
+        title = _("Payment Started")
     create_notification(
-
         payment.student,
-
-        "Your payment request has been sent. Complete the prompt on your phone.",
-
+        message,
         Notification.NotificationType.PAYMENT,
-
         link=f"/payments/pending/{payment.pk}/",
-
-        title="Payment Started",
-
+        title=title,
         severity=Notification.Severity.INFO,
-
         is_system=True,
-
     )
 
 
@@ -311,25 +305,18 @@ def notify_payment_started(payment):
 
 
 def notify_payment_received(payment):
-
+    with user_language(payment.student):
+        message = _("Your payment was received.")
+        title = _("Payment Received")
     create_notification(
-
         payment.student,
-
-        "Your payment was received. Waiting for admin approval.",
-
+        message,
         Notification.NotificationType.PAYMENT,
-
-        link="/dashboard/courses/",
-
-        title="Payment Received",
-
+        link="/student/courses/",
+        title=title,
         severity=Notification.Severity.SUCCESS,
-
         is_system=True,
-
         send_email=True,
-
     )
 
 
@@ -337,25 +324,18 @@ def notify_payment_received(payment):
 
 
 def notify_access_activated(payment):
-
+    with user_language(payment.student):
+        message = _("Your course access has been activated.")
+        title = _("Course Access Activated")
     create_notification(
-
         payment.student,
-
-        f"Your course access has been activated for {payment.level.name}.",
-
+        message,
         Notification.NotificationType.PAYMENT,
-
         link=f"/learning/course/{payment.level.id}/",
-
-        title="Course Access Activated",
-
+        title=title,
         severity=Notification.Severity.SUCCESS,
-
         is_system=True,
-
         send_email=True,
-
     )
 
 
@@ -378,23 +358,16 @@ def notify_admin_payment_requires_approval(payment):
     )
 
     for admin in admins:
-
+        with user_language(admin):
+            localized_title = _("Payment Requires Approval")
         create_notification(
-
             admin,
-
             message,
-
             Notification.NotificationType.PAYMENT,
-
             link="/admin-portal/payments/?status=paid",
-
-            title="Payment Requires Approval",
-
+            title=localized_title,
             severity=Notification.Severity.WARNING,
-
             is_system=True,
-
         )
 
 

@@ -4,6 +4,27 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 
+from django.utils import translation
+
+
+class UserLocaleMiddleware:
+    """Activate UI language from user preference, session, or browser."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from apps.core.i18n import resolve_request_language
+
+        lang = resolve_request_language(request)
+        translation.activate(lang)
+        request.LANGUAGE_CODE = lang
+        request.session[translation.LANGUAGE_SESSION_KEY] = lang
+        response = self.get_response(request)
+        translation.deactivate()
+        return response
+
+
 class EmailVerificationMiddleware:
     """
     Email verification is required only for sensitive actions — not for purchasing courses.
@@ -50,6 +71,7 @@ class RoleAccessMiddleware:
     PUBLIC_PREFIXES = (
         "/static/",
         "/media/",
+        "/i18n/",
         "/accounts/login",
         "/accounts/register",
         "/accounts/password/",

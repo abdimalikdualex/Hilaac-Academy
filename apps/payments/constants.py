@@ -1,6 +1,8 @@
+from django.utils.translation import gettext_lazy as _
+
 PUSH_PAYMENT_METHODS = ("mpesa", "evc_plus", "zaad", "sahal")
 
-PAYMENT_SUCCESS_MESSAGE = "Payment successful. You can now access this course."
+PAYMENT_SUCCESS_MESSAGE = _("Payment successful. You can now access this course.")
 
 PAYMENT_METHOD_META = {
     "mpesa": {

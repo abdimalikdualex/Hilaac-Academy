@@ -302,9 +302,14 @@ class LegalPage(TimeStampedModel):
 
     page_type = models.CharField(max_length=20, choices=PageType.choices, unique=True)
     title = models.CharField(max_length=200)
+    title_so = models.CharField(max_length=200, blank=True, help_text="Somali page title")
     body = models.TextField(
         blank=True,
         help_text="Optional HTML. Leave blank to show the built-in default legal text.",
+    )
+    body_so = models.TextField(
+        blank=True,
+        help_text="Optional Somali HTML content.",
     )
     last_updated = models.DateField(auto_now=True)
 

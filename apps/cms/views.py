@@ -100,18 +100,28 @@ def home(request):
 
 
 def legal_page(request, page_type):
+    from django.utils.translation import get_language
+
     page = LegalPage.get_page(page_type)
     template_map = {
         LegalPage.PageType.PRIVACY: "cms/privacy_policy.html",
         LegalPage.PageType.TERMS: "cms/terms_conditions.html",
     }
     template_name = template_map.get(page_type, "cms/privacy_policy.html")
+    lang = get_language()
+    if lang == "so" and page.title_so:
+        page_title = page.title_so
+        body = page.body_so or page.body
+    else:
+        page_title = page.title
+        body = page.body
     return render(
         request,
         template_name,
         {
             "legal_page": page,
-            "page_title": page.title,
+            "page_title": page_title,
+            "legal_body": body,
             "last_updated": page.last_updated,
         },
     )
