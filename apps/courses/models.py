@@ -357,6 +357,14 @@ class Enrollment(TimeStampedModel):
     student = models.ForeignKey("accounts.User", on_delete=models.CASCADE, related_name="enrollments")
     level = models.ForeignKey(Level, on_delete=models.CASCADE, related_name="enrollments")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    access_granted = models.BooleanField(
+        default=False,
+        help_text="Student can access course materials (set after payment approval or free enrollment).",
+    )
+    payment_verified = models.BooleanField(
+        default=False,
+        help_text="Paid enrollment confirmed by admin after successful payment.",
+    )
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 

@@ -35,8 +35,9 @@ class Payment(TimeStampedModel):
         BANK_TRANSFER = "bank_transfer", "Bank Transfer"
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Processing"
-        COMPLETED = "completed", "Paid"
+        PENDING = "pending", "Pending"
+        PAID = "paid", "Paid"
+        COMPLETED = "completed", "Approved"
         REJECTED = "rejected", "Rejected"
         FAILED = "failed", "Failed"
         CANCELLED = "cancelled", "Cancelled"
@@ -55,7 +56,15 @@ class Payment(TimeStampedModel):
     transaction_id = models.CharField(max_length=100, blank=True, help_text="Provider receipt / transaction ID")
     screenshot = models.ImageField(upload_to="payments/screenshots/", blank=True, null=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    verified_at = models.DateTimeField(null=True, blank=True)
+    verified_at = models.DateTimeField(null=True, blank=True, help_text="When payment was confirmed by provider")
+    approved_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_payments",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
     receipt_number = models.CharField(max_length=50, unique=True, blank=True)
     admin_note = models.TextField(blank=True)
     failure_message = models.TextField(blank=True)
@@ -94,29 +103,75 @@ class Payment(TimeStampedModel):
             student=student, level=level, status=cls.Status.PENDING
         ).order_by("-created_at").first()
 
-    def approve(self):
+    @classmethod
+    def get_awaiting_approval(cls, student, level):
+        return cls.objects.filter(
+            student=student, level=level, status=cls.Status.PAID
+        ).order_by("-created_at").first()
+
+    @classmethod
+    def get_blocking_payment(cls, student, level):
+        """Payment in progress or awaiting admin approval."""
+        return cls.objects.filter(
+            student=student,
+            level=level,
+            status__in=[cls.Status.PENDING, cls.Status.PAID],
+        ).order_by("-created_at").first()
+
+    def mark_paid(self, transaction_id=None):
+        """M-Pesa (or provider) confirmed payment — awaits admin approval."""
+        if self.status not in (self.Status.PENDING,):
+            return False
+
+        from apps.notifications.services import notify_admin_payment_requires_approval, notify_payment_received
+
+        update_fields = ["status", "verified_at"]
+        if transaction_id:
+            self.transaction_id = transaction_id
+            update_fields.append("transaction_id")
+        self.status = self.Status.PAID
+        self.verified_at = timezone.now()
+        self.save(update_fields=update_fields)
+
+        notify_payment_received(self)
+        notify_admin_payment_requires_approval(self)
+        return True
+
+    def approve(self, approved_by=None):
+        """Admin grants course access after payment verification."""
         if self.status == self.Status.COMPLETED:
+            return False
+        if self.status not in (self.Status.PAID, self.Status.PENDING):
             return False
 
         from apps.courses.models import Enrollment
-        from apps.notifications.services import notify_enrollment, notify_payment_confirmed, notify_admin_payment_completed
+        from apps.notifications.services import notify_access_activated, notify_enrollment
 
         self.status = self.Status.COMPLETED
-        self.verified_at = timezone.now()
-        self.save(update_fields=["status", "verified_at"])
+        if approved_by:
+            self.approved_by = approved_by
+        self.approved_at = timezone.now()
+        if not self.verified_at:
+            self.verified_at = self.approved_at
+        self.save(update_fields=["status", "approved_by", "approved_at", "verified_at"])
 
         enrollment, created = Enrollment.objects.get_or_create(
             student=self.student,
             level=self.level,
-            defaults={"status": Enrollment.Status.ACTIVE},
+            defaults={
+                "status": Enrollment.Status.ACTIVE,
+                "access_granted": True,
+                "payment_verified": True,
+            },
         )
-        if not created and enrollment.status == Enrollment.Status.CANCELLED:
+        if not created:
             enrollment.status = Enrollment.Status.ACTIVE
-            enrollment.save(update_fields=["status"])
+            enrollment.access_granted = True
+            enrollment.payment_verified = True
+            enrollment.save(update_fields=["status", "access_granted", "payment_verified"])
 
-        notify_payment_confirmed(self)
+        notify_access_activated(self)
         notify_enrollment(self.student, self.level)
-        notify_admin_payment_completed(self)
         return True
 
     def mark_failed(self, message="Payment was not completed."):
@@ -150,5 +205,7 @@ class Payment(TimeStampedModel):
             self.admin_note = note
         self.save(update_fields=["status", "admin_note"])
         Enrollment.objects.filter(student=self.student, level=self.level).update(
-            status=Enrollment.Status.CANCELLED
+            status=Enrollment.Status.CANCELLED,
+            access_granted=False,
+            payment_verified=False,
         )

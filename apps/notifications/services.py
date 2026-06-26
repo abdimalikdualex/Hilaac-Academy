@@ -286,6 +286,121 @@ def notify_payment_confirmed(payment):
 
 
 
+def notify_payment_started(payment):
+
+    create_notification(
+
+        payment.student,
+
+        "Your payment request has been sent. Complete the prompt on your phone.",
+
+        Notification.NotificationType.PAYMENT,
+
+        link=f"/payments/pending/{payment.pk}/",
+
+        title="Payment Started",
+
+        severity=Notification.Severity.INFO,
+
+        is_system=True,
+
+    )
+
+
+
+
+
+def notify_payment_received(payment):
+
+    create_notification(
+
+        payment.student,
+
+        "Your payment was received. Waiting for admin approval.",
+
+        Notification.NotificationType.PAYMENT,
+
+        link="/dashboard/courses/",
+
+        title="Payment Received",
+
+        severity=Notification.Severity.SUCCESS,
+
+        is_system=True,
+
+        send_email=True,
+
+    )
+
+
+
+
+
+def notify_access_activated(payment):
+
+    create_notification(
+
+        payment.student,
+
+        f"Your course access has been activated for {payment.level.name}.",
+
+        Notification.NotificationType.PAYMENT,
+
+        link=f"/learning/course/{payment.level.id}/",
+
+        title="Course Access Activated",
+
+        severity=Notification.Severity.SUCCESS,
+
+        is_system=True,
+
+        send_email=True,
+
+    )
+
+
+
+
+
+def notify_admin_payment_requires_approval(payment):
+
+    from django.contrib.auth import get_user_model
+
+    from apps.payments.currency import format_payment_display
+
+    User = get_user_model()
+
+    admins = User.objects.filter(role=User.Role.SUPER_ADMIN, is_active=True)
+
+    message = (
+        f"New course payment requires approval: {payment.student.username} — "
+        f"{payment.level.name} ({format_payment_display(payment)}, txn: {payment.transaction_id or 'pending'})"
+    )
+
+    for admin in admins:
+
+        create_notification(
+
+            admin,
+
+            message,
+
+            Notification.NotificationType.PAYMENT,
+
+            link="/admin-portal/payments/?status=paid",
+
+            title="Payment Requires Approval",
+
+            severity=Notification.Severity.WARNING,
+
+            is_system=True,
+
+        )
+
+
+
+
+
 def notify_payment_rejected(payment):
 
     create_notification(

@@ -39,7 +39,9 @@ def student_dashboard_stats(user):
     purchase_totals = revenue_totals(
         Payment.objects.filter(student=user, status=Payment.Status.COMPLETED)
     )
-    active = Enrollment.objects.filter(student=user, status=Enrollment.Status.ACTIVE)
+    active = Enrollment.objects.filter(
+        student=user, status=Enrollment.Status.ACTIVE, access_granted=True
+    )
     active_list = list(active.select_related("level", "level__language"))
     progresses = [e.progress_percentage for e in active_list]
     avg_progress = round(sum(progresses) / len(progresses)) if progresses else 0
@@ -57,7 +59,7 @@ def student_dashboard_stats(user):
 
 
 def student_dashboard_context(user):
-    enrollments = Enrollment.objects.filter(student=user).select_related("level", "level__language")
+    enrollments = Enrollment.objects.filter(student=user, access_granted=True).select_related("level", "level__language")
     active = enrollments.filter(status=Enrollment.Status.ACTIVE)
     completed = enrollments.filter(status=Enrollment.Status.COMPLETED)
     quiz_attempts = QuizAttempt.objects.filter(student=user).select_related("quiz").order_by("-completed_at")[:10]

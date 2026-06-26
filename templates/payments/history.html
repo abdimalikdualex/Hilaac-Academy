@@ -34,6 +34,7 @@
                         <td class="px-4 py-3">
                             <span class="text-xs px-2 py-1 rounded-full font-semibold
                                 {% if payment.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif payment.status == 'paid' %}bg-amber-100 text-amber-800
                                 {% elif payment.status == 'pending' %}bg-yellow-100 text-yellow-800
                                 {% elif payment.status == 'rejected' %}bg-red-100 text-red-800
                                 {% elif payment.status == 'failed' or payment.status == 'cancelled' %}bg-red-100 text-red-700

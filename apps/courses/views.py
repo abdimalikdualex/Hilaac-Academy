@@ -262,7 +262,7 @@ def enroll(request, level_id):
         return redirect("payments:pending", payment_id=access["pending_payment"].pk)
 
     if level.is_free:
-        Enrollment.objects.create(student=request.user, level=level)
+        Enrollment.objects.create(student=request.user, level=level, access_granted=True, payment_verified=False)
         notify_enrollment(request.user, level)
         log_audit(request, "course_enroll", "Level", level.pk, level.name)
         messages.success(request, f"Successfully enrolled in {level.name}!")

@@ -291,6 +291,12 @@ def verify_payment_status(payment):
             "message": PAYMENT_SUCCESS_MESSAGE,
             "redirect_url": course_url,
         }
+    if payment.status == Payment.Status.PAID:
+        return {
+            "status": "paid",
+            "message": "Payment received successfully. Waiting for approval.",
+            "redirect_url": reverse("student:courses"),
+        }
     if payment.status in (Payment.Status.FAILED, Payment.Status.CANCELLED, Payment.Status.REJECTED):
         return {
             "status": payment.status,
@@ -301,25 +307,20 @@ def verify_payment_status(payment):
     if payment.method == Payment.Method.MPESA and payment.checkout_request_id:
         if payment.checkout_request_id.startswith("DEV-"):
             if _dev_simulation_complete(payment):
-                payment.transaction_id = f"SIM{payment.pk}"
-                payment.save(update_fields=["transaction_id"])
-                payment.approve()
+                payment.mark_paid(transaction_id=f"SIM{payment.pk}")
                 return {
-                    "status": "completed",
-                    "message": PAYMENT_SUCCESS_MESSAGE,
-                    "redirect_url": course_url,
+                    "status": "paid",
+                    "message": "Payment received successfully. Waiting for approval.",
+                    "redirect_url": reverse("student:courses"),
                 }
         else:
             code, desc, receipt = query_mpesa_stk_status(payment.checkout_request_id)
             if code == 0:
-                if receipt:
-                    payment.transaction_id = receipt
-                    payment.save(update_fields=["transaction_id"])
-                payment.approve()
+                payment.mark_paid(transaction_id=receipt or payment.transaction_id)
                 return {
-                    "status": "completed",
-                    "message": PAYMENT_SUCCESS_MESSAGE,
-                    "redirect_url": course_url,
+                    "status": "paid",
+                    "message": "Payment received successfully. Waiting for approval.",
+                    "redirect_url": reverse("student:courses"),
                 }
             if code is not None and code != 0:
                 payment.mark_failed(desc or "Payment was not completed.")
@@ -331,13 +332,11 @@ def verify_payment_status(payment):
 
     if payment.method in PUSH_PAYMENT_METHODS and payment.checkout_request_id:
         if payment.checkout_request_id.startswith("DEV-") and _dev_simulation_complete(payment):
-            payment.transaction_id = f"SIM{payment.pk}"
-            payment.save(update_fields=["transaction_id"])
-            payment.approve()
+            payment.mark_paid(transaction_id=f"SIM{payment.pk}")
             return {
-                "status": "completed",
-                "message": PAYMENT_SUCCESS_MESSAGE,
-                "redirect_url": course_url,
+                "status": "paid",
+                "message": "Payment received successfully. Waiting for approval.",
+                "redirect_url": reverse("student:courses"),
             }
 
     # Timeout after 3 minutes

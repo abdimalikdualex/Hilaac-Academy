@@ -5,40 +5,39 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Payments Dashboard</h1>
+<h1 class="text-2xl font-bold mb-6">Payment Management</h1>
 
-<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
     <div class="bg-white rounded-xl border p-4">
-        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Revenue (USD)</div>
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Revenue</div>
         <div class="text-2xl font-bold mt-1">${{ payment_stats.total_revenue_usd|default:0|floatformat:2 }}</div>
-        <div class="text-xs text-slate-400 mt-1">From successful payments</div>
+        <div class="text-xs text-slate-400 mt-1">Approved payments (USD)</div>
     </div>
     <div class="bg-white rounded-xl border p-4">
-        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Successful</div>
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Awaiting Approval</div>
+        <div class="text-2xl font-bold mt-1 text-amber-700">{{ payment_stats.paid_count|default:0 }}</div>
+    </div>
+    <div class="bg-white rounded-xl border p-4">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Approved</div>
         <div class="text-2xl font-bold mt-1 text-green-700">{{ payment_stats.successful_count|default:0 }}</div>
     </div>
     <div class="bg-white rounded-xl border p-4">
-        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Pending</div>
-        <div class="text-2xl font-bold mt-1 text-yellow-700">{{ payment_stats.pending_count|default:0 }}</div>
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Pending / Failed</div>
+        <div class="text-2xl font-bold mt-1 text-red-700">{{ payment_stats.pending_count|default:0 }} / {{ payment_stats.failed_count|default:0 }}</div>
     </div>
     <div class="bg-white rounded-xl border p-4">
-        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Failed / Rejected</div>
-        <div class="text-2xl font-bold mt-1 text-red-700">{{ payment_stats.failed_count|default:0 }}</div>
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Students Purchased</div>
+        <div class="text-2xl font-bold mt-1">{{ payment_stats.students_purchased|default:0 }}</div>
     </div>
 </div>
 
 <div class="flex flex-wrap gap-2 mb-4">
-
     <a href="?" class="px-3 py-1 rounded border text-sm {% if not status %}bg-primary-50 border-primary-300{% endif %}">All</a>
-
-    <a href="?status=pending" class="px-3 py-1 rounded border text-sm {% if status == 'pending' %}bg-yellow-50 border-yellow-300{% endif %}">Pending</a>
-
+    <a href="?status=paid" class="px-3 py-1 rounded border text-sm {% if status == 'paid' %}bg-amber-50 border-amber-300{% endif %}">Paid (Approve)</a>
+    <a href="?status=pending" class="px-3 py-1 rounded border text-sm {% if status == 'pending' %}bg-yellow-50 border-yellow-300{% endif %}">Processing</a>
     <a href="?status=completed" class="px-3 py-1 rounded border text-sm {% if status == 'completed' %}bg-green-50 border-green-300{% endif %}">Approved</a>
-
-    <a href="?status=rejected" class="px-3 py-1 rounded border text-sm {% if status == 'rejected' %}bg-red-50 border-red-300{% endif %}">Rejected</a>
-
     <a href="?status=failed" class="px-3 py-1 rounded border text-sm {% if status == 'failed' %}bg-red-50 border-red-300{% endif %}">Failed</a>
-
+    <a href="?status=rejected" class="px-3 py-1 rounded border text-sm {% if status == 'rejected' %}bg-red-50 border-red-300{% endif %}">Rejected</a>
 </div>
 
 <div class="bg-white rounded-xl border overflow-hidden mb-6">
@@ -50,9 +49,9 @@
                     <th class="px-4 py-3">Course</th>
                     <th class="px-4 py-3">Amount</th>
                     <th class="px-4 py-3">Transaction ID</th>
-                    <th class="px-4 py-3">Status</th>
                     <th class="px-4 py-3">Date</th>
-                    <th class="px-4 py-3">Actions</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -62,19 +61,22 @@
                     <td class="px-4 py-3">{{ p.level.name }}</td>
                     <td class="px-4 py-3 font-semibold">{% payment_amount_display p %}</td>
                     <td class="px-4 py-3"><code class="text-xs font-mono">{{ p.mpesa_receipt_number|default:p.transaction_id|default:p.checkout_request_id|default:"—" }}</code></td>
+                    <td class="px-4 py-3 text-slate-600">{{ p.created_at|date:"M j, Y H:i" }}</td>
                     <td class="px-4 py-3">
                         <span class="text-xs px-2 py-0.5 rounded-full font-semibold
                             {% if p.status == 'completed' %}bg-green-100 text-green-800
+                            {% elif p.status == 'paid' %}bg-amber-100 text-amber-800
                             {% elif p.status == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif p.status == 'rejected' %}bg-red-100 text-red-800
+                            {% elif p.status == 'rejected' or p.status == 'failed' %}bg-red-100 text-red-800
                             {% else %}bg-slate-100 text-slate-600{% endif %}">{{ p.get_status_display }}</span>
                     </td>
-                    <td class="px-4 py-3 text-slate-600">{{ p.created_at|date:"M j, Y H:i" }}</td>
                     <td class="px-4 py-3">
                         <div class="flex flex-wrap gap-x-3 gap-y-1 items-center">
-                            {% if p.status == 'pending' %}
-                            <a href="{% url 'admin_portal:payment_approve' pk=p.pk %}" class="text-green-700 text-xs font-semibold hover:underline" onclick="return confirm('Approve this payment and enroll the student?')">Approve</a>
-                            <form method="post" action="{% url 'admin_portal:payment_reject' pk=p.pk %}" class="inline-flex items-center gap-1" onsubmit="return confirm('Reject this payment?')">
+                            {% if p.status == 'paid' or p.status == 'pending' %}
+                            <a href="{% url 'admin_portal:payment_approve' pk=p.pk %}" class="text-green-700 text-xs font-semibold hover:underline" onclick="return confirm('Approve access for this student?')">Approve Access</a>
+                            {% endif %}
+                            {% if p.status == 'paid' or p.status == 'pending' %}
+                            <form method="post" action="{% url 'admin_portal:payment_reject' pk=p.pk %}" class="inline-flex" onsubmit="return confirm('Reject this payment?')">
                                 {% csrf_token %}
                                 <input type="hidden" name="note" value="">
                                 <button type="submit" class="text-red-600 text-xs font-semibold hover:underline">Reject</button>
@@ -83,7 +85,7 @@
                             {% if p.status == 'completed' %}
                             <a href="{% url 'admin_portal:payment_refund' pk=p.pk %}" class="text-red-600 text-xs hover:underline">Refund</a>
                             {% endif %}
-                            <a href="{% url 'payments:receipt' payment_id=p.pk %}" class="text-primary-600 text-xs hover:underline">Receipt</a>
+                            <a href="{% url 'payments:receipt' payment_id=p.pk %}" class="text-primary-600 text-xs hover:underline">View</a>
                         </div>
                     </td>
                 </tr>
@@ -98,4 +100,3 @@
 </div>
 
 {% endblock %}
-

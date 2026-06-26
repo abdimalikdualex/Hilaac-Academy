@@ -1,0 +1,72 @@
+{% load currency_tags ha_icons %}
+
+<div
+    x-show="open"
+    x-cloak
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    @keydown.escape.window="open = false"
+>
+    <div class="absolute inset-0 bg-slate-900/60" @click="open = false"></div>
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden" @click.outside="open = false">
+        <div class="p-5 border-b border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-bold">Purchase Course</h2>
+            <p class="text-sm text-slate-500 mt-1">{{ level.name }}</p>
+        </div>
+        <form class="p-5 space-y-4" @submit.prevent="submit">
+            <div class="rounded-xl bg-slate-50 dark:bg-slate-900 p-4 text-sm space-y-2">
+                <div class="flex justify-between"><span class="text-slate-500">Amount</span><span class="font-bold text-primary-600">{% price_display level show_usd_equiv=True %}</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Method</span><span>M-Pesa STK Push</span></div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">M-Pesa phone number</label>
+                <p class="text-xs text-slate-500 mb-2">Enter your M-Pesa number to receive payment prompt</p>
+                <input type="tel" x-model="phone" required
+                       class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 text-lg"
+                       placeholder="254712345678">
+                <p x-show="error" x-text="error" class="text-red-600 text-sm mt-1"></p>
+            </div>
+            <button type="submit" :disabled="submitting" class="w-full py-3.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 disabled:opacity-60">
+                <span x-show="!submitting">Pay Now</span>
+                <span x-show="submitting">Sending payment request...</span>
+            </button>
+            <p class="text-xs text-slate-400 text-center">You will enter your M-Pesa PIN on your phone. Access is granted after admin approval.</p>
+        </form>
+    </div>
+</div>
+
+<script>
+function purchaseModal(levelId, defaultPhone) {
+    return {
+        open: false,
+        phone: defaultPhone || '',
+        submitting: false,
+        error: '',
+        submit() {
+            this.error = '';
+            this.submitting = true;
+            const formData = new FormData();
+            formData.append('phone_number', this.phone);
+            formData.append('method', 'mpesa');
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}');
+            fetch(`/payments/initiate/${levelId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    this.error = data.error || (data.errors?.phone_number?.[0]) || 'Could not start payment.';
+                    this.submitting = false;
+                }
+            })
+            .catch(() => {
+                this.error = 'Network error. Please try again.';
+                this.submitting = false;
+            });
+        }
+    };
+}
+</script>

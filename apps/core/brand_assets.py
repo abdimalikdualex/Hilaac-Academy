@@ -76,7 +76,8 @@ STATUS_BADGES = {
     "PREMIUM": {"icon": "credit-card", "color": "primary", "label": "Premium"},
     "ACTIVE": {"icon": "play", "color": "green", "label": "Active"},
     "COMPLETED": {"icon": "check-circle", "color": "green", "label": "Completed"},
-    "PENDING": {"icon": "hourglass", "color": "yellow", "label": "Pending Payment"},
+    "PENDING": {"icon": "hourglass", "color": "yellow", "label": "Processing"},
+    "AWAITING APPROVAL": {"icon": "lock", "color": "yellow", "label": "Awaiting Approval"},
     "PAYMENT FAILED": {"icon": "x-circle", "color": "red", "label": "Payment Failed"},
     "PAYMENT REJECTED": {"icon": "alert-circle", "color": "red", "label": "Rejected"},
 }

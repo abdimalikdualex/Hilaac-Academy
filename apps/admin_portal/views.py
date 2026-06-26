@@ -373,13 +373,16 @@ def payment_list(request):
         payments = payments.filter(status=status)
 
     completed_q = Q(status=Payment.Status.COMPLETED)
+    paid_q = Q(status=Payment.Status.PAID)
     failed_q = Q(status__in=[Payment.Status.FAILED, Payment.Status.CANCELLED, Payment.Status.REJECTED])
     payment_stats = Payment.objects.aggregate(
         total_revenue_usd=Sum("amount_usd", filter=completed_q),
         successful_count=Count("id", filter=completed_q),
+        paid_count=Count("id", filter=paid_q),
         pending_count=Count("id", filter=Q(status=Payment.Status.PENDING)),
         failed_count=Count("id", filter=failed_q),
     )
+    payment_stats["students_purchased"] = Payment.objects.filter(status=Payment.Status.COMPLETED).values("student_id").distinct().count()
 
     return render(
         request,
@@ -395,9 +398,17 @@ def payment_list(request):
 @super_admin_required
 def payment_approve(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
-    payment.approve()
-    log_audit(request, "payment_approve", "Payment", payment.pk, f"student={payment.student_id}")
-    messages.success(request, "Payment approved and student enrolled.")
+    if not payment.approve(approved_by=request.user):
+        messages.error(request, "This payment cannot be approved.")
+        return redirect("admin_portal:payment_list")
+
+    audit_detail = (
+        f"Admin {request.user.get_full_name() or request.user.username} approved "
+        f"{format_payment_display(payment)} payment for {payment.level.name} "
+        f"(student={payment.student.username}, txn={payment.transaction_id or '—'})"
+    )
+    log_audit(request, "payment_approve", "Payment", payment.pk, audit_detail)
+    messages.success(request, "Access approved. The student can now access the course.")
     return redirect("admin_portal:payment_list")
 
 

@@ -4,6 +4,7 @@ import logging
 from django.contrib import messages
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
@@ -11,7 +12,7 @@ from apps.core.permissions import student_required
 from apps.core.utils import log_audit
 from apps.courses.access import get_course_access
 from apps.courses.models import Level
-from apps.notifications.services import notify_admin_payment_submitted
+from apps.notifications.services import notify_admin_payment_submitted, notify_payment_started
 
 from apps.core.brand_assets import BrandAssetManager
 
@@ -24,6 +25,40 @@ from .services import generate_receipt_pdf, initiate_push_payment, verify_paymen
 logger = logging.getLogger(__name__)
 
 
+def _create_push_payment(request, level, form):
+    if Payment.objects.filter(
+        student=request.user,
+        level=level,
+        status__in=[Payment.Status.COMPLETED, Payment.Status.PAID],
+    ).exists():
+        messages.info(request, "You already have a payment in progress or approved for this course.")
+        return None
+
+    amounts = build_payment_amounts(request, level, form.cleaned_data["method"])
+    payment = Payment.objects.create(
+        student=request.user,
+        level=level,
+        amount=amounts["amount"],
+        amount_usd=amounts["amount_usd"],
+        currency=amounts["currency"],
+        exchange_rate=amounts["exchange_rate"],
+        method=form.cleaned_data["method"],
+        phone_number=form.cleaned_data["phone_number"],
+        status=Payment.Status.PENDING,
+    )
+
+    success, msg, checkout_id = initiate_push_payment(payment)
+    if not success:
+        payment.mark_failed(msg)
+        messages.error(request, msg)
+        return None
+
+    notify_payment_started(payment)
+    notify_admin_payment_submitted(payment)
+    log_audit(request, "payment_initiated", "Payment", payment.pk, f"{payment.method} push - {level.name}")
+    return payment
+
+
 @student_required
 def checkout(request, level_id):
     level = get_object_or_404(Level.objects.select_related("language", "instructor"), pk=level_id, is_published=True, is_free=False)
@@ -33,43 +68,18 @@ def checkout(request, level_id):
         messages.info(request, "You already have access to this course.")
         return redirect("learning:course_view", level_id=level.id)
 
-    pending = Payment.get_active_pending(request.user, level)
-    if pending:
-        return redirect("payments:pending", payment_id=pending.pk)
+    blocking = Payment.get_blocking_payment(request.user, level)
+    if blocking:
+        return redirect("payments:pending", payment_id=blocking.pk)
 
     if request.method == "POST":
         form = InstantPaymentForm(request.POST)
         if form.is_valid():
-            if Payment.objects.filter(
-                student=request.user, level=level, status=Payment.Status.COMPLETED
-            ).exists():
-                messages.info(request, "You already purchased this course.")
-                return redirect("learning:course_view", level_id=level.id)
-
-            amounts = build_payment_amounts(request, level, form.cleaned_data["method"])
-            payment = Payment.objects.create(
-                student=request.user,
-                level=level,
-                amount=amounts["amount"],
-                amount_usd=amounts["amount_usd"],
-                currency=amounts["currency"],
-                exchange_rate=amounts["exchange_rate"],
-                method=form.cleaned_data["method"],
-                phone_number=form.cleaned_data["phone_number"],
-                status=Payment.Status.PENDING,
-            )
-
-            success, msg, checkout_id = initiate_push_payment(payment)
-            if not success:
-                payment.mark_failed(msg)
-                messages.error(request, msg)
-                return redirect("payments:checkout", level_id=level.id)
-
-            notify_admin_payment_submitted(payment)
-            log_audit(request, "payment_initiated", "Payment", payment.pk, f"{payment.method} push - {level.name}")
-            return redirect("payments:pending", payment_id=payment.pk)
+            payment = _create_push_payment(request, level, form)
+            if payment:
+                return redirect("payments:pending", payment_id=payment.pk)
     else:
-        form = InstantPaymentForm(initial={"phone_number": request.user.phone or ""})
+        form = InstantPaymentForm(initial={"phone_number": request.user.phone or "", "method": Payment.Method.MPESA})
 
     pricing = get_pricing(request, level)
     methods_pricing = get_checkout_methods_pricing(request, level)
@@ -88,6 +98,41 @@ def checkout(request, level_id):
 
 
 @student_required
+@require_POST
+def purchase_initiate(request, level_id):
+    """AJAX/modal purchase — triggers M-Pesa STK push."""
+    level = get_object_or_404(Level.objects.select_related("language"), pk=level_id, is_published=True, is_free=False)
+    access = get_course_access(request.user, level)
+
+    if access["has_full_access"]:
+        return JsonResponse({"ok": False, "error": "You already have access to this course."}, status=400)
+
+    blocking = Payment.get_blocking_payment(request.user, level)
+    if blocking:
+        return JsonResponse(
+            {
+                "ok": True,
+                "redirect_url": reverse("payments:pending", kwargs={"payment_id": blocking.pk}),
+            }
+        )
+
+    form = InstantPaymentForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({"ok": False, "errors": form.errors}, status=400)
+
+    payment = _create_push_payment(request, level, form)
+    if not payment:
+        return JsonResponse({"ok": False, "error": "Could not start payment. Please try again."}, status=400)
+
+    return JsonResponse(
+        {
+            "ok": True,
+            "redirect_url": reverse("payments:pending", kwargs={"payment_id": payment.pk}),
+        }
+    )
+
+
+@student_required
 def payment_pending(request, payment_id):
     payment = get_object_or_404(
         Payment.objects.select_related("level", "level__language", "level__instructor"),
@@ -98,11 +143,22 @@ def payment_pending(request, payment_id):
         messages.success(request, PAYMENT_SUCCESS_MESSAGE)
         return redirect("learning:course_view", level_id=payment.level_id)
 
+    if payment.status == Payment.Status.PAID:
+        return render(
+            request,
+            "payments/pending.html",
+            {
+                "payment": payment,
+                "pin_message": "",
+                "awaiting_approval": True,
+            },
+        )
+
     pin_message = payment.provider_message or PAYMENT_METHOD_META.get(payment.method, {}).get("pin_message", "")
     return render(
         request,
         "payments/pending.html",
-        {"payment": payment, "pin_message": pin_message},
+        {"payment": payment, "pin_message": pin_message, "awaiting_approval": False},
     )
 
 
@@ -111,8 +167,8 @@ def payment_pending(request, payment_id):
 def payment_status(request, payment_id):
     payment = get_object_or_404(Payment, pk=payment_id, student=request.user)
     result = verify_payment_status(payment)
-    if result["status"] == "completed":
-        log_audit(request, "payment_auto_complete", "Payment", payment.pk)
+    if result["status"] in ("completed", "paid"):
+        log_audit(request, "payment_auto_verify", "Payment", payment.pk, result["status"])
     return JsonResponse(result)
 
 
@@ -138,7 +194,7 @@ def receipt_view(request, payment_id):
 @csrf_exempt
 @require_POST
 def mpesa_callback(request):
-    """M-Pesa STK Push callback — auto-approve or mark failed server-side."""
+    """M-Pesa STK Push callback — mark paid server-side; admin approves access."""
     try:
         body = json.loads(request.body)
         result = body.get("Body", {}).get("stkCallback", {})
@@ -156,10 +212,7 @@ def mpesa_callback(request):
             for item in result.get("CallbackMetadata", {}).get("Item", []):
                 if item.get("Name") == "MpesaReceiptNumber":
                     mpesa_ref = str(item.get("Value", ""))
-            if mpesa_ref:
-                payment.transaction_id = mpesa_ref
-                payment.save(update_fields=["transaction_id"])
-            payment.approve()
+            payment.mark_paid(transaction_id=mpesa_ref or None)
             log_audit(request, "mpesa_callback_success", "Payment", payment.pk)
         else:
             desc = result.get("ResultDesc", "Payment was not completed.")

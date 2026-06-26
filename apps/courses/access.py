@@ -6,13 +6,14 @@ from apps.payments.models import Payment
 def get_course_access(user, level):
     """
     Return access metadata for a student and course.
-    access_state: visitor | free | locked | pending | rejected | enrolled | completed
+    access_state: visitor | free | locked | pending | paid_awaiting | rejected | enrolled | completed
     """
     data = {
         "access_state": "visitor",
         "has_full_access": False,
         "is_enrolled": False,
         "pending_payment": None,
+        "awaiting_payment": None,
         "rejected_payment": None,
         "can_purchase": False,
         "can_wishlist": False,
@@ -39,7 +40,7 @@ def get_course_access(user, level):
     data["can_wishlist"] = True
 
     enrollment = (
-        Enrollment.objects.filter(student=user, level=level)
+        Enrollment.objects.filter(student=user, level=level, access_granted=True)
         .exclude(status=Enrollment.Status.CANCELLED)
         .first()
     )
@@ -66,6 +67,15 @@ def get_course_access(user, level):
         data["access_state"] = "pending"
         data["pending_payment"] = pending
         data["status_label"] = "PENDING"
+        data["status_color"] = "yellow"
+        return data
+
+    paid = Payment.get_awaiting_approval(user, level)
+    if paid:
+        data["access_state"] = "paid_awaiting"
+        data["awaiting_payment"] = paid
+        data["pending_payment"] = paid
+        data["status_label"] = "AWAITING APPROVAL"
         data["status_color"] = "yellow"
         return data
 
@@ -126,9 +136,9 @@ def batch_course_access(user, levels):
     level_ids = [l.id for l in level_list]
     enrollments = {
         e.level_id: e
-        for e in Enrollment.objects.filter(student=user, level_id__in=level_ids).exclude(
-            status=Enrollment.Status.CANCELLED
-        )
+        for e in Enrollment.objects.filter(
+            student=user, level_id__in=level_ids, access_granted=True
+        ).exclude(status=Enrollment.Status.CANCELLED)
     }
     payments = list(
         Payment.objects.filter(student=user, level_id__in=level_ids).order_by("-created_at")
@@ -143,6 +153,7 @@ def batch_course_access(user, levels):
             "has_full_access": False,
             "is_enrolled": False,
             "pending_payment": None,
+            "awaiting_payment": None,
             "rejected_payment": None,
             "can_purchase": False,
             "can_wishlist": True,
@@ -172,6 +183,18 @@ def batch_course_access(user, levels):
                         "access_state": "pending",
                         "pending_payment": payment,
                         "status_label": "PENDING",
+                        "status_color": "yellow",
+                        "can_wishlist": True,
+                    }
+                )
+                break
+            if payment.status == Payment.Status.PAID:
+                data.update(
+                    {
+                        "access_state": "paid_awaiting",
+                        "awaiting_payment": payment,
+                        "pending_payment": payment,
+                        "status_label": "AWAITING APPROVAL",
                         "status_color": "yellow",
                         "can_wishlist": True,
                     }
@@ -216,5 +239,6 @@ def student_has_full_access(user, level):
     return Enrollment.objects.filter(
         student=user,
         level=level,
+        access_granted=True,
         status__in=[Enrollment.Status.ACTIVE, Enrollment.Status.COMPLETED],
     ).exists()

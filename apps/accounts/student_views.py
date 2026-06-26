@@ -35,14 +35,17 @@ def dashboard_stats_partial(request):
 @student_required
 def my_courses(request):
     enrollments = (
-        Enrollment.objects.filter(student=request.user)
+        Enrollment.objects.filter(student=request.user, access_granted=True)
         .exclude(status=Enrollment.Status.CANCELLED)
         .select_related("level", "level__language")
         .order_by("-enrolled_at")
     )
     enrolled_level_ids = set(enrollments.values_list("level_id", flat=True))
     pending_payments = (
-        Payment.objects.filter(student=request.user, status=Payment.Status.PENDING)
+        Payment.objects.filter(
+            student=request.user,
+            status__in=[Payment.Status.PENDING, Payment.Status.PAID],
+        )
         .exclude(level_id__in=enrolled_level_ids)
         .select_related("level", "level__language")
         .order_by("-created_at")
@@ -51,7 +54,7 @@ def my_courses(request):
     for payment in pending_payments:
         course_items.append(
             {
-                "kind": "pending",
+                "kind": "pending" if payment.status == Payment.Status.PENDING else "awaiting",
                 "level": payment.level,
                 "payment": payment,
                 "access": get_course_access(request.user, payment.level),
@@ -72,7 +75,9 @@ def my_courses(request):
 @student_required
 def continue_learning(request):
     active = (
-        Enrollment.objects.filter(student=request.user, status=Enrollment.Status.ACTIVE)
+        Enrollment.objects.filter(
+            student=request.user, status=Enrollment.Status.ACTIVE, access_granted=True
+        )
         .select_related("level", "level__language")
         .order_by("-enrolled_at")
     )
@@ -82,7 +87,7 @@ def continue_learning(request):
 @student_required
 def assignments(request):
     enrolled_level_ids = Enrollment.objects.filter(
-        student=request.user, status=Enrollment.Status.ACTIVE
+        student=request.user, status=Enrollment.Status.ACTIVE, access_granted=True
     ).values_list("level_id", flat=True)
     assignments_qs = (
         Assignment.objects.filter(module__level_id__in=enrolled_level_ids, is_published=True)
@@ -107,7 +112,9 @@ def quizzes(request):
         .select_related("quiz", "quiz__level", "quiz__module")
         .order_by("-started_at")
     )
-    enrolled_level_ids = Enrollment.objects.filter(student=request.user).values_list("level_id", flat=True)
+    enrolled_level_ids = Enrollment.objects.filter(
+        student=request.user, access_granted=True
+    ).exclude(status=Enrollment.Status.CANCELLED).values_list("level_id", flat=True)
     available = Quiz.objects.filter(
         Q(level_id__in=enrolled_level_ids) | Q(module__level_id__in=enrolled_level_ids)
     ).distinct()
