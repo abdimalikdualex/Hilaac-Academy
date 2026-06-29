@@ -1,0 +1,37 @@
+{% extends base_template %}
+{% load ha_icons i18n %}
+{% block title %}{{ level.name }} — {% trans "Discussions" %}{% endblock %}
+{% block content %}
+<a href="{{ back_url }}" class="text-primary-600 text-sm hover:underline">← {% trans "Back to course" %}</a>
+<h1 class="text-2xl font-bold mt-2 mb-1">{% trans "Course Discussions" %}</h1>
+<p class="text-sm text-slate-600 mb-6">{{ level.name }}</p>
+
+<div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-3">
+        {% for thread in threads %}
+        <a href="{% url 'community:thread_detail' thread_id=thread.pk %}" class="block p-5 rounded-xl border border-slate-200 bg-white hover:border-primary-400 transition shadow-sm">
+            <div class="flex flex-wrap gap-2 items-start justify-between">
+                <div>
+                    {% if thread.is_pinned %}<span class="text-xs font-bold text-amber-600 uppercase">{% trans "Pinned" %}</span>{% endif %}
+                    <h2 class="font-bold text-slate-900">{{ thread.title }}</h2>
+                    <p class="text-sm text-slate-600 mt-1 line-clamp-2">{{ thread.body }}</p>
+                </div>
+                <span class="text-xs text-slate-500">{{ thread.reply_count }} {% trans "replies" %}</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-2">{{ thread.author.get_full_name|default:thread.author.username }} · {{ thread.created_at|timesince }} {% trans "ago" %}</div>
+        </a>
+        {% empty %}
+        <p class="text-slate-500 py-12 text-center bg-white rounded-2xl border">{% trans "No discussions yet. Start the conversation!" %}</p>
+        {% endfor %}
+    </div>
+    <div>
+        <form method="post" class="p-5 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-3 sticky top-24">
+            {% csrf_token %}
+            <h3 class="font-bold text-primary-800">{% trans "Ask a Question" %}</h3>
+            {{ form.title }}
+            {{ form.body }}
+            <button type="submit" class="w-full py-2.5 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">{% trans "Post" %}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

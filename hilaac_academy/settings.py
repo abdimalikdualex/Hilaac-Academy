@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.cms",
     "apps.analytics",
     "apps.admin_portal",
+    "apps.community",
 ]
 
 MIDDLEWARE = [
@@ -218,6 +219,10 @@ WHATSAPP_SUPPORT_NUMBER = config("WHATSAPP_SUPPORT_NUMBER", default="+2547221567
 WHATSAPP_AUTO_NOTIFY = config("WHATSAPP_AUTO_NOTIFY", default=True, cast=bool)
 WHATSAPP_NOTIFY_WEBHOOK_URL = config("WHATSAPP_NOTIFY_WEBHOOK_URL", default="")
 WHATSAPP_NOTIFY_TOKEN = config("WHATSAPP_NOTIFY_TOKEN", default="")
+
+OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
+AI_TUTOR_MODEL = config("AI_TUTOR_MODEL", default="gpt-4o-mini")
+AI_TUTOR_ENABLED = config("AI_TUTOR_ENABLED", default=bool(OPENAI_API_KEY), cast=bool)
 
 CSRF_TRUSTED_ORIGINS = list(config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv()))
 if RENDER_EXTERNAL_HOSTNAME:

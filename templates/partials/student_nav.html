@@ -6,6 +6,7 @@
 <a href="{% url 'student:assignments' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'assignments' %}active{% endif %}">{% ha_icon "clipboard-list" size=18 %} {% trans "Assignments" %}</a>
 <a href="{% url 'student:quizzes' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'quizzes' %}active{% endif %}">{% ha_icon "help-circle" size=18 %} {% trans "Quizzes" %}</a>
 <a href="{% url 'student:certificates' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'certificates' %}active{% endif %}">{% ha_icon "graduation-cap" size=18 %} {% trans "Certificates" %}</a>
+<a href="{% url 'community:live_classes' %}" class="student-sidebar-link {% if request.resolver_match.namespace == 'community' and request.resolver_match.url_name == 'live_classes' %}active{% endif %}">{% ha_icon "video" size=18 %} {% trans "Live Classes" %}</a>
 <a href="{% url 'student:library' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'library' %}active{% endif %}">{% ha_icon "library" size=18 %} {% trans "Library" %}</a>
 <a href="{% url 'payments:history' %}" class="student-sidebar-link">{% ha_icon "credit-card" size=18 %} {% trans "Payments" %}</a>
 <a href="{% url 'student:wishlist' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">{% ha_icon "star" size=18 %} {% trans "My Wishlist" %}</a>

@@ -19,6 +19,7 @@ urlpatterns = [
     path("certificates/", include("apps.certificates.urls")),
     path("library/", include("apps.library.urls")),
     path("notifications/", include("apps.notifications.urls")),
+    path("community/", include("apps.community.urls")),
     path("admin-portal/", include("apps.admin_portal.urls")),
     path("admin-dashboard/", RedirectView.as_view(url="/admin-portal/", permanent=False)),
     path("admin-dashboard/courses/", RedirectView.as_view(url="/admin-portal/courses/", permanent=False)),

@@ -1,9 +1,7 @@
 from django.contrib import messages
-
 from django.http import JsonResponse
-
 from django.shortcuts import get_object_or_404, redirect, render
-
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 
@@ -89,6 +87,8 @@ def course_view(request, level_id):
             "completed_lesson_ids": completed_lesson_ids,
 
             "progress_pct": Enrollment.objects.get(student=request.user, level=level).progress_percentage,
+
+            "ai_ask_url": reverse("learning:ai_ask_course", kwargs={"level_id": level.id}),
 
         },
 
@@ -204,6 +204,8 @@ def lesson_player(request, lesson_id):
 
             "next_lesson": next_lesson,
 
+            "ai_ask_url": reverse("learning:ai_ask_lesson", kwargs={"lesson_id": lesson.id}),
+
         },
 
     )
@@ -279,4 +281,45 @@ def update_progress(request, lesson_id):
 
 
     return JsonResponse({"watched_seconds": progress.watched_seconds, "is_completed": progress.is_completed})
+
+
+@student_required
+@require_POST
+def ai_ask_course(request, level_id):
+    from django.conf import settings
+    from apps.learning.ai_tutor import ask_tutor
+
+    if not getattr(settings, "AI_TUTOR_ENABLED", True):
+        return JsonResponse({"error": "AI tutor is disabled"}, status=503)
+
+    level = get_object_or_404(Level.objects.prefetch_related("modules__lessons"), pk=level_id)
+    if not student_has_full_access(request.user, level):
+        return JsonResponse({"error": "Access denied"}, status=403)
+
+    question = request.POST.get("question", "")
+    result = ask_tutor(question, request.user, level)
+    if result.get("error"):
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@student_required
+@require_POST
+def ai_ask_lesson(request, lesson_id):
+    from django.conf import settings
+    from apps.learning.ai_tutor import ask_tutor
+
+    if not getattr(settings, "AI_TUTOR_ENABLED", True):
+        return JsonResponse({"error": "AI tutor is disabled"}, status=503)
+
+    lesson = get_object_or_404(Lesson.objects.select_related("module__level"), pk=lesson_id)
+    level = lesson.module.level
+    if not student_has_full_access(request.user, level):
+        return JsonResponse({"error": "Access denied"}, status=403)
+
+    question = request.POST.get("question", "")
+    result = ask_tutor(question, request.user, level, lesson=lesson)
+    if result.get("error"):
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
 

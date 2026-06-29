@@ -1,0 +1,66 @@
+{% load i18n %}
+<div class="ha-ai-tutor mt-6 rounded-2xl border border-[#1E4D8F]/20 bg-gradient-to-br from-[#1E4D8F]/5 to-[#0FAE9D]/5 overflow-hidden" id="ha-ai-tutor"
+     data-ask-url="{{ ask_url }}">
+    <div class="p-4 border-b border-[#1E4D8F]/10 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+            <span class="text-xl" aria-hidden="true">✨</span>
+            <h3 class="font-bold text-[#1E4D8F]">{% trans "Ask Hilaac AI" %}</h3>
+        </div>
+        <span class="text-xs text-slate-500">{% trans "English + Soomaali" %}</span>
+    </div>
+    <div class="p-4 max-h-64 overflow-y-auto space-y-3 text-sm" id="ha-ai-messages">
+        <div class="text-slate-600">{% trans "Ask me to explain this lesson, summarize a topic, or give practice questions." %}</div>
+    </div>
+    <div class="p-3 border-t border-[#1E4D8F]/10 flex flex-wrap gap-2" id="ha-ai-suggestions">
+        <button type="button" class="ha-ai-suggest text-xs px-2 py-1 rounded-full bg-white border hover:border-primary-400" data-q="{% trans 'Explain this lesson in simple terms' %}">{% trans "Explain" %}</button>
+        <button type="button" class="ha-ai-suggest text-xs px-2 py-1 rounded-full bg-white border hover:border-primary-400" data-q="{% trans 'Summarize this topic' %}">{% trans "Summarize" %}</button>
+        <button type="button" class="ha-ai-suggest text-xs px-2 py-1 rounded-full bg-white border hover:border-primary-400" data-q="{% trans 'Give me practice questions' %}">{% trans "Practice" %}</button>
+    </div>
+    <form class="p-4 pt-0 flex gap-2" id="ha-ai-form">
+        {% csrf_token %}
+        <input type="text" name="question" id="ha-ai-input" placeholder="{% trans 'Type your question...' %}" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-sm" maxlength="2000" required autocomplete="off">
+        <button type="submit" class="px-4 py-2 bg-[#1E4D8F] text-white rounded-lg text-sm font-semibold hover:bg-[#0FAE9D] shrink-0">{% trans "Ask" %}</button>
+    </form>
+</div>
+<script>
+(function () {
+    var root = document.getElementById("ha-ai-tutor");
+    if (!root) return;
+    var askUrl = root.dataset.askUrl;
+    var messages = document.getElementById("ha-ai-messages");
+    var form = document.getElementById("ha-ai-form");
+    var input = document.getElementById("ha-ai-input");
+
+    function getCookie(name) {
+        var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+        return m ? decodeURIComponent(m[1]) : "";
+    }
+    function append(role, text) {
+        var el = document.createElement("div");
+        el.className = role === "user" ? "text-right" : "text-left";
+        el.innerHTML = '<div class="inline-block max-w-[90%] px-3 py-2 rounded-xl ' +
+            (role === "user" ? "bg-[#1E4D8F] text-white" : "bg-white border text-slate-800") +
+            ' whitespace-pre-wrap">' + text.replace(/</g, "&lt;") + "</div>";
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+    }
+    function ask(question) {
+        if (!question.trim()) return;
+        append("user", question);
+        input.value = "";
+        append("assistant", "…");
+        var loading = messages.lastChild;
+        var body = new URLSearchParams({ question: question, csrfmiddlewaretoken: getCookie("csrftoken") });
+        fetch(askUrl, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString(), credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                loading.querySelector("div").textContent = data.answer || data.error || "Error";
+            })
+            .catch(function () { loading.querySelector("div").textContent = "Could not reach AI tutor."; });
+    }
+    form.addEventListener("submit", function (e) { e.preventDefault(); ask(input.value); });
+    document.querySelectorAll(".ha-ai-suggest").forEach(function (btn) {
+        btn.addEventListener("click", function () { ask(btn.getAttribute("data-q")); });
+    });
+})();
+</script>

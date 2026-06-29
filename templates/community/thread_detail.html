@@ -1,0 +1,49 @@
+{% extends base_template %}
+{% load ha_icons i18n %}
+{% block title %}{{ thread.title }}{% endblock %}
+{% block content %}
+<a href="{% url 'community:course_discussions' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">← {% trans "Discussions" %}</a>
+<div class="flex flex-wrap justify-between items-start gap-3 mt-2 mb-6">
+    <div>
+        {% if thread.is_pinned %}<span class="text-xs font-bold text-amber-600">{% trans "Pinned" %}</span>{% endif %}
+        <h1 class="text-2xl font-bold">{{ thread.title }}</h1>
+        <p class="text-sm text-slate-500">{{ thread.author.get_full_name|default:thread.author.username }} · {{ thread.created_at|date:"M j, Y H:i" }}</p>
+    </div>
+    {% if is_staff %}
+    <form method="post" action="{% url 'community:thread_pin' thread_id=thread.pk %}">{% csrf_token %}
+        <button type="submit" class="text-sm px-3 py-1.5 border rounded-lg hover:bg-slate-50">{% if thread.is_pinned %}{% trans "Unpin" %}{% else %}{% trans "Pin" %}{% endif %}</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="p-5 rounded-xl bg-white border border-slate-200 mb-6 whitespace-pre-line text-slate-800">{{ thread.body }}</div>
+
+<h2 class="font-bold mb-4">{% trans "Replies" %} ({{ replies|length }})</h2>
+<div class="space-y-4 mb-8">
+    {% for reply in replies %}
+    <div class="p-4 rounded-xl border {% if reply.is_instructor_reply %}border-[#0FAE9D] bg-[#0FAE9D]/5{% else %}border-slate-200 bg-white{% endif %}">
+        <div class="flex justify-between text-sm mb-2">
+            <span class="font-semibold">
+                {{ reply.author.get_full_name|default:reply.author.username }}
+                {% if reply.is_instructor_reply %}<span class="text-xs text-[#0FAE9D] font-bold ml-1">{% trans "Instructor" %}</span>{% endif %}
+            </span>
+            <span class="text-slate-400 text-xs">{{ reply.created_at|timesince }} {% trans "ago" %}</span>
+        </div>
+        <p class="text-slate-700 whitespace-pre-line">{{ reply.body }}</p>
+    </div>
+    {% empty %}
+    <p class="text-slate-500 text-sm">{% trans "No replies yet." %}</p>
+    {% endfor %}
+</div>
+
+{% if not thread.is_locked %}
+<form method="post" class="p-5 rounded-xl border border-slate-200 bg-white space-y-3">
+    {% csrf_token %}
+    <h3 class="font-semibold">{% trans "Add a reply" %}</h3>
+    {{ reply_form.body }}
+    <button type="submit" class="px-5 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700">{% trans "Reply" %}</button>
+</form>
+{% else %}
+<p class="text-amber-700 text-sm">{% trans "This discussion is locked." %}</p>
+{% endif %}
+{% endblock %}

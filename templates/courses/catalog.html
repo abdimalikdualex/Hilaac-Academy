@@ -35,6 +35,12 @@
             </a>
             <div class="p-6">
                 <h3 class="text-xl font-bold mb-2">{{ level.name }}</h3>
+                {% if level.review_count %}
+                <div class="flex items-center gap-1 mb-2 text-amber-500 text-sm">
+                    {% star_rating level.average_rating size=14 %}
+                    <span class="text-slate-500">{{ level.average_rating }} ({{ level.review_count }})</span>
+                </div>
+                {% endif %}
                 <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">{{ level.description|truncatewords:15|default:"Baro xirfado luuqadeed casri ah." }}</p>
                 <div class="flex justify-between items-center mb-4 text-sm text-slate-500">
                     <span class="inline-flex items-center gap-1">{% ha_icon "clock" size=14 %} {{ level.duration_weeks }} weeks</span>

@@ -653,6 +653,49 @@ def notify_assignment_graded(student, submission):
 
 
 
+def notify_live_class_scheduled(session):
+
+    """Notify enrolled students when an instructor schedules a live class."""
+
+    from apps.courses.models import Enrollment
+
+    from .whatsapp import notify_student_whatsapp
+
+    level = session.level
+    if not session.is_published:
+        return
+
+    students = (
+        Enrollment.objects.filter(level=level, access_granted=True)
+        .exclude(status=Enrollment.Status.CANCELLED)
+        .select_related("student")
+    )
+    when = session.starts_at.strftime("%b %d, %Y %H:%M")
+    link = "/community/live-classes/"
+    for enrollment in students:
+        student = enrollment.student
+        msg = (
+            f"Live class scheduled for {level.name}: {session.title} on {when}. "
+            f"Join from your Live Classes page."
+        )
+        create_notification(
+            student,
+            msg,
+            Notification.NotificationType.GENERAL,
+            link=link,
+            title="Live Class Scheduled",
+            severity=Notification.Severity.INFO,
+            is_system=True,
+        )
+        notify_student_whatsapp(
+            student,
+            f"Hilaac Academy: Live class *{session.title}* for {level.name} on {when}. Open Live Classes in your dashboard.",
+        )
+
+
+
+
+
 def notify_admin_new_user(user):
 
     from django.contrib.auth import get_user_model

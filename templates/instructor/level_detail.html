@@ -19,6 +19,8 @@
                 {% elif level.is_published %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300
                 {% else %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300{% endif %}">{{ level.status_label }}</span>
             <a href="{% url 'instructor:course_edit' level_id=level.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Edit course</a>
+            <a href="{% url 'community:instructor_live_sessions' level_id=level.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Live Classes</a>
+            <a href="{% url 'community:course_discussions' level_id=level.id %}" class="px-3 py-1.5 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Discussions</a>
             {% if not level.is_archived %}
             <a href="{% url 'instructor:course_publish' level_id=level.id %}" class="px-3 py-1.5 rounded-lg text-white {% if level.is_published %}bg-amber-600 hover:bg-amber-700{% else %}bg-green-600 hover:bg-green-700{% endif %}">{% if level.is_published %}Unpublish{% else %}Publish{% endif %}</a>
             {% endif %}

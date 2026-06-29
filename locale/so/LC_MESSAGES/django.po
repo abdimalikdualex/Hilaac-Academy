@@ -774,3 +774,111 @@ msgstr "Mar kale isku day imtixaanka"
 
 msgid "View Progress"
 msgstr "Eeg horumarka"
+
+msgid "Live Classes"
+msgstr "Casharrada tooska ah"
+
+msgid "Join scheduled Zoom or Google Meet sessions for your enrolled courses."
+msgstr "Ku biir fadhiyada Zoom ama Google Meet ee koorsooyinka aad isdiiwaangelisay."
+
+msgid "Live Now"
+msgstr "Hadda waa socda"
+
+msgid "Happening now"
+msgstr "Hadda waa socda"
+
+msgid "Join Class"
+msgstr "Ku biir casharka"
+
+msgid "Upcoming Classes"
+msgstr "Casharrada soo socda"
+
+msgid "Join"
+msgstr "Ku biir"
+
+msgid "No upcoming live classes scheduled."
+msgstr "Casharro toos ah oo soo socda lama qorsheyn."
+
+msgid "Past Sessions"
+msgstr "Fadhiyadii hore"
+
+msgid "Discussions"
+msgstr "Doodaha"
+
+msgid "Back to course"
+msgstr "Ku noqo koorsada"
+
+msgid "Course Discussions"
+msgstr "Doodaha koorsada"
+
+msgid "Pinned"
+msgstr "La xidhay"
+
+msgid "replies"
+msgstr "jawaabo"
+
+msgid "ago"
+msgstr "ka hor"
+
+msgid "No discussions yet. Start the conversation!"
+msgstr "Weli dood ma jirto. Bilow wada hadalka!"
+
+msgid "Ask a Question"
+msgstr "Weydii su'aal"
+
+msgid "Post"
+msgstr "Dir"
+
+msgid "Instructor"
+msgstr "Macallin"
+
+msgid "Replies"
+msgstr "Jawaabaha"
+
+msgid "No replies yet."
+msgstr "Weli jawaab ma jirto."
+
+msgid "Add a reply"
+msgstr "Ku dar jawaab"
+
+msgid "Reply"
+msgstr "Ka jawaab"
+
+msgid "This discussion is locked."
+msgstr "Dooddan waa la xidhay."
+
+msgid "Ask Hilaac AI"
+msgstr "Weydii Hilaac AI"
+
+msgid "English + Soomaali"
+msgstr "Ingiriis + Soomaali"
+
+msgid "Ask me to explain this lesson, summarize a topic, or give practice questions."
+msgstr "I weydii inaan sharaxo casharkan, soo koobo mawduuc, ama aan siiyo su'aalo tababar ah."
+
+msgid "Explain this lesson in simple terms"
+msgstr "Ii sharax casharkan si fudud"
+
+msgid "Explain"
+msgstr "Sharax"
+
+msgid "Summarize this topic"
+msgstr "Soo koob mawduucan"
+
+msgid "Summarize"
+msgstr "Soo koob"
+
+msgid "Give me practice questions"
+msgstr "I sii su'aalo tababar ah"
+
+msgid "Practice"
+msgstr "Tababar"
+
+msgid "Type your question..."
+msgstr "Qor su'aashaada..."
+
+msgid "Ask"
+msgstr "Weydii"
+
+msgid "Back to Dashboard"
+msgstr "Ku noqo Dashboard-ka"

@@ -1,0 +1,36 @@
+{% extends "instructor/base.html" %}
+{% block title %}Live Classes — {{ level.name }}{% endblock %}
+{% block content %}
+<a href="{% url 'instructor:level' level_id=level.id %}" class="text-primary-600 text-sm hover:underline">← Back to course</a>
+<h1 class="text-2xl font-bold mt-2 mb-6">Live Classes — {{ level.name }}</h1>
+
+<div class="grid lg:grid-cols-2 gap-8">
+    <div>
+        <h2 class="font-bold mb-4">Scheduled Sessions</h2>
+        <div class="space-y-3">
+            {% for session in sessions %}
+            <div class="p-4 rounded-xl border bg-white shadow-sm">
+                <div class="font-bold">{{ session.title }}</div>
+                <div class="text-sm text-slate-600">{{ session.get_platform_display }} · {{ session.starts_at|date:"M j, Y H:i" }}</div>
+                <a href="{{ session.meeting_url }}" target="_blank" rel="noopener" class="text-sm text-primary-600 hover:underline mt-1 inline-block">{{ session.meeting_url }}</a>
+            </div>
+            {% empty %}
+            <p class="text-slate-500 text-sm">No live classes scheduled yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="portal-form-card p-6 shadow-sm">
+        <h2 class="font-bold mb-4">Schedule New Class</h2>
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+            <button type="submit" class="portal-save-btn">Schedule Class</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

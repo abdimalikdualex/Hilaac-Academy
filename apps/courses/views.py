@@ -149,6 +149,18 @@ def course_detail(request, language_slug, level_slug):
 
     reviews = level.reviews.select_related("student").all()[:30]
 
+    can_review = False
+    if access["has_full_access"]:
+        enrollment = Enrollment.objects.filter(student=request.user, level=level).first()
+        if enrollment:
+            from apps.assessments.services import course_completion_ready
+
+            can_review = (
+                enrollment.status == Enrollment.Status.COMPLETED
+                or course_completion_ready(request.user, level)
+                or enrollment.progress_percentage >= 90
+            )
+
     context = {
         "level": level,
         "access": access,
@@ -165,7 +177,7 @@ def course_detail(request, language_slug, level_slug):
         "requirements": _lines(level.requirements),
         "reviews": reviews,
         "user_review": user_review,
-        "can_review": access["has_full_access"],
+        "can_review": can_review,
         "first_preview_lesson": get_first_preview_lesson(level),
         "enroll_url": get_enroll_or_checkout_url(level, request.user),
     }
@@ -211,6 +223,17 @@ def submit_review(request, level_id):
     if not student_has_full_access(request.user, level):
         messages.error(request, "Only enrolled students can review this course.")
         return redirect("courses:detail", language_slug=level.language.slug, level_slug=level.slug)
+
+    enrollment = Enrollment.objects.filter(student=request.user, level=level).first()
+    from apps.assessments.services import course_completion_ready
+
+    if not enrollment or not (
+        enrollment.status == Enrollment.Status.COMPLETED
+        or course_completion_ready(request.user, level)
+        or enrollment.progress_percentage >= 90
+    ):
+        messages.error(request, "Complete at least 90% of the course before leaving a review.")
+        return redirect(level.get_absolute_url() + "#reviews")
 
     try:
         rating = int(request.POST.get("rating", 5))

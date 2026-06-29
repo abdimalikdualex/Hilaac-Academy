@@ -60,8 +60,10 @@ class RoleAccessMiddleware:
     ROLE_PREFIXES = (
         ("/admin-portal/", ("super_admin",)),
         ("/instructor/", ("instructor",)),
+        ("/community/instructor/", ("instructor",)),
         ("/student/", ("student",)),
         ("/dashboard/", ("student",)),
+        ("/community/live-classes/", ("student",)),
         ("/payments/", ("student",)),
         ("/certificates/my", ("student",)),
         ("/certificates/download/", ("student",)),
@@ -83,6 +85,7 @@ class RoleAccessMiddleware:
     LOGIN_REQUIRED_PREFIXES = (
         "/student/",
         "/dashboard/",
+        "/community/",
         "/payments/",
         "/certificates/my",
         "/certificates/download/",
