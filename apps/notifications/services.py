@@ -308,6 +308,9 @@ def notify_payment_received(payment):
     with user_language(payment.student):
         message = _("Your payment was received.")
         title = _("Payment Received")
+        wa_message = _(
+            "Hilaac Academy: Lacag bixintaada waa la helay — %(course)s. Sug oggolaanshaha maamulka."
+        ) % {"course": payment.level.name}
     create_notification(
         payment.student,
         message,
@@ -318,6 +321,9 @@ def notify_payment_received(payment):
         is_system=True,
         send_email=True,
     )
+    from .whatsapp import notify_student_whatsapp
+
+    notify_student_whatsapp(payment.student, wa_message)
 
 
 
@@ -327,6 +333,9 @@ def notify_access_activated(payment):
     with user_language(payment.student):
         message = _("Your course access has been activated.")
         title = _("Course Access Activated")
+        wa_message = _(
+            "Hilaac Academy: Koorsada %(course)s waa la furay! Waxaad bilaabi kartaa waxbarashada hadda."
+        ) % {"course": payment.level.name}
     create_notification(
         payment.student,
         message,
@@ -337,6 +346,9 @@ def notify_access_activated(payment):
         is_system=True,
         send_email=True,
     )
+    from .whatsapp import notify_student_whatsapp
+
+    notify_student_whatsapp(payment.student, wa_message)
 
 
 

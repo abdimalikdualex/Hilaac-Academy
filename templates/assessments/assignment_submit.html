@@ -13,7 +13,7 @@
             {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
         </div>
         {% endfor %}
-        <p class="text-xs text-slate-500">Allowed: PDF, DOCX, PPTX, ZIP, images · Max 15 MB</p>
+        <p class="text-xs text-slate-500">{% trans "Allowed: PDF, Word, PowerPoint, ZIP, images, or video (MP4/MOV/WebM) · Max 25 MB" %}</p>
         <button type="submit" class="portal-save-btn w-full sm:w-auto">Submit Assignment</button>
     </form>
 </div>

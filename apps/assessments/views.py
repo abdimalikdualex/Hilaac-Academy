@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+import random
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,8 +16,8 @@ from .models import AnswerOption, Assignment, AssignmentSubmission, Question, Qu
 from .services import student_can_submit, submission_status_for_upload
 
 
-def _grade_quiz(quiz, answers):
-    questions = quiz.questions.all()
+def _grade_quiz(quiz, answers, questions=None):
+    questions = questions or list(quiz.questions.all())
     total_points = sum(q.points for q in questions) or 1
     earned = Decimal("0")
 
@@ -46,6 +47,25 @@ def _quiz_level(quiz):
     return quiz.level or quiz.module.level
 
 
+def _quiz_questions_for_attempt(quiz, request):
+    """Shuffle and/or subset questions; persist pool for the current attempt."""
+    questions = list(quiz.questions.prefetch_related("options").all())
+    pool_key = f"quiz_pool_{quiz.pk}"
+
+    if pool_key in request.session:
+        id_set = set(request.session[pool_key])
+        return [q for q in questions if q.pk in id_set]
+
+    if quiz.randomize_questions:
+        random.shuffle(questions)
+    if quiz.questions_per_attempt and len(questions) > quiz.questions_per_attempt:
+        questions = questions[: quiz.questions_per_attempt]
+
+    request.session[pool_key] = [q.pk for q in questions]
+    request.session.modified = True
+    return questions
+
+
 @student_required
 def take_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz.objects.prefetch_related("questions__options"), pk=quiz_id)
@@ -65,8 +85,13 @@ def take_quiz(request, quiz_id):
         return redirect("learning:course_view", level_id=level.id)
 
     session_key = f"quiz_start_{quiz_id}"
+    pool_key = f"quiz_pool_{quiz_id}"
     if session_key not in request.session:
         request.session[session_key] = timezone.now().isoformat()
+        if pool_key in request.session:
+            del request.session[pool_key]
+
+    questions = _quiz_questions_for_attempt(quiz, request)
 
     if request.method == "POST":
         if quiz.time_limit_minutes:
@@ -77,13 +102,15 @@ def take_quiz(request, quiz_id):
             if elapsed > quiz.time_limit_minutes + 1:
                 messages.error(request, "Time is up! Please retake the quiz.")
                 del request.session[session_key]
+                if pool_key in request.session:
+                    del request.session[pool_key]
                 return redirect("assessments:take_quiz", quiz_id=quiz.id)
 
         answers = {}
-        for question in quiz.questions.all():
+        for question in questions:
             key = f"question_{question.id}"
             answers[str(question.id)] = request.POST.get(key, "")
-        score = _grade_quiz(quiz, answers)
+        score = _grade_quiz(quiz, answers, questions)
         passed = score >= quiz.pass_mark
         attempt = QuizAttempt.objects.create(
             student=request.user,
@@ -93,6 +120,8 @@ def take_quiz(request, quiz_id):
             completed_at=timezone.now(),
         )
         del request.session[session_key]
+        if pool_key in request.session:
+            del request.session[pool_key]
 
         if quiz.is_final and passed:
             from apps.certificates.services import maybe_issue_certificate
@@ -104,13 +133,25 @@ def take_quiz(request, quiz_id):
         return render(
             request,
             "assessments/quiz_result.html",
-            {"quiz": quiz, "attempt": attempt, "level": level, "show_answers": quiz.show_correct_answers},
+            {
+                "quiz": quiz,
+                "attempt": attempt,
+                "level": level,
+                "show_answers": quiz.show_correct_answers,
+                "attempts_remaining": max(0, quiz.max_attempts - attempts_count - 1),
+            },
         )
 
     return render(
         request,
         "assessments/take_quiz.html",
-        {"quiz": quiz, "level": level, "attempts_remaining": quiz.max_attempts - attempts_count},
+        {
+            "quiz": quiz,
+            "level": level,
+            "questions": questions,
+            "attempts_remaining": quiz.max_attempts - attempts_count,
+            "time_limit_minutes": quiz.time_limit_minutes,
+        },
     )
 
 

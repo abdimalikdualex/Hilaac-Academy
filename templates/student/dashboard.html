@@ -19,7 +19,10 @@
         <section class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-bold">{% trans "Continue Learning" %}</h2>
-                <a href="{% url 'student:continue' %}" class="text-sm text-primary-600 hover:underline">{% trans "View all" %} →</a>
+                <div class="flex gap-3 text-sm">
+                    <a href="{% url 'student:continue' %}" class="text-primary-600 hover:underline">{% trans "View all" %} →</a>
+                    <a href="{% url 'student:progress' %}" class="text-primary-600 hover:underline">{% trans "My Progress" %} →</a>
+                </div>
             </div>
             <div class="space-y-4">
                 {% for enrollment in active_enrollments|slice:":3" %}

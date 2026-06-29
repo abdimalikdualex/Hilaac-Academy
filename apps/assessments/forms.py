@@ -3,7 +3,10 @@ from django import forms
 from .models import Assignment, AssignmentSubmission, Quiz
 
 _INPUT = "w-full px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
-_SUBMISSION_EXTS = (".pdf", ".doc", ".docx", ".ppt", ".pptx", ".zip", ".jpg", ".jpeg", ".png", ".webp")
+_SUBMISSION_EXTS = (
+    ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".zip",
+    ".jpg", ".jpeg", ".png", ".webp", ".mp4", ".mov", ".webm",
+)
 _ATTACHMENT_EXTS = (".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp")
 
 
@@ -56,7 +59,7 @@ class AssignmentSubmissionForm(forms.ModelForm):
             "file": forms.FileInput(
                 attrs={
                     "class": "w-full text-sm",
-                    "accept": ".pdf,.doc,.docx,.ppt,.pptx,.zip,.jpg,.jpeg,.png,.webp",
+                    "accept": ".pdf,.doc,.docx,.ppt,.pptx,.zip,.jpg,.jpeg,.png,.webp,.mp4,.mov,.webm",
                 }
             ),
             "notes": forms.Textarea(attrs={"class": _INPUT, "rows": 3, "placeholder": "Optional notes for your instructor"}),
@@ -71,11 +74,10 @@ class AssignmentSubmissionForm(forms.ModelForm):
         uploaded = self.cleaned_data.get("file")
         if not uploaded and not (self.instance and self.instance.file):
             raise forms.ValidationError("Please upload your assignment file.")
-        return uploaded
         if uploaded and not _ext_ok(uploaded.name, _SUBMISSION_EXTS):
-            raise forms.ValidationError("Allowed: PDF, DOCX, PPTX, ZIP, or images.")
-        if uploaded and uploaded.size > 15 * 1024 * 1024:
-            raise forms.ValidationError("File must be 15 MB or smaller.")
+            raise forms.ValidationError("Allowed: PDF, Word, PowerPoint, ZIP, images, or video (MP4/MOV/WebM).")
+        if uploaded and uploaded.size > 25 * 1024 * 1024:
+            raise forms.ValidationError("File must be 25 MB or smaller.")
         return uploaded
 
 
@@ -112,6 +114,8 @@ class QuizForm(forms.ModelForm):
             "pass_mark",
             "time_limit_minutes",
             "max_attempts",
+            "randomize_questions",
+            "questions_per_attempt",
             "is_published",
             "show_correct_answers",
             "is_final",
@@ -125,4 +129,6 @@ class QuizForm(forms.ModelForm):
             "is_published": forms.CheckboxInput(attrs={"class": "rounded"}),
             "show_correct_answers": forms.CheckboxInput(attrs={"class": "rounded"}),
             "is_final": forms.CheckboxInput(attrs={"class": "rounded"}),
+            "randomize_questions": forms.CheckboxInput(attrs={"class": "rounded"}),
+            "questions_per_attempt": forms.NumberInput(attrs={"class": _INPUT, "min": 1}),
         }

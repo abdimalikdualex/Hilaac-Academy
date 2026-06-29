@@ -1,12 +1,13 @@
 {% extends "base.html" %}
-{% load ha_icons %}
+{% load ha_icons i18n %}
 {% block title %}{{ quiz.title }} - Quiz{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 py-8" {% if quiz.time_limit_minutes %}x-data="quizTimer({{ quiz.time_limit_minutes }})" x-init="start()"{% endif %}>
     <h1 class="text-2xl font-bold mb-2">{{ quiz.title }}</h1>
     <div class="flex flex-wrap gap-4 mb-6 text-sm text-slate-600 dark:text-slate-400">
-        <span>Pass mark: {{ quiz.pass_mark }}%</span>
+        <span>{% trans "Pass mark" %}: {{ quiz.pass_mark }}%</span>
+        {% if attempts_remaining is not None %}<span>{% blocktrans count counter=attempts_remaining %}{{ counter }} attempt left{% plural %}{{ counter }} attempts left{% endblocktrans %}</span>{% endif %}
         {% if quiz.time_limit_minutes %}
         <span class="font-semibold text-red-600 inline-flex items-center gap-1" x-show="remaining !== null">{% ha_icon "clock" size=16 %} Time left: <span x-text="formatTime(remaining)"></span></span>
         {% endif %}
@@ -14,7 +15,7 @@
 
     <form method="post" id="quiz-form" class="space-y-8">
         {% csrf_token %}
-        {% for question in quiz.questions.all %}
+        {% for question in questions %}
         <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <p class="font-semibold mb-4">{{ forloop.counter }}. {{ question.text }}</p>
 

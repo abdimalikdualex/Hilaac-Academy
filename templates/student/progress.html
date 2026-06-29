@@ -1,0 +1,62 @@
+{% extends "student/base.html" %}
+{% load ha_icons i18n %}
+{% block title %}{% trans "My Progress" %}{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-primary-900">{% trans "My Progress" %}</h1>
+    <p class="text-slate-600 mt-1">{% trans "Track your learning across all enrolled courses." %}</p>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+    <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+        <div class="text-2xl font-bold text-primary-600">{{ avg_progress }}%</div>
+        <div class="text-xs text-slate-500">{% trans "Average Progress" %}</div>
+    </div>
+    <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+        <div class="text-2xl font-bold text-primary-600">{{ lessons_completed }}</div>
+        <div class="text-xs text-slate-500">{% trans "Lessons Completed" %}</div>
+    </div>
+    <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+        <div class="text-2xl font-bold text-primary-600">{{ quizzes_passed }}</div>
+        <div class="text-xs text-slate-500">{% trans "Quizzes Passed" %}</div>
+    </div>
+    <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+        <div class="text-2xl font-bold text-amber-600">{{ learning_streak }}</div>
+        <div class="text-xs text-slate-500">{% trans "Day Streak" %}</div>
+    </div>
+</div>
+
+<div class="space-y-4">
+    {% for course in courses %}
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+            <div>
+                <span class="text-xs font-semibold text-primary-600">{{ course.level.language.name }}</span>
+                <h2 class="text-lg font-bold text-slate-900">{{ course.level.name }}</h2>
+            </div>
+            <a href="{% url 'student:progress_course' level_id=course.level.id %}" class="text-sm text-primary-600 hover:underline font-semibold">{% trans "View details" %} →</a>
+        </div>
+        <div class="mb-2 flex justify-between text-sm">
+            <span class="text-slate-600">{% trans "Course completion" %}</span>
+            <span class="font-bold text-primary-600">{{ course.completion_percent }}%</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-3 mb-4">
+            <div class="bg-primary-600 h-3 rounded-full transition-all" style="width: {{ course.completion_percent }}%"></div>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-3 text-sm text-slate-600">
+            <div>{% ha_icon "video" size=16 class_name="inline text-primary-500" %} {{ course.lessons.completed }}/{{ course.lessons.total }} {% trans "lessons" %}</div>
+            <div>{% ha_icon "help-circle" size=16 class_name="inline text-primary-500" %} {{ course.quizzes.passed }}/{{ course.quizzes.total }} {% trans "quizzes passed" %}</div>
+            <div>{% ha_icon "clipboard-list" size=16 class_name="inline text-primary-500" %} {{ course.assignments.submitted }}/{{ course.assignments.total }} {% trans "assignments" %}</div>
+        </div>
+        {% if course.certificate %}
+        <p class="mt-3 text-sm text-green-700 font-semibold">{% ha_icon "award" size=16 class_name="inline" %} {% trans "Certificate earned" %}</p>
+        {% elif course.certificate_ready %}
+        <p class="mt-3 text-sm text-amber-700 font-semibold">{% trans "Ready for certificate — visit Certificates page" %}</p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-center text-slate-500 py-12 bg-white rounded-2xl border border-slate-200">{% trans "Enroll in a course to start tracking your progress." %}</p>
+    {% endfor %}
+</div>
+{% endblock %}

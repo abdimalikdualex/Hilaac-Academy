@@ -23,6 +23,15 @@ class Quiz(TimeStampedModel):
     pass_mark = models.PositiveIntegerField(default=70, help_text="Minimum percentage to pass")
     time_limit_minutes = models.PositiveIntegerField(null=True, blank=True)
     max_attempts = models.PositiveIntegerField(default=3, help_text="Maximum attempts per student")
+    randomize_questions = models.BooleanField(
+        default=False,
+        help_text="Shuffle question order for each attempt.",
+    )
+    questions_per_attempt = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="If set, only this many random questions are shown per attempt.",
+    )
     is_published = models.BooleanField(default=False)
     show_correct_answers = models.BooleanField(default=False)
     is_final = models.BooleanField(default=False)

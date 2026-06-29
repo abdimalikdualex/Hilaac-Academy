@@ -696,3 +696,81 @@ msgstr "Macallimiin khibrad leh"
 
 msgid "Continuous Support"
 msgstr "Taageero joogto ah"
+
+msgid "My Progress"
+msgstr "Horumarkayga"
+
+msgid "Track your learning across all enrolled courses."
+msgstr "La soco waxbarashadaada dhammaan koorsooyinka aad isdiiwaangelisay."
+
+msgid "Average Progress"
+msgstr "Celceliska horumarka"
+
+msgid "Lessons Completed"
+msgstr "Casharrada la dhammeeyay"
+
+msgid "Quizzes Passed"
+msgstr "Imtixaannada la gudbay"
+
+msgid "View details"
+msgstr "Eeg faahfaahinta"
+
+msgid "Course completion"
+msgstr "Dhammaystirka koorsada"
+
+msgid "lessons"
+msgstr "casharro"
+
+msgid "quizzes passed"
+msgstr "imtixaanno la gudbay"
+
+msgid "Certificate earned"
+msgstr "Shahaadada waa la helay"
+
+msgid "Ready for certificate — visit Certificates page"
+msgstr "Shahaadada waa diyaar — booqo bogga Shahaadooyinka"
+
+msgid "Enroll in a course to start tracking your progress."
+msgstr "Isdiiwaangeli koorso si aad u bilowdo la socodka horumarkaaga."
+
+msgid "Quiz Performance"
+msgstr "Waxqabadka imtixaanka"
+
+msgid "Not attempted"
+msgstr "Weli lama isku dayin"
+
+msgid "attempts left"
+msgstr "isku day oo haray"
+
+msgid "Certificate Requirements"
+msgstr "Shuruudaha shahaadada"
+
+msgid "Instructor Feedback"
+msgstr "Jawaabta macallinka"
+
+msgid "Score"
+msgstr "Dhibcaha"
+
+msgid "In Progress"
+msgstr "Waa socda"
+
+msgid "requirements complete"
+msgstr "shuruudaha waa la dhammeeyay"
+
+msgid "Earned Certificates"
+msgstr "Shahaadooyinka la helay"
+
+msgid "Verify"
+msgstr "Xaqiiji"
+
+msgid "Congratulations!"
+msgstr "Hambalyo!"
+
+msgid "Keep Learning"
+msgstr "Sii wad waxbarashada"
+
+msgid "Retry Quiz"
+msgstr "Mar kale isku day imtixaanka"
+
+msgid "View Progress"
+msgstr "Eeg horumarka"

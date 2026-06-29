@@ -8,7 +8,9 @@ from apps.accounts.password_views import PortalPasswordChangeView
 
 from apps.assessments.models import Assignment, AssignmentSubmission, Quiz, QuizAttempt
 from apps.certificates.models import Certificate
+from apps.certificates.completion_status import in_progress_certificate_courses
 from apps.core.dashboard_helpers import student_dashboard_context, student_dashboard_stats
+from apps.learning.progress import get_course_progress_detail, get_student_progress_overview
 from apps.core.permissions import student_required
 from apps.core.roles import role_dashboard_url
 from apps.courses.access import get_course_access
@@ -73,6 +75,35 @@ def my_courses(request):
 
 
 @student_required
+def progress(request):
+    return render(
+        request,
+        "student/progress.html",
+        get_student_progress_overview(request.user),
+    )
+
+
+@student_required
+def progress_course(request, level_id):
+    from apps.courses.models import Level
+
+    level = Level.objects.select_related("language").filter(pk=level_id).first()
+    if not level:
+        messages.error(request, "Course not found.")
+        return redirect("student:progress")
+    if not Enrollment.objects.filter(
+        student=request.user, level=level, access_granted=True
+    ).exclude(status=Enrollment.Status.CANCELLED).exists():
+        messages.error(request, "You do not have access to this course.")
+        return redirect("student:progress")
+    from apps.certificates.completion_status import certificate_requirements
+
+    detail = get_course_progress_detail(request.user, level)
+    detail["requirements"] = certificate_requirements(request.user, level)
+    return render(request, "student/progress_course.html", detail)
+
+
+@student_required
 def continue_learning(request):
     active = (
         Enrollment.objects.filter(
@@ -128,7 +159,14 @@ def quizzes(request):
 @student_required
 def certificates(request):
     certs = Certificate.objects.filter(student=request.user).select_related("level", "level__language")
-    return render(request, "student/certificates.html", {"certificates": certs})
+    return render(
+        request,
+        "student/certificates.html",
+        {
+            "certificates": certs,
+            "in_progress": in_progress_certificate_courses(request.user),
+        },
+    )
 
 
 @student_required

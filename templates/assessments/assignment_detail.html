@@ -1,8 +1,9 @@
 {% extends "student/base.html" %}
+{% load i18n %}
 {% block title %}{{ assignment.title }}{% endblock %}
 {% block content %}
 <div class="max-w-3xl mx-auto">
-    <a href="{% url 'student:assignments' %}" class="text-[#1E4D8F] text-sm hover:underline">← Assignments</a>
+    <a href="{% url 'student:assignments' %}" class="text-[#1E4D8F] text-sm hover:underline">← {% trans "Assignments" %}</a>
     <h1 class="text-2xl font-bold mt-2 mb-1 text-slate-900">{{ assignment.title }}</h1>
     <p class="text-sm text-slate-600">{{ level.name }} · {{ assignment.module.title }}</p>
 
@@ -28,13 +29,17 @@
         <h2 class="font-bold text-[#1E4D8F] mb-3">Your Submission</h2>
         <p class="text-sm text-slate-600">Status: <strong class="text-slate-900">{{ submission.get_status_display }}</strong></p>
         <p class="text-sm text-slate-600">Submitted: {{ submission.submitted_at|date:"M j, Y H:i" }}</p>
-        {% if submission.grade is not None %}
-        <p class="text-lg font-bold text-[#0FAE9D] mt-2">{{ submission.score_display }} marks</p>
-        {% if submission.graded_at %}<p class="text-xs text-slate-500">Graded {{ submission.graded_at|date:"M j, Y" }}</p>{% endif %}
-        {% endif %}
         {% if submission.feedback %}
-        <div class="mt-3 p-3 bg-slate-50 rounded-lg border text-sm text-slate-700">
-            <strong class="text-slate-900">Feedback:</strong> {{ submission.feedback }}
+        <div class="mt-4 p-4 bg-[#0FAE9D]/10 rounded-xl border border-[#0FAE9D]/30">
+            <div class="text-xs font-semibold text-[#1E4D8F] uppercase tracking-wide mb-1">{% trans "Instructor Feedback" %}</div>
+            <p class="text-slate-800 whitespace-pre-line">{{ submission.feedback }}</p>
+        </div>
+        {% endif %}
+        {% if submission.grade is not None and assignment.max_score %}
+        <div class="mt-3">
+            <div class="text-xs text-slate-500">{% trans "Score" %}</div>
+            <div class="text-3xl font-bold text-[#0FAE9D]">{{ submission.score_display }}</div>
+            <div class="text-sm text-slate-600">{% widthratio submission.grade assignment.max_score 100 %}% {% trans "of maximum marks" %}</div>
         </div>
         {% endif %}
         {% if submission.file %}<a href="{{ submission.file_url }}" class="text-[#1E4D8F] text-sm hover:underline mt-2 inline-block">Download your file</a>{% endif %}

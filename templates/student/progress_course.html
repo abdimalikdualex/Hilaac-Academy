@@ -1,0 +1,104 @@
+{% extends "student/base.html" %}
+{% load ha_icons i18n %}
+{% block title %}{{ level.name }} — {% trans "Progress" %}{% endblock %}
+
+{% block content %}
+<a href="{% url 'student:progress' %}" class="text-primary-600 text-sm hover:underline">← {% trans "My Progress" %}</a>
+<h1 class="text-2xl font-bold mt-2 mb-1">{{ level.name }}</h1>
+<p class="text-sm text-slate-600 mb-6">{{ level.language.name }}</p>
+
+<div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h2 class="font-bold text-lg mb-4">{% trans "Course Completion" %}</h2>
+            <div class="flex justify-between text-sm mb-2">
+                <span>{{ lessons.completed }}/{{ lessons.total }} {% trans "lessons" %}</span>
+                <span class="font-bold text-primary-600">{{ completion_percent }}%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-4">
+                <div class="bg-primary-600 h-4 rounded-full" style="width: {{ completion_percent }}%"></div>
+            </div>
+            <a href="{% url 'learning:course_view' level_id=level.id %}" class="inline-block mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">{% trans "Continue Learning" %}</a>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h2 class="font-bold text-lg mb-4">{% trans "Quiz Performance" %}</h2>
+            {% if quizzes.items %}
+            <div class="space-y-3">
+                {% for row in quizzes.items %}
+                <div class="flex flex-wrap justify-between items-center gap-2 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <span class="font-medium text-slate-800">{{ row.quiz.title }}{% if row.quiz.is_final %} <span class="text-xs text-amber-600">({% trans "Final" %})</span>{% endif %}</span>
+                    <span class="text-sm">
+                        {% if row.passed %}
+                        <span class="text-green-700 font-semibold">{{ row.best_score }}% ✓</span>
+                        {% elif row.best_score %}
+                        <span class="text-amber-700">{{ row.best_score }}%</span>
+                        {% else %}
+                        <span class="text-slate-500">{% trans "Not attempted" %}</span>
+                        {% endif %}
+                        <span class="text-slate-400 text-xs ml-2">{{ row.attempts_left }} {% trans "attempts left" %}</span>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-slate-500 text-sm">{% trans "No quizzes in this course yet." %}</p>
+            {% endif %}
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h2 class="font-bold text-lg mb-4">{% trans "Assignments" %}</h2>
+            {% if assignments.average_score is not None %}
+            <p class="text-sm text-slate-600 mb-3">{% trans "Average score" %}: <strong class="text-primary-600">{{ assignments.average_score }}%</strong></p>
+            {% endif %}
+            {% if assignments.items %}
+            <div class="space-y-3">
+                {% for row in assignments.items %}
+                <div class="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <div class="flex justify-between gap-2">
+                        <span class="font-medium">{{ row.assignment.title }}</span>
+                        {% if row.submission %}
+                        <span class="text-xs px-2 py-1 rounded-full {% if row.submission.status == 'graded' or row.submission.status == 'approved' %}bg-green-100 text-green-800{% else %}bg-amber-100 text-amber-800{% endif %}">{{ row.submission.get_status_display }}</span>
+                        {% else %}
+                        <span class="text-xs text-slate-500">{% trans "Pending" %}</span>
+                        {% endif %}
+                    </div>
+                    {% if row.score_percent is not None %}
+                    <p class="text-sm text-primary-600 font-semibold mt-1">{{ row.score_percent }}%</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-slate-500 text-sm">{% trans "No assignments in this course yet." %}</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <div class="space-y-6">
+        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h2 class="font-bold text-lg mb-4">{% trans "Certificate Requirements" %}</h2>
+            {% if certificate %}
+            <p class="text-green-700 font-semibold mb-2">{% ha_icon "award" size=18 class_name="inline" %} {% trans "Certificate issued" %}</p>
+            <p class="text-xs font-mono text-slate-500">{{ certificate.certificate_id }}</p>
+            <a href="{% url 'certificates:download' certificate_id=certificate.certificate_id %}" class="inline-block mt-3 text-sm text-primary-600 hover:underline">{% trans "Download PDF" %}</a>
+            {% else %}
+            <ul class="space-y-3">
+                {% for check in requirements.checks %}
+                <li class="flex items-start gap-2 text-sm">
+                    <span class="mt-0.5 {% if check.done %}text-green-600{% else %}text-slate-400{% endif %}">{% if check.done %}{% ha_icon "check" size=16 %}{% else %}○{% endif %}</span>
+                    <div>
+                        <div class="font-medium text-slate-800">{{ check.label }}</div>
+                        <div class="text-slate-500 text-xs">{{ check.detail }}</div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if requirements.ready %}
+            <p class="mt-4 text-sm text-amber-700 font-semibold">{% trans "All requirements met — your certificate will be issued when you complete the final steps." %}</p>
+            {% endif %}
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

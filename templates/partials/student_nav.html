@@ -1,5 +1,6 @@
 {% load ha_icons i18n %}
 <a href="{% url 'student:dashboard' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">{% ha_icon "bar-chart" size=18 %} {% trans "Dashboard" %}</a>
+<a href="{% url 'student:progress' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'progress' or request.resolver_match.url_name == 'progress_course' %}active{% endif %}">{% ha_icon "trending-up" size=18 %} {% trans "My Progress" %}</a>
 <a href="{% url 'student:courses' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'courses' %}active{% endif %}">{% ha_icon "book-open" size=18 %} {% trans "My Courses" %}</a>
 <a href="{% url 'student:continue' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'continue' %}active{% endif %}">{% ha_icon "play" size=18 %} {% trans "Continue Learning" %}</a>
 <a href="{% url 'student:assignments' %}" class="student-sidebar-link {% if request.resolver_match.url_name == 'assignments' %}active{% endif %}">{% ha_icon "clipboard-list" size=18 %} {% trans "Assignments" %}</a>

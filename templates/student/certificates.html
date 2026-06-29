@@ -1,19 +1,53 @@
 {% extends "student/base.html" %}
-{% block title %}Certificates{% endblock %}
+{% load ha_icons i18n %}
+{% block title %}{% trans "Certificates" %}{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">My Certificates</h1>
+<h1 class="text-2xl font-bold mb-2">{% trans "My Certificates" %}</h1>
+<p class="text-slate-600 text-sm mb-6">{% trans "Earn certificates by completing all lessons, assignments, and quizzes." %}</p>
+
+{% if in_progress %}
+<section class="mb-8">
+    <h2 class="text-lg font-bold mb-4">{% trans "In Progress" %}</h2>
+    <div class="space-y-4">
+        {% for item in in_progress %}
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex flex-wrap justify-between gap-3 mb-3">
+                <div>
+                    <div class="font-bold">{{ item.level.language.name }} — {{ item.level.name }}</div>
+                    <div class="text-sm text-slate-500">{{ item.requirements.percent_complete }}% {% trans "requirements complete" %}</div>
+                </div>
+                <a href="{% url 'student:progress_course' level_id=item.level.id %}" class="text-sm text-primary-600 hover:underline font-semibold">{% trans "View progress" %} →</a>
+            </div>
+            <ul class="grid sm:grid-cols-2 gap-2 text-sm">
+                {% for check in item.requirements.checks %}
+                <li class="flex items-center gap-2 {% if check.done %}text-green-700{% else %}text-slate-500{% endif %}">
+                    {% if check.done %}{% ha_icon "check" size=14 %}{% else %}○{% endif %}
+                    {{ check.label }} <span class="text-xs opacity-75">({{ check.detail }})</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<h2 class="text-lg font-bold mb-4">{% trans "Earned Certificates" %}</h2>
 <div class="space-y-4">
     {% for cert in certificates %}
     <div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-wrap justify-between items-center gap-4 shadow-sm">
         <div>
             <div class="font-bold text-lg">{{ cert.level.language.name }} — {{ cert.level.name }}</div>
             <div class="text-sm text-slate-500 font-mono mt-1">{{ cert.certificate_id }}</div>
-            <div class="text-xs text-slate-400 mt-1">Issued {{ cert.issued_at|date:"F d, Y" }}</div>
+            <div class="text-xs text-slate-400 mt-1">{% trans "Issued" %} {{ cert.issued_at|date:"F d, Y" }}</div>
         </div>
-        <a href="{% url 'certificates:download' certificate_id=cert.certificate_id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">Download PDF</a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'certificates:verify' certificate_id=cert.certificate_id %}" class="px-4 py-2 border border-primary-600 text-primary-600 rounded-lg text-sm hover:bg-primary-50">{% trans "Verify" %}</a>
+            <a href="{% url 'certificates:download' certificate_id=cert.certificate_id %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700">{% trans "Download PDF" %}</a>
+        </div>
     </div>
     {% empty %}
-    <p class="text-slate-500 py-12 text-center bg-white rounded-2xl border border-slate-200">Complete a course to earn your first certificate!</p>
+    <p class="text-slate-500 py-12 text-center bg-white rounded-2xl border border-slate-200">{% trans "Complete a course to earn your first certificate!" %}</p>
     {% endfor %}
 </div>
 {% endblock %}
