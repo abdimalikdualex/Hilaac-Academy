@@ -1,85 +1,128 @@
-{% load ha_icons static %}
+{% load ha_icons static i18n %}
 {% if platform_video and platform_video.video_url %}
 <section
     id="platform-intro"
-    class="relative py-14 md:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-900 overflow-hidden"
+    class="relative py-14 md:py-20 bg-gradient-to-b from-white via-slate-50/80 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 overflow-hidden"
     aria-labelledby="platform-intro-heading"
 >
     {% include "partials/watermark.html" with position="subtle" %}
 
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10 md:mb-12">
+    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-8 md:mb-10">
             <h2 id="platform-intro-heading" class="text-3xl md:text-4xl font-bold text-[#1E4D8F] dark:text-primary-300 mb-2">
-                {{ platform_video.title }}
+                {% trans "How Hilaac Academy Works" %}
             </h2>
-            <p class="text-lg font-semibold text-[#0FAE9D] mb-3">{{ platform_video.title_somali }}</p>
+            <p class="text-lg font-semibold text-[#0FAE9D] mb-4">{% trans "Sida Hilaac Academy u Shaqeyso" %}</p>
             <p class="text-slate-600 dark:text-slate-400 max-w-3xl mx-auto text-sm md:text-base leading-relaxed">
-                Watch a quick introduction to learn how to register, enroll in courses, study online, and earn certificates.
+                {% trans "Watch this short guide to learn how to register, purchase courses, access lessons, submit assignments, and track your learning progress." %}
             </p>
             <p class="text-slate-500 dark:text-slate-500 max-w-3xl mx-auto text-sm mt-2 leading-relaxed">
-                Daawo muuqaal kooban si aad u barato sida loo diiwaangaliyo, loo iibsado koorsooyinka, loona helo shahaadooyinka.
+                {% trans "Daawo muuqaalkaan si aad u barato sida loo isticmaalo nidaamka Hilaac Academy." %}
             </p>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-            <div
-                class="platform-intro-player rounded-2xl overflow-hidden shadow-2xl ring-1 ring-[#1E4D8F]/15 bg-[#0B1736] aspect-video relative"
-                data-track-url="{% url 'cms:platform_video_track' %}"
-                data-video-id="{{ platform_video.pk }}"
-                data-video-src="{{ platform_video.video_url }}"
-                data-video-type="{{ platform_video.video_mime_type }}"
-            >
-                {% if platform_video.thumbnail_url %}
-                <img
-                    src="{{ platform_video.thumbnail_url }}"
-                    alt="{{ platform_video.title }}"
-                    class="platform-intro-poster absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                >
-                {% endif %}
-                <button
-                    type="button"
-                    class="platform-intro-play absolute inset-0 z-10 flex items-center justify-center bg-black/25 hover:bg-black/35 transition-colors group cursor-pointer"
-                    aria-label="Play platform introduction video"
-                >
-                    <span class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center shadow-lg group-hover:bg-[#D4A017] group-hover:scale-105 transition-all duration-200">
-                        {% ha_icon "play" size=32 class_name="text-white ml-1" %}
-                    </span>
-                </button>
-                <video
-                    class="platform-intro-video absolute inset-0 w-full h-full object-cover hidden"
-                    controls
-                    playsinline
-                    preload="none"
-                    {% if platform_video.thumbnail_url %}poster="{{ platform_video.thumbnail_url }}"{% endif %}
-                ></video>
-            </div>
+        {% if platform_video.has_somali_video %}
+        <div class="flex justify-center gap-2 mb-6" role="tablist" aria-label="{% trans 'Video language' %}">
+            <button
+                type="button"
+                class="platform-intro-lang px-4 py-2 rounded-full text-sm font-semibold border-2 border-[#1E4D8F] bg-[#1E4D8F] text-white transition"
+                data-lang="en"
+                role="tab"
+                aria-selected="true"
+            >{% trans "English Guide" %}</button>
+            <button
+                type="button"
+                class="platform-intro-lang px-4 py-2 rounded-full text-sm font-semibold border-2 border-[#1E4D8F] text-[#1E4D8F] hover:bg-[#1E4D8F]/5 transition"
+                data-lang="so"
+                role="tab"
+                aria-selected="false"
+            >{% trans "Somali Guide" %}</button>
+        </div>
+        {% endif %}
 
-            <div>
-                <h3 class="text-xl font-bold text-[#1E4D8F] dark:text-primary-300 mb-4">What You Will Learn</h3>
-                <ul class="space-y-3 text-slate-700 dark:text-slate-300">
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to create an account</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to purchase courses</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to access lessons</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to track learning progress</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to download certificates</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to use the digital library</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to contact support</span></li>
-                    <li class="flex items-start gap-3"><span class="text-[#0FAE9D] font-bold shrink-0">{% ha_icon "check" size=18 %}</span><span>How to learn using your phone or laptop</span></li>
-                </ul>
-            </div>
+        <div
+            class="platform-intro-player max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-[#1E4D8F]/15 bg-[#0B1736] aspect-video relative"
+            data-track-url="{% url 'cms:platform_video_track' %}"
+            data-video-id="{{ platform_video.pk }}"
+            data-video-en="{{ platform_video.video_url }}"
+            data-video-so="{{ platform_video.video_url_somali }}"
+            data-type-en="{{ platform_video.video_mime_type }}"
+            data-type-so="{{ platform_video.video_mime_type_somali }}"
+            data-poster-en="{{ platform_video.thumbnail_url }}"
+            data-poster-so="{{ platform_video.thumbnail_url_somali|default:platform_video.thumbnail_url }}"
+            data-default-lang="{% if LANGUAGE_CODE == 'so' and platform_video.has_somali_video %}so{% else %}en{% endif %}"
+        >
+            <img
+                src="{% if LANGUAGE_CODE == 'so' and platform_video.thumbnail_url_somali %}{{ platform_video.thumbnail_url_somali }}{% else %}{{ platform_video.thumbnail_url }}{% endif %}"
+                alt="{% trans 'Hilaac Academy learning environment' %}"
+                class="platform-intro-poster absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+            >
+            <button
+                type="button"
+                class="platform-intro-play absolute inset-0 z-10 flex items-center justify-center bg-black/25 hover:bg-black/35 transition-colors group cursor-pointer"
+                aria-label="{% trans 'Play platform introduction video' %}"
+            >
+                <span class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#1E4D8F] text-white flex items-center justify-center shadow-lg group-hover:bg-[#D4A017] group-hover:scale-105 transition-all duration-200">
+                    {% ha_icon "play" size=32 class_name="text-white ml-1" %}
+                </span>
+            </button>
+            <video
+                class="platform-intro-video absolute inset-0 w-full h-full object-cover hidden"
+                controls
+                playsinline
+                preload="none"
+            ></video>
+        </div>
+
+        <div class="mt-10 md:mt-12 max-w-3xl mx-auto">
+            <h3 class="text-xl font-bold text-[#1E4D8F] dark:text-primary-300 mb-4 text-center">{% trans "What You Will Learn" %}</h3>
+            <ol class="grid sm:grid-cols-2 gap-3 text-slate-700 dark:text-slate-300 text-sm md:text-base">
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">1</span>
+                    <span>{% trans "Welcome to Hilaac Academy" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">2</span>
+                    <span>{% trans "How to create an account" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">3</span>
+                    <span>{% trans "How to browse courses" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">4</span>
+                    <span>{% trans "How to purchase a course" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">5</span>
+                    <span>{% trans "How M-Pesa payment works" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">6</span>
+                    <span>{% trans "How to access lessons" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">7</span>
+                    <span>{% trans "How to submit assignments and quizzes" %}</span>
+                </li>
+                <li class="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <span class="text-[#D4A017] font-bold shrink-0">8</span>
+                    <span>{% trans "How to receive certificates" %}</span>
+                </li>
+            </ol>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 md:mt-12">
             <a
                 href="{% url 'accounts:register' %}"
                 class="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] h-12 px-8 rounded-xl bg-[#1E4D8F] hover:bg-[#D4A017] text-white font-semibold shadow-lg transition-all duration-200 hover:-translate-y-0.5"
-            >Start Learning Today</a>
+            >{% trans "Start Learning Today" %}</a>
             <a
                 href="{% url 'courses:catalog' %}"
                 class="inline-flex items-center justify-center w-full sm:w-auto min-w-[200px] h-12 px-8 rounded-xl border-2 border-[#1E4D8F] text-[#1E4D8F] hover:bg-[#1E4D8F] hover:text-white font-semibold transition-all duration-200 hover:-translate-y-0.5"
-            >Browse Courses</a>
+            >{% trans "Browse Courses" %}</a>
         </div>
     </div>
 </section>
@@ -92,23 +135,36 @@
 
     var trackUrl = player.dataset.trackUrl;
     var videoId = player.dataset.videoId;
-    var videoSrc = player.dataset.videoSrc;
-    var videoType = player.dataset.videoType;
     var playBtn = player.querySelector(".platform-intro-play");
     var poster = player.querySelector(".platform-intro-poster");
     var video = player.querySelector(".platform-intro-video");
+    var langButtons = document.querySelectorAll(".platform-intro-lang");
+    var currentLang = player.dataset.defaultLang || "en";
     var impressionSent = false;
     var playTracked = false;
     var completeTracked = false;
     var lastSentTime = 0;
+    var loaded = false;
 
     function getCookie(name) {
         var match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
         return match ? decodeURIComponent(match[1]) : "";
     }
 
+    function videoSrc(lang) {
+        return lang === "so" && player.dataset.videoSo ? player.dataset.videoSo : player.dataset.videoEn;
+    }
+
+    function videoType(lang) {
+        return lang === "so" && player.dataset.videoSo ? player.dataset.typeSo : player.dataset.typeEn;
+    }
+
+    function posterSrc(lang) {
+        return lang === "so" && player.dataset.posterSo ? player.dataset.posterSo : player.dataset.posterEn;
+    }
+
     function track(event, extra) {
-        var body = new URLSearchParams({ video_id: videoId, event: event });
+        var body = new URLSearchParams({ video_id: videoId, event: event, language: currentLang });
         if (extra && extra.seconds) body.set("seconds", String(extra.seconds));
         fetch(trackUrl, {
             method: "POST",
@@ -120,6 +176,33 @@
             credentials: "same-origin",
         }).catch(function () {});
     }
+
+    function setLang(lang) {
+        if (lang === "so" && !player.dataset.videoSo) lang = "en";
+        currentLang = lang;
+        loaded = false;
+        video.pause();
+        video.classList.add("hidden");
+        playBtn.classList.remove("hidden");
+        if (poster) {
+            poster.src = posterSrc(lang);
+            poster.classList.remove("hidden");
+        }
+        video.innerHTML = "";
+        langButtons.forEach(function (btn) {
+            var active = btn.dataset.lang === lang;
+            btn.setAttribute("aria-selected", active ? "true" : "false");
+            btn.classList.toggle("bg-[#1E4D8F]", active);
+            btn.classList.toggle("text-white", active);
+            btn.classList.toggle("text-[#1E4D8F]", !active);
+            btn.classList.toggle("hover:bg-[#1E4D8F]/5", !active);
+        });
+    }
+
+    langButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () { setLang(btn.dataset.lang); });
+    });
+    setLang(currentLang);
 
     if ("IntersectionObserver" in window) {
         var observer = new IntersectionObserver(function (entries) {
@@ -134,14 +217,18 @@
         observer.observe(section);
     }
 
+    function loadSource() {
+        if (loaded) return;
+        var source = document.createElement("source");
+        source.src = videoSrc(currentLang);
+        source.type = videoType(currentLang);
+        video.appendChild(source);
+        video.load();
+        loaded = true;
+    }
+
     function startVideo() {
-        if (!video.querySelector("source")) {
-            var source = document.createElement("source");
-            source.src = videoSrc;
-            source.type = videoType;
-            video.appendChild(source);
-            video.load();
-        }
+        loadSource();
         playBtn.classList.add("hidden");
         if (poster) poster.classList.add("hidden");
         video.classList.remove("hidden");

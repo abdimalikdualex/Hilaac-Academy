@@ -2,7 +2,7 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <h1 class="text-2xl font-bold mb-2 text-slate-900">{{ title }}</h1>
-<p class="text-sm text-slate-600 mb-6">MP4 or WebM up to 500 MB. Stored in <code class="text-xs">media/platform_videos/</code></p>
+<p class="text-sm text-slate-600 mb-6">Landing Page Video Management — upload English and optional Somali guides (MP4/WebM, max 500 MB each).</p>
 <form method="post" enctype="multipart/form-data" class="bg-white p-6 rounded-xl border max-w-2xl space-y-4">
     {% csrf_token %}
     {% for field in form %}
@@ -13,17 +13,34 @@
         {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
     </div>
     {% endfor %}
-    {% if video and video.thumbnail %}
-    <div class="pt-2">
-        <p class="text-sm text-slate-600 mb-2">Current thumbnail</p>
-        <img src="{{ video.thumbnail.url }}" alt="" class="w-full max-w-xs rounded-lg border aspect-video object-cover">
+    {% if video %}
+    <div class="grid sm:grid-cols-2 gap-4 pt-2">
+        {% if video.thumbnail %}
+        <div>
+            <p class="text-sm text-slate-600 mb-2">English thumbnail</p>
+            <img src="{{ video.thumbnail.url }}" alt="" class="w-full rounded-lg border aspect-video object-cover">
+        </div>
+        {% endif %}
+        {% if video.thumbnail_somali %}
+        <div>
+            <p class="text-sm text-slate-600 mb-2">Somali thumbnail</p>
+            <img src="{{ video.thumbnail_somali.url }}" alt="" class="w-full rounded-lg border aspect-video object-cover">
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-    {% if video and video.video_file %}
-    <div class="pt-2">
-        <p class="text-sm text-slate-600 mb-2">Video preview</p>
-        <video controls class="w-full max-w-lg rounded-lg border bg-black" src="{{ video.video_file.url }}"></video>
-        <p class="text-xs text-slate-400 mt-1 font-mono">{{ video.video_file.name }}</p>
+    <div class="grid sm:grid-cols-2 gap-4 pt-2">
+        {% if video.video_file %}
+        <div>
+            <p class="text-sm text-slate-600 mb-2">English guide preview</p>
+            <video controls class="w-full rounded-lg border bg-black" src="{{ video.video_file.url }}"></video>
+        </div>
+        {% endif %}
+        {% if video.video_file_somali %}
+        <div>
+            <p class="text-sm text-slate-600 mb-2">Somali guide preview</p>
+            <video controls class="w-full rounded-lg border bg-black" src="{{ video.video_file_somali.url }}"></video>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
     <button type="submit" class="portal-save-btn">Save Video</button>

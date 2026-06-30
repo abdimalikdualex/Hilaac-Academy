@@ -882,3 +882,63 @@ msgstr "Weydii"
 
 msgid "Back to Dashboard"
 msgstr "Ku noqo Dashboard-ka"
+
+msgid "How Hilaac Academy Works"
+msgstr "Sida Hilaac Academy u Shaqeyso"
+
+msgid "Sida Hilaac Academy u Shaqeyso"
+msgstr "Sida Hilaac Academy u Shaqeyso"
+
+msgid "Watch this short guide to learn how to register, purchase courses, access lessons, submit assignments, and track your learning progress."
+msgstr "Daawo hagitaankan gaaban si aad u barato sida loo isdiiwaangeliyo, loo iibsado koorsooyinka, loo galo casharrada, loo gudbiyo shaqooyinka, loona la socdo horumarkaaga."
+
+msgid "Daawo muuqaalkaan si aad u barato sida loo isticmaalo nidaamka Hilaac Academy."
+msgstr "Daawo muuqaalkaan si aad u barato sida loo isticmaalo nidaamka Hilaac Academy."
+
+msgid "English Guide"
+msgstr "Hagaha Ingiriiska"
+
+msgid "Somali Guide"
+msgstr "Hagaha Soomaaliga"
+
+msgid "Hilaac Academy learning environment"
+msgstr "Jawiga waxbarashada Hilaac Academy"
+
+msgid "Play platform introduction video"
+msgstr "Daar muuqaalka hordhaca ah"
+
+msgid "What You Will Learn"
+msgstr "Waxa aad baran doonto"
+
+msgid "Welcome to Hilaac Academy"
+msgstr "Ku soo dhawoow Hilaac Academy"
+
+msgid "How to create an account"
+msgstr "Sida loo abuuro akoon"
+
+msgid "How to browse courses"
+msgstr "Sida loo baaro koorsooyinka"
+
+msgid "How to purchase a course"
+msgstr "Sida loo iibsado koorsada"
+
+msgid "How M-Pesa payment works"
+msgstr "Sida M-Pesa lacag bixintu u shaqeyso"
+
+msgid "How to access lessons"
+msgstr "Sida loo galo casharrada"
+
+msgid "How to submit assignments and quizzes"
+msgstr "Sida loo gudbiyo shaqooyinka iyo imtixaannada"
+
+msgid "How to receive certificates"
+msgstr "Sida loo helo shahaadooyinka"
+
+msgid "Start Learning Today"
+msgstr "Maanta bilow waxbarashada"
+
+msgid "Video language"
+msgstr "Luqadda muuqaalka"
+
+msgid "Landing Page Video"
+msgstr "Muuqaalka Bogga Hore"

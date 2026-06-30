@@ -249,29 +249,44 @@ class PlatformIntroductionVideoForm(forms.ModelForm):
             "title",
             "title_somali",
             "description",
+            "description_somali",
             "video_file",
+            "video_file_somali",
             "thumbnail",
+            "thumbnail_somali",
             "is_active",
         )
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-input"}),
             "title_somali": forms.TextInput(attrs={"class": "form-input"}),
             "description": forms.Textarea(attrs={"class": "form-input", "rows": 3}),
+            "description_somali": forms.Textarea(attrs={"class": "form-input", "rows": 3}),
             "video_file": forms.FileInput(
+                attrs={"class": "w-full text-sm", "accept": "video/mp4,video/webm,.mp4,.webm"}
+            ),
+            "video_file_somali": forms.FileInput(
                 attrs={"class": "w-full text-sm", "accept": "video/mp4,video/webm,.mp4,.webm"}
             ),
             "thumbnail": forms.FileInput(
                 attrs={"class": "w-full text-sm", "accept": ".jpg,.jpeg,.png,.webp"}
             ),
+            "thumbnail_somali": forms.FileInput(
+                attrs={"class": "w-full text-sm", "accept": ".jpg,.jpeg,.png,.webp"}
+            ),
         }
         help_texts = {
-            "video_file": "MP4 or WebM. Only one video can be active on the landing page.",
-            "thumbnail": "Cover image with play overlay before the video starts.",
+            "video_file": "English Guide — MP4 or WebM. Required for the landing page video section.",
+            "video_file_somali": "Somali Guide — optional. Visitors can switch between English and Somali.",
+            "thumbnail": "Cover image for the English guide (shown before play).",
+            "thumbnail_somali": "Cover image for the Somali guide (optional).",
             "is_active": "Activating this video deactivates any other active intro video.",
         }
 
     def clean_thumbnail(self):
         return validate_image_upload(self.cleaned_data.get("thumbnail"))
+
+    def clean_thumbnail_somali(self):
+        return validate_image_upload(self.cleaned_data.get("thumbnail_somali"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -281,11 +296,10 @@ class PlatformIntroductionVideoForm(forms.ModelForm):
         else:
             self.fields["video_file"].required = False
             self.fields["thumbnail"].required = False
+            self.fields["thumbnail_somali"].required = False
 
-    def clean_video_file(self):
-        uploaded = self.cleaned_data.get("video_file")
-        if not uploaded:
-            return uploaded
+    @staticmethod
+    def _clean_video(uploaded):
         name = uploaded.name.lower()
         if not name.endswith((".mp4", ".webm")):
             raise forms.ValidationError("Only MP4 and WebM videos are allowed.")
@@ -293,6 +307,20 @@ class PlatformIntroductionVideoForm(forms.ModelForm):
         if uploaded.size > max_bytes:
             raise forms.ValidationError("Video must be 500 MB or smaller.")
         return uploaded
+
+    def clean_video_file(self):
+        uploaded = self.cleaned_data.get("video_file")
+        if not uploaded:
+            if not (self.instance and self.instance.pk):
+                raise forms.ValidationError("An English guide video is required.")
+            return uploaded
+        return self._clean_video(uploaded)
+
+    def clean_video_file_somali(self):
+        uploaded = self.cleaned_data.get("video_file_somali")
+        if not uploaded:
+            return uploaded
+        return self._clean_video(uploaded)
 
 
 class ExchangeRateForm(forms.ModelForm):

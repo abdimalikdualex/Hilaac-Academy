@@ -65,7 +65,10 @@ def platform_video_track(request):
     if event == "impression":
         video.record_impression()
     elif event == "play":
-        video.record_play()
+        lang = request.POST.get("language", "en")
+        if lang not in ("en", "so"):
+            lang = "en"
+        video.record_play(language=lang)
     elif event == "progress":
         try:
             seconds = max(0, int(request.POST.get("seconds", 0)))

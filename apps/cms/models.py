@@ -196,18 +196,32 @@ class PlatformIntroductionVideo(TimeStampedModel):
     """Single active platform intro video on the landing page."""
 
     title = models.CharField(max_length=200, default="How Hilaac Academy Works")
-    title_somali = models.CharField(max_length=200, default="Sida Loo Isticmaalo Hilaac Academy")
+    title_somali = models.CharField(max_length=200, default="Sida Hilaac Academy u Shaqeyso")
     description = models.TextField(
         blank=True,
-        help_text="Optional extended description shown in the admin panel.",
+        help_text="English description for the admin panel.",
+    )
+    description_somali = models.TextField(
+        blank=True,
+        help_text="Somali description for the admin panel.",
     )
     video_file = models.FileField(
         upload_to="platform_videos/",
-        help_text="MP4 or WebM recommended.",
+        help_text="English guide — MP4 or WebM recommended.",
+    )
+    video_file_somali = models.FileField(
+        upload_to="platform_videos/",
+        blank=True,
+        help_text="Somali guide — optional second language video.",
     )
     thumbnail = models.ImageField(
         upload_to="platform_thumbnails/",
-        help_text="Cover image shown before play.",
+        help_text="English video cover image shown before play.",
+    )
+    thumbnail_somali = models.ImageField(
+        upload_to="platform_thumbnails/",
+        blank=True,
+        help_text="Somali video cover image (optional).",
     )
     duration_seconds = models.PositiveIntegerField(
         default=0,
@@ -217,6 +231,8 @@ class PlatformIntroductionVideo(TimeStampedModel):
     is_active = models.BooleanField(default=True)
     impression_count = models.PositiveIntegerField(default=0, editable=False)
     play_count = models.PositiveIntegerField(default=0, editable=False)
+    english_play_count = models.PositiveIntegerField(default=0, editable=False)
+    somali_play_count = models.PositiveIntegerField(default=0, editable=False)
     total_watch_seconds = models.PositiveBigIntegerField(default=0, editable=False)
     completion_count = models.PositiveIntegerField(default=0, editable=False)
 
@@ -242,6 +258,14 @@ class PlatformIntroductionVideo(TimeStampedModel):
                 max_size=IMAGE_PRESETS["course_cover"]["full"],
                 preset="course_cover",
             )
+        if self.thumbnail_somali:
+            from apps.core.imaging import IMAGE_PRESETS, optimize_image_field
+
+            optimize_image_field(
+                self.thumbnail_somali,
+                max_size=IMAGE_PRESETS["course_cover"]["full"],
+                preset="course_cover",
+            )
 
     @classmethod
     def get_active(cls):
@@ -249,27 +273,46 @@ class PlatformIntroductionVideo(TimeStampedModel):
 
     @property
     def video_url(self):
-        if not self.video_file:
-            return ""
-        try:
-            return self.video_file.url
-        except ValueError:
-            return ""
+        return self._file_url(self.video_file)
+
+    @property
+    def video_url_somali(self):
+        return self._file_url(self.video_file_somali)
 
     @property
     def thumbnail_url(self):
-        if not self.thumbnail:
+        return self._file_url(self.thumbnail)
+
+    @property
+    def thumbnail_url_somali(self):
+        return self._file_url(self.thumbnail_somali)
+
+    @staticmethod
+    def _file_url(field):
+        if not field:
             return ""
         try:
-            return self.thumbnail.url
+            return field.url
         except ValueError:
             return ""
 
     @property
+    def has_somali_video(self):
+        return bool(self.video_file_somali)
+
+    @property
     def video_mime_type(self):
-        if not self.video_file:
+        return self._mime_type(self.video_file)
+
+    @property
+    def video_mime_type_somali(self):
+        return self._mime_type(self.video_file_somali)
+
+    @staticmethod
+    def _mime_type(field):
+        if not field:
             return "video/mp4"
-        ext = self.video_file.name.rsplit(".", 1)[-1].lower()
+        ext = field.name.rsplit(".", 1)[-1].lower()
         return {
             "mp4": "video/mp4",
             "webm": "video/webm",
@@ -293,10 +336,13 @@ class PlatformIntroductionVideo(TimeStampedModel):
             impression_count=models.F("impression_count") + 1
         )
 
-    def record_play(self):
-        PlatformIntroductionVideo.objects.filter(pk=self.pk).update(
-            play_count=models.F("play_count") + 1
-        )
+    def record_play(self, language="en"):
+        updates = {"play_count": models.F("play_count") + 1}
+        if language == "so":
+            updates["somali_play_count"] = models.F("somali_play_count") + 1
+        else:
+            updates["english_play_count"] = models.F("english_play_count") + 1
+        PlatformIntroductionVideo.objects.filter(pk=self.pk).update(**updates)
 
     def record_watch_seconds(self, seconds):
         if seconds <= 0:
