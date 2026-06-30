@@ -92,6 +92,7 @@ def home(request):
         cached = cache.get(cache_key)
         if cached:
             ctx = cached.copy()
+            ctx.pop("platform_video", None)
             ctx["query"] = query
             ctx["platform_video"] = _get_platform_video()
             return render(request, "cms/home.html", ctx)

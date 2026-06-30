@@ -21,7 +21,7 @@
             </p>
         </div>
 
-        {% if platform_video.has_somali_video %}
+        {% if platform_video.video_url_somali %}
         <div class="flex justify-center gap-2 mb-6" role="tablist" aria-label="{% trans 'Video language' %}">
             <button
                 type="button"
@@ -50,7 +50,7 @@
             data-type-so="{{ platform_video.video_mime_type_somali }}"
             data-poster-en="{{ platform_video.thumbnail_url }}"
             data-poster-so="{{ platform_video.thumbnail_url_somali|default:platform_video.thumbnail_url }}"
-            data-default-lang="{% if LANGUAGE_CODE == 'so' and platform_video.has_somali_video %}so{% else %}en{% endif %}"
+            data-default-lang="{% if LANGUAGE_CODE == 'so' and platform_video.video_url_somali %}so{% else %}en{% endif %}"
         >
             <img
                 src="{% if LANGUAGE_CODE == 'so' and platform_video.thumbnail_url_somali %}{{ platform_video.thumbnail_url_somali }}{% else %}{{ platform_video.thumbnail_url }}{% endif %}"
