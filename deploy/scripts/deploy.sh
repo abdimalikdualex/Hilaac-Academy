@@ -36,6 +36,11 @@ if ! "$VENV/bin/python" manage.py migrate --check; then
   exit 1
 fi
 
+echo "==> Compiling Somali translations..."
+if [ -f "$APP_DIR/scripts/compile_locale.py" ]; then
+  "$VENV/bin/python" "$APP_DIR/scripts/compile_locale.py" || echo "    Locale compile skipped."
+fi
+
 echo "==> Ensuring super admin exists (create only — never resets password)..."
 "$VENV/bin/python" manage.py ensure_admin || true
 

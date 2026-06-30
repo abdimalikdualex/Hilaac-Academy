@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.utils import OperationalError, ProgrammingError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -131,16 +132,21 @@ def live_classes(request):
         student=request.user, access_granted=True
     ).exclude(status=Enrollment.Status.CANCELLED).values_list("level_id", flat=True)
     now = timezone.now()
-    upcoming = (
-        LiveClassSession.objects.filter(level_id__in=enrolled_ids, is_published=True, starts_at__gte=now)
-        .select_related("level", "level__language")
-        .order_by("starts_at")
-    )
-    past = (
-        LiveClassSession.objects.filter(level_id__in=enrolled_ids, is_published=True, starts_at__lt=now)
-        .select_related("level", "level__language")
-        .order_by("-starts_at")[:10]
-    )
+    try:
+        upcoming = (
+            LiveClassSession.objects.filter(level_id__in=enrolled_ids, is_published=True, starts_at__gte=now)
+            .select_related("level", "level__language")
+            .order_by("starts_at")
+        )
+        past = (
+            LiveClassSession.objects.filter(level_id__in=enrolled_ids, is_published=True, starts_at__lt=now)
+            .select_related("level", "level__language")
+            .order_by("-starts_at")[:10]
+        )
+    except (OperationalError, ProgrammingError):
+        messages.warning(request, "Live classes are being set up. Please try again shortly.")
+        upcoming = LiveClassSession.objects.none()
+        past = LiveClassSession.objects.none()
     live_now = [s for s in upcoming if s.is_live_now]
     return render(
         request,
