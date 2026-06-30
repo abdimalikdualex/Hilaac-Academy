@@ -41,6 +41,9 @@ if [ -f "$APP_DIR/scripts/compile_locale.py" ]; then
   "$VENV/bin/python" "$APP_DIR/scripts/compile_locale.py" || echo "    Locale compile skipped."
 fi
 
+echo "==> Busting homepage cache..."
+"$VENV/bin/python" manage.py shell -c "from apps.core.cache_sync import bump_cache_version; bump_cache_version()" || true
+
 echo "==> Ensuring super admin exists (create only — never resets password)..."
 "$VENV/bin/python" manage.py ensure_admin || true
 

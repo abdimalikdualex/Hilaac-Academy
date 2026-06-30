@@ -93,11 +93,13 @@ def home(request):
         if cached:
             ctx = cached.copy()
             ctx["query"] = query
+            ctx["platform_video"] = _get_platform_video()
             return render(request, "cms/home.html", ctx)
 
     context = _home_context(query)
     if not query:
-        cache.set(cache_key, context, HOME_CACHE_TTL)
+        cacheable = {k: v for k, v in context.items() if k != "platform_video"}
+        cache.set(cache_key, cacheable, HOME_CACHE_TTL)
 
     return render(request, "cms/home.html", context)
 

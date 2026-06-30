@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncMonth
+from django.db.utils import OperationalError, ProgrammingError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -105,7 +106,11 @@ def dashboard(request):
         .order_by("month")
     )
 
-    platform_video = PlatformIntroductionVideo.get_active()
+    platform_video = None
+    try:
+        platform_video = PlatformIntroductionVideo.get_active()
+    except (OperationalError, ProgrammingError):
+        pass
 
     context = {
         "platform_video": platform_video,
@@ -639,7 +644,11 @@ def announcement_delete(request, pk):
 
 @super_admin_required
 def platform_video_list(request):
-    videos = PlatformIntroductionVideo.objects.order_by("-is_active", "-updated_at")
+    try:
+        videos = PlatformIntroductionVideo.objects.order_by("-is_active", "-updated_at")
+    except (OperationalError, ProgrammingError):
+        messages.error(request, "Video tables are updating. Run migrations on the server, then refresh.")
+        videos = PlatformIntroductionVideo.objects.none()
     return render(
         request,
         "admin_portal/platform_videos/list.html",
